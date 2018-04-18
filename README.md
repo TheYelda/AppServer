@@ -60,5 +60,4 @@ python server.py
 TODO
 
 ## RESTful API
-通过在线工具查看：
-<https://agendaservice2.docs.apiary.io/#>
+<https://github.com/TheYelda/Dashboard/blob/master/api.md>
