@@ -34,9 +34,10 @@
 pip install virtualenv
 # 克隆仓库
 git clone https://github.com/TheYelda/AppServer
-# 切换到项目源码目录并新建虚拟环境
+# 切换到项目源码目录
 cd AppServer/server
-virtualenv venv
+# 新建虚拟环境并指定Python版本
+virtualenv venv -p python3
 # 激活虚拟环境
 source venv/bin/activate
 # 安装第三方模块
