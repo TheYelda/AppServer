@@ -22,7 +22,7 @@
      ├─instance
      │    └─config.py：私密配置文件
      ├─config.py：普通配置文件
-     ├─gunicornConf.py：Gunicorn配置文件
+     ├─gunicorn_config.py：Gunicorn配置文件
      ├─run.py：入口文件
      └─requirements.txt：第三方包需求文件
 ```
@@ -54,7 +54,8 @@ python server.py
 ```
 
 ## 开发规范
-参考[Python开发规范](https://github.com/TheYelda/Dashboard/blob/master/python_code_style_guide.md)。
+- 代码风格参考[Python开发规范](https://github.com/TheYelda/Dashboard/blob/master/python_code_style_guide.md)。
+- Git的使用参考[Git开发规范](https://github.com/TheYelda/Dashboard/blob/master/git_collaboration_guide.md)
 
 ## 数据模型
 TODO
