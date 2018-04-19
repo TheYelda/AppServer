@@ -55,7 +55,7 @@ python server.py
 
 ## 开发规范
 - 代码风格参考[Python开发规范](https://github.com/TheYelda/Dashboard/blob/master/python_code_style_guide.md)。
-- Git的使用参考[Git开发规范](https://github.com/TheYelda/Dashboard/blob/master/git_collaboration_guide.md)
+- Git的使用参考[Git开发规范](https://github.com/TheYelda/Dashboard/blob/master/git_collaboration_guide.md)。
 
 ## 数据模型
 TODO
