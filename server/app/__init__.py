@@ -17,7 +17,7 @@ def create_app(config_name):
     # load public config
     app.config.from_object(config[config_name])
     # load private config at instance/config.py
-    app.config.from_pyfile('config.py')
+    # app.config.from_pyfile('config.py')
 
     api.init_app(app)
 
