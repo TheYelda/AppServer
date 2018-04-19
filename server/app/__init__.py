@@ -3,6 +3,7 @@
 
 from flask import Flask
 from config import config
+from .api import api
 
 
 def create_app(config_name):
@@ -17,5 +18,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     # load private config at instance/config.py
     app.config.from_pyfile('config.py')
+
+    api.init_app(app)
 
     return app
