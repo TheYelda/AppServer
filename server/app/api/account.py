@@ -1,6 +1,6 @@
 # coding=utf-8
 """Deal with account-related APIs."""
-from flask_restplus import Namespace, Resource
+from flask_restplus import Namespace, Resource, reqparse
 
 api = Namespace('accounts')
 
@@ -26,10 +26,15 @@ class Account(Resource):
 class AccountsCollection(Resource):
     """Deal with collection of accounts."""
 
+    # The url must provide username argument
+    parser = reqparse.RequestParser()
+    parser.add_argument('username', required=True, help='Username not provided!')
+
     def get(self):
         """List all accounts."""
         pass
 
     def post(self):
         """Create an account."""
+        args = AccountsCollection.parser.parse_args()
         pass
