@@ -41,6 +41,7 @@ class AccountsCollectionResource(Resource):
     )
     def post(self):
         """Create an account."""
+
         form = request.form
 
         return accounts.add_account(
