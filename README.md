@@ -14,11 +14,15 @@
 ```
 └──server：服务端开发的源码
      ├─app：服务端主要代码
-     │    ├─__init__.py：包初始化文件
-     │    ├─model.py：定义数据模型
+     │    ├─__init__.py：初始化app对象
+     │    ├─model：定义数据模型及数据表相关操作
+     │    │    ├─__init__.py：初始化数据库连接
+     │    │    ├─...
+     │    │
      │    └─api：各模块API
-     │         ├─__init__.py：包初始化文件
+     │         ├─__init__.py：初始化api命名空间
      │         ├─...
+     │
      ├─instance
      │    └─config.py：私密配置文件
      ├─config.py：普通配置文件
@@ -51,6 +55,12 @@ pip freeze > requirements.txt
 ### 运行
 ```bash
 python run.py
+```
+**注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置
+```python
+DB_USERNAME = MySQL用户名
+DB_PASSWORD = MySQL密码
+DB_NAME = 数据库名称
 ```
 
 ## 开发规范
