@@ -1,6 +1,8 @@
 # coding=utf-8
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+from werkzeug.security import generate_password_hash
+from flask import request
 from ..model import accounts
 
 api = Namespace('accounts')
@@ -37,5 +39,16 @@ class AccountsCollectionResource(Resource):
 
     def post(self):
         """Create an account."""
-        args = AccountsCollectionResource.parser.parse_args()
-        pass
+        # Reject those without required arguments
+        AccountsCollectionResource.parser.parse_args()
+        form = request.form
+
+        return accounts.add_account(
+            form['username'],
+            '',
+            generate_password_hash(form['password']),
+            form['email'],
+            form['photo'],
+            lambda err: {'message': str(err.orig.args[1])},
+            lambda account: account.to_json()
+        )

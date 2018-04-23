@@ -11,11 +11,22 @@ class Accounts(Base, UserMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     username = Column(VARCHAR(128), nullable=False, unique=True)
-    nickname = Column(VARCHAR(128), nullable=False)
+    nickname = Column(VARCHAR(128), nullable=True)
     password = Column(VARCHAR(256), nullable=False)
     email = Column(VARCHAR(128), nullable=False)
     photo = Column(VARCHAR(128), nullable=False)
     authority = Column(Integer)
+
+    def to_json(self):
+        """Return a json for the record."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'password': self.password,  # TODO: should be password before hashing
+            'email': self.email,
+            'photo': self.photo,
+            'authority': self.authority
+        }
 
     def __repr__(self):
         return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
@@ -51,9 +62,9 @@ def add_account(_username: str,
     try:
         session.add(account)
         session.commit()
-        add_succeed_callback(account)
+        return add_succeed_callback(account)
     except Exception as err:
-        add_fail_callback(err)
+        return add_fail_callback(err)
 
 
 def find_account_by_id(_id: int,
@@ -70,7 +81,6 @@ def find_account_by_id(_id: int,
         return find_succeed_callback(account.all())
     except Exception as err:
         return find_fail_callback(err)
-
 
 def find_account_by_username(_username: str,
                        find_fail_callback: func,
@@ -135,9 +145,9 @@ def update_account_by_id(_id: int,
             "_authority": _authority if _authority is not None else Accounts.authority
         })
         session.commit()
-        update_succeed_callback(account)
+        return update_succeed_callback(account)
     except Exception as err:
-        update_fail_callback(err)
+        return update_fail_callback(err)
 
 
 def delete_accound_by_id(_id: int,
@@ -151,6 +161,6 @@ def delete_accound_by_id(_id: int,
     try:
         accounts = session.query(Accounts).filter(Accounts.id == _id).delete()
         session.commit()
-        delete_succeed_callback(accounts)
+        return delete_succeed_callback(accounts)
     except Exception as err:
-        delete_fail_callback(err)
+        return delete_fail_callback(err)
