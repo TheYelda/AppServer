@@ -1,8 +1,11 @@
 # coding=utf-8
-from .. import *
+"""Define table and operations for jobs."""
+from . import *
 
 
 class Jobs(Base):
+    """Table constructed for jobs."""
+
     __tablename__ = 'Jobs'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
@@ -13,11 +16,12 @@ class Jobs(Base):
     label_id = Column(Integer, ForeignKey('Labels.id'))
 
     def __repr__(self):
-        return '<Jobs: image_id:{} doctor_id:{} state:{} finished_date:{} label_id:{}>'.format(self.image_id,
-                                                                                               self.doctor_id,
-                                                                                               self.state,
-                                                                                               self.finished_date,
-                                                                                               self.label_id)
+        return '<Jobs: image_id:{} doctor_id:{} state:{} finished_date:{} label_id:{}>'.\
+            format(self.image_id,
+                   self.doctor_id,
+                   self.state,
+                   self.finished_date,
+                   self.label_id)
 
 
 def add_job(_image_id: int,

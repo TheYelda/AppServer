@@ -1,6 +1,7 @@
 # coding=utf-8
 """Deal with label-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+from ..model import labels
 
 api = Namespace('labels')
 

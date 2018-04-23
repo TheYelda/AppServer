@@ -1,8 +1,11 @@
 # coding=utf-8
-from .. import *
+"""Define table and operations for accounts."""
+from . import *
 
 
 class Accounts(Base):
+    """Table constructed for accounts."""
+
     __tablename__ = 'Accounts'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
@@ -14,16 +17,13 @@ class Accounts(Base):
     authority = Column(Integer)
 
     def __repr__(self):
-        return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.format(self.username,
-                                                                                                       self.nickname,
-                                                                                                       self.password,
-                                                                                                       self.email,
-                                                                                                       self.photo,
-                                                                                                       self.authority)
-
-
-def create_table():
-    Base.metadata.create_all(engine)
+        return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
+            format(self.username,
+                   self.nickname,
+                   self.password,
+                   self.email,
+                   self.photo,
+                   self.authority)
 
 
 def add_account(_username: str,
@@ -137,50 +137,3 @@ def delete_accound_by_id(_id: int,
         delete_succeed_callback(accounts)
     except Exception as err:
         delete_fail_callback(err)
-
-
-if __name__ == '__main__':
-    init_db('root', '161518324', 'yelda', func)
-    create_table()
-
-
-    def fail_func(err):
-        print("[Error] {}".format(err))
-
-
-    def succeed_func(object):
-        print("[Succeed] {}".format(object))
-
-
-    add_account(_username='yanzexin',
-                _nickname='颜泽鑫',
-                _password='123455',
-                _email='yzx9610@outlook.com',
-                _photo='self.png',
-                add_fail_callback=fail_func,
-                add_succeed_callback=succeed_func)
-
-    add_account(_username='yanzexin',
-                _nickname='颜泽鑫',
-                _password='123455',
-                _email='yzx9610@outlook.com',
-                _photo='self.png',
-                add_fail_callback=fail_func,
-                add_succeed_callback=succeed_func)
-
-    find_account_by_id(_id=1,
-                       find_fail_callback=fail_func,
-                       find_succeed_callback=succeed_func)
-
-    find_accounts_by_authority(_authority=None,
-                               find_fail_callback=fail_func,
-                               find_succeed_callback=succeed_func)
-
-    update_account_by_id(_id=15,
-                         _username="124",
-                         update_fail_callback=fail_func,
-                         update_succeed_callback=succeed_func)
-
-    delete_accound_by_id(_id=15,
-                         delete_fail_callback=fail_func,
-                         delete_succeed_callback=succeed_func)

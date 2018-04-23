@@ -1,6 +1,7 @@
 # coding=utf-8
 """Deal with image-related APIs."""
 from flask_restplus import Namespace, Resource
+# from ..model import images
 
 api = Namespace('images')
 

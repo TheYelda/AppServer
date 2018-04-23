@@ -1,6 +1,7 @@
 # coding=utf-8
 """Deal with job-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+# from ..model import jobs
 
 api = Namespace('jobs')
 

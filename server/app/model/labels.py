@@ -1,8 +1,11 @@
 # coding=utf-8
-from .. import *
+"""Define table and operations for labels."""
+from . import *
 
 
 class Labels(Base):
+    """Table constructed for labels."""
+
     __tablename__ = 'Labels'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
@@ -21,10 +24,6 @@ class Labels(Base):
 
     def __repr__(self):
         return '<Labels: id:{}>'.format(self.id)
-
-
-def create_table():
-    Base.metadata.create_all(engine)
 
 
 def add_label(_quality: BOOLEAN,
@@ -73,8 +72,3 @@ def find_label_by_id(_id: int,
                      find_fail_callback: func,
                      find_succeed_callback: func):
     pass
-
-if __name__ == '__main__':
-    init_db('root', '161518324', 'yelda', func)
-    create_table()
-

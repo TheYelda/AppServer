@@ -1,8 +1,11 @@
 # coding=utf-8
-from .. import *
+"""Define table and operations for images."""
+from . import *
 
 
 class Images(Base):
+    """Table constructed for images."""
+
     __tablename__ = 'Images'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
@@ -12,16 +15,15 @@ class Images(Base):
     Source = Column(VARCHAR(128))
 
     def __repr__(self):
-        return '<Images: ground_truth_id:{} state:{} info_id:{}>'.format(self.ground_truth_id,
-                                                                         self.state,
-                                                                         self.info_id)
+        return '<Images: ground_truth_id:{} state:{} info_id:{}>'.\
+            format(self.ground_truth_id, self.state, self.info_id)
 
 
 def add_image(_state: str,
-               _filename: str,
-               _source: str,
-               add_fail_callback=None,
-               add_succeed_callback=None):
+              _filename: str,
+              _source: str,
+              add_fail_callback=None,
+              add_succeed_callback=None):
     """
     :param _state:
     :param _filename:
@@ -33,13 +35,13 @@ def add_image(_state: str,
 
 
 def update_image_by_id(_id: str,
-                        _filename=None,
-                        _state=None,
-                        _ground_truth_id=None,
-                        _source=None,
-                        find_fail_callback=None,
-                        update_fail_callback=None,
-                        update_succeed_callback=None):
+                       _filename=None,
+                       _state=None,
+                       _ground_truth_id=None,
+                       _source=None,
+                       find_fail_callback=None,
+                       update_fail_callback=None,
+                       update_succeed_callback=None):
     """
     :param _id:
     :param _filename:
@@ -55,8 +57,8 @@ def update_image_by_id(_id: str,
 
 
 def find_image_by_id(_id: str,
-                      find_fail_callback=None,
-                      find_succeed_callback=None):
+                     find_fail_callback=None,
+                     find_succeed_callback=None):
     """
     :param _id:
     :param find_fail_callback: (err)
@@ -79,8 +81,8 @@ def find_images_by_state(_state: int,
 
 
 def delete_image_by_id(_id: str,
-                        delete_fail_func=None,
-                        delete_succeed_func=None):
+                       delete_fail_func=None,
+                       delete_succeed_func=None):
     """
     :param _id:
     :param delete_fail_func: (err)
