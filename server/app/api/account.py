@@ -1,6 +1,8 @@
 # coding=utf-8
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+from werkzeug.security import generate_password_hash
+from flask import request
 from ..model import accounts
 
 api = Namespace('accounts')
@@ -27,15 +29,26 @@ class AccountResource(Resource):
 class AccountsCollectionResource(Resource):
     """Deal with collection of accounts."""
 
-    # The url must provide username argument
-    parser = reqparse.RequestParser()
-    parser.add_argument('username', required=True, help='Username not provided!')
-
     def get(self):
         """List all accounts."""
         pass
-
+    
+    @api.doc(parser=api.parser().add_argument('username', type=str, required=True, help='用户名', location='form')
+                                .add_argument('nickname', type=str, required=True, help='昵称', location='form')
+                                .add_argument('password', type=str, required=True, help='密码', location='form')
+                                .add_argument('email', type=str, required=True, help='邮箱', location='form')
+                                .add_argument('photo', type=str, required=True, help='照片文件名', location='form')
+    )
     def post(self):
         """Create an account."""
-        args = AccountsCollectionResource.parser.parse_args()
-        pass
+        form = request.form
+
+        return accounts.add_account(
+            form['username'],
+            form['nickname'],
+            generate_password_hash(form['password']),
+            form['email'],
+            form['photo'],
+            lambda err: {'message': str(err.orig.args[1])},
+            lambda account: account.to_json()
+        )
