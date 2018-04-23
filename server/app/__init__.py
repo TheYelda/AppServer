@@ -3,21 +3,35 @@
 
 from flask import Flask
 from config import config
+from .model import init_db
 from .api import api
+import os
 
 
 def create_app(config_name):
     """
     Create the app object.
-
     :param config_name: type of configuration
     :return: the app object
     """
     app = Flask(__name__, instance_relative_config=True)
-    # load public config
+    # Load public config
     app.config.from_object(config[config_name])
-    # load private config at instance/config.py
-    # app.config.from_pyfile('config.py')
+    # Load private config at instance/config.py
+    if os.path.exists('instance/config.py'):
+        app.config.from_pyfile('config.py')
+
+    # Initialize database
+    try:
+        init_db(
+            app.config['DB_USERNAME'],
+            app.config['DB_PASSWORD'],
+            app.config['DB_NAME']
+        )
+    except Exception as err:
+        print('ERROR: %s' % err)
+        print('You have to configure your correct MySQL account in server/instance/config.py')
+        exit(-1)
 
     api.init_app(app)
 

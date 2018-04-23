@@ -1,12 +1,13 @@
 # coding=utf-8
 """Deal with image-related APIs."""
 from flask_restplus import Namespace, Resource
+# from ..model import images
 
 api = Namespace('images')
 
 
 @api.route('/<int:image_id>')
-class Image(Resource):
+class ImageResource(Resource):
     """Deal with single image."""
 
     def get(self, image_id):
@@ -23,7 +24,7 @@ class Image(Resource):
 
 
 @api.route('/')
-class ImagesCollection(Resource):
+class ImagesCollectionResource(Resource):
     """Deal with collection of images."""
 
     def get(self):

@@ -1,12 +1,13 @@
 # coding=utf-8
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+from ..model import accounts
 
 api = Namespace('accounts')
 
 
 @api.route('/<int:account_id>')
-class Account(Resource):
+class AccountResource(Resource):
     """Deal with single account."""
 
     def get(self, account_id):
@@ -23,7 +24,7 @@ class Account(Resource):
 
 
 @api.route('/')
-class AccountsCollection(Resource):
+class AccountsCollectionResource(Resource):
     """Deal with collection of accounts."""
 
     # The url must provide username argument
@@ -36,5 +37,5 @@ class AccountsCollection(Resource):
 
     def post(self):
         """Create an account."""
-        args = AccountsCollection.parser.parse_args()
+        args = AccountsCollectionResource.parser.parse_args()
         pass

@@ -1,12 +1,13 @@
 # coding=utf-8
 """Deal with label-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+from ..model import labels
 
 api = Namespace('labels')
 
 
 @api.route('/<int:label_id>')
-class Label(Resource):
+class LabelResource(Resource):
     """Deal with single label."""
 
     def get(self, label_id):
@@ -23,7 +24,7 @@ class Label(Resource):
 
 
 @api.route('/')
-class LabelsCollection(Resource):
+class LabelsCollectionResource(Resource):
     """Deal with collection of labels."""
 
     def post(self):

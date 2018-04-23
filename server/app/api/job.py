@@ -1,12 +1,13 @@
 # coding=utf-8
 """Deal with job-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
+# from ..model import jobs
 
 api = Namespace('jobs')
 
 
 @api.route('/<int:job_id>')
-class Job(Resource):
+class JobResource(Resource):
     """Deal with single job."""
 
     def get(self, job_id):
@@ -23,7 +24,7 @@ class Job(Resource):
 
 
 @api.route('/')
-class JobsCollection(Resource):
+class JobsCollectionResource(Resource):
     """Deal with collection of jobs."""
 
     # The url must provide doctor_id argument
