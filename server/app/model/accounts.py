@@ -1,9 +1,10 @@
 # coding=utf-8
 """Define table and operations for accounts."""
+from flask_login import UserMixin
 from . import *
 
 
-class Accounts(Base):
+class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
 
     __tablename__ = 'Accounts'
@@ -81,6 +82,21 @@ def find_account_by_id(_id: int,
     except Exception as err:
         return find_fail_callback(err)
 
+
+def find_account_by_username(_username: str,
+                       find_fail_callback: func,
+                       find_succeed_callback: func):
+    """
+    :param _id:
+    :param find_fail_callback: (err)
+    :param find_succeed_callback: (Account List)
+    """
+    try:
+        account = session.query(Accounts).filter(Accounts.username == _username)
+        session.commit()
+        return find_succeed_callback(account.all())
+    except Exception as err:
+        return find_fail_callback(err)
 
 def find_accounts_by_authority(_authority: int,
                                find_fail_callback: func,

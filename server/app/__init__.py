@@ -1,11 +1,10 @@
 # coding=utf-8
 """Initialize `app` module."""
 
+import os
 from flask import Flask
 from config import config
 from .model import init_db
-import os
-
 
 def create_app(config_name):
     """
@@ -34,5 +33,15 @@ def create_app(config_name):
 
     from .api import api
     api.init_app(app)
+    # from flask_login import LoginManager
+    # login_manager = LoginManager()
+    # login_manager.init_app(app)
+    # @login_manager.user_loader
+    # def load_user(userid):
+    #     return accounts.find_account_by_username(
+    #             userid,
+    #             lambda err: print(err),
+    #             lambda accounts: accounts)
 
     return app
+
