@@ -21,3 +21,9 @@ def init_db(_user,
     session = sessionmaker(bind=db_engine)()
     # Create all tables
     Base.metadata.create_all(db_engine)
+
+
+def handle_db_exception(ex):
+    """Roll back session and raise the exception."""
+    session.rollback()
+    raise ex

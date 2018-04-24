@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 from flask import request
 from ..model import accounts
 from sqlalchemy.exc import *
-from .utils import get_message_json, HTTP_CODES, DB_ERR_CODES
+from .utils import *
 
 api = Namespace('accounts')
 
@@ -64,4 +64,4 @@ class AccountsCollectionResource(Resource):
             else:
                 return get_message_json(err.orig.args[1]), HTTP_CODES.BAD_REQUEST
         except Exception as err:
-            return get_message_json(err), HTTP_CODES.BAD_REQUEST
+            return get_message_json(str(err)), HTTP_CODES.BAD_REQUEST

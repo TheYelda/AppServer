@@ -6,6 +6,7 @@ from flask import Flask
 from config import config
 from .model import init_db
 
+
 def create_app(config_name):
     """
     Create the app object.
