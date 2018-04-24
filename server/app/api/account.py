@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 from flask import request
 from ..model import accounts
 from sqlalchemy.exc import *
+from .utils import get_message_json
 
 api = Namespace('accounts')
 
@@ -51,12 +52,15 @@ class AccountsCollectionResource(Resource):
                 form['email'],
                 form['photo']
             )
-            return result.to_json(), 201
+            json_res = result.to_json()
+            # Return password before hashing
+            json_res['password'] = form['password']
+            json_res['message'] = '用户创建成功'
+            return json_res, 201
         except IntegrityError as err:
             if err.orig.args[0] == 1062:
-                message = '用户名已存在'
-                return {'message': message}, 400
+                return get_message_json('用户名已存在'), 409
             else:
-                return {'message': err.orig.args[1]}, 400
+                return get_message_json(err.orig.args[1]), 400
         except Exception as err:
-            return {'message': str(err)}, 400
+            return get_message_json(err), 400

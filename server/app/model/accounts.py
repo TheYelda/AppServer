@@ -22,7 +22,7 @@ class Accounts(Base, UserMixin):
         return {
             'id': self.id,
             'username': self.username,
-            'password': self.password,  # TODO: should be password before hashing
+            'password': self.password,
             'email': self.email,
             'photo': self.photo,
             'authority': self.authority
@@ -50,11 +50,12 @@ def add_account(_username: str,
     :param _email: used to find password
     :param _photo: used to display
     """
-    account = Accounts(username=_username,
-                       nickname=_nickname,
-                       password=_password,
-                       email=_email,
-                       photo=_photo)
+    account = Accounts()
+    account.username = _username
+    account.nickname = _nickname
+    account.password = _password
+    account.email = _email
+    account.photo = _photo
     session.add(account)
     session.commit()
     return account
