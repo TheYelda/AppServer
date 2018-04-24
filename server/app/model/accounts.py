@@ -56,9 +56,14 @@ def add_account(_username: str,
     account.password = _password
     account.email = _email
     account.photo = _photo
-    session.add(account)
-    session.commit()
-    return account
+    try:
+        session.add(account)
+        session.commit()
+        return account
+    except Exception as err:
+        # Remember to rollback
+        session.rollback()
+        raise err
 
 
 def find_account_by_id(_id: int,
