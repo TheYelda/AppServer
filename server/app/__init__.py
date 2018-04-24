@@ -5,7 +5,6 @@ import os
 from flask import Flask
 from config import config
 from .model import init_db
-# from .model import accounts
 
 def create_app(config_name):
     """
