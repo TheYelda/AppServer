@@ -41,29 +41,22 @@ def add_account(_username: str,
                 _nickname: str,
                 _password: str,
                 _email: str,
-                _photo: str,
-                add_fail_callback: func,
-                add_succeed_callback: func):
+                _photo: str):
     """
     :param _username: used to login
     :param _nickname: used to display
     :param _password: used to login
     :param _email: used to find password
     :param _photo: used to display
-    :param add_fail_callback: (err)
-    :param add_succeed_callback: (Account)
     """
     account = Accounts(username=_username,
                        nickname=_nickname,
                        password=_password,
                        email=_email,
                        photo=_photo)
-    try:
-        session.add(account)
-        session.commit()
-        return add_succeed_callback(account)
-    except Exception as err:
-        return add_fail_callback(err)
+    session.add(account)
+    session.commit()
+    return account
 
 
 def find_account_by_id(_id: int,

@@ -1,9 +1,10 @@
 # coding=utf-8
 """Deal with account-related APIs."""
-from flask_restplus import Namespace, Resource, reqparse
+from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
 from flask import request
 from ..model import accounts
+from sqlalchemy.exc import *
 
 api = Namespace('accounts')
 
@@ -29,26 +30,27 @@ class AccountResource(Resource):
 class AccountsCollectionResource(Resource):
     """Deal with collection of accounts."""
 
-    # The url must provide username argument
-    parser = reqparse.RequestParser()
-    parser.add_argument('username', required=True, help='Username not provided!')
-
     def get(self):
         """List all accounts."""
         pass
 
     def post(self):
         """Create an account."""
-        # Reject those without required arguments
-        AccountsCollectionResource.parser.parse_args()
         form = request.form
-
-        return accounts.add_account(
-            form['username'],
-            '',
-            generate_password_hash(form['password']),
-            form['email'],
-            form['photo'],
-            lambda err: {'message': str(err.orig.args[1])},
-            lambda account: account.to_json()
-        )
+        try:
+            result = accounts.add_account(
+                form['username'],
+                form['nickname'],
+                generate_password_hash(form['password']),
+                form['email'],
+                form['photo']
+            )
+            return result.to_json(), 201
+        except IntegrityError as err:
+            if err.orig.args[0] == 1062:
+                message = '用户名已存在'
+                return {'message': message}, 400
+            else:
+                return {'message': err.orig.args[1]}, 400
+        except Exception as err:
+            return {'message': str(err)}, 400
