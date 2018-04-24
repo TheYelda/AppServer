@@ -31,17 +31,22 @@ def create_app(config_name):
         print('You have to configure your correct MySQL account in server/instance/config.py')
         exit(-1)
 
+
+    from flask_login import LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    
+    from .model import accounts
+    @login_manager.user_loader
+    def load_user(userid):
+        return accounts.find_account_by_id(
+                userid,
+                lambda err: print(err),
+                lambda accounts: accounts)
+
     from .api import api
     api.init_app(app)
-    # from flask_login import LoginManager
-    # login_manager = LoginManager()
-    # login_manager.init_app(app)
-    # @login_manager.user_loader
-    # def load_user(userid):
-    #     return accounts.find_account_by_username(
-    #             userid,
-    #             lambda err: print(err),
-    #             lambda accounts: accounts)
+    app.config['SECRET_KEY'] = 'Yelda is fxxking awesome'  
 
     return app
 

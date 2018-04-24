@@ -31,7 +31,8 @@ class AuthorizationResource(Resource):
             return {'message': '密码错误'}, 400
 
         login_user(account[0], True)
-        return {'message': '登录成功'}, 400
+        return {'message': '登录成功'}, 200
+
 
     def delete(self):
         """Remove an authorization by token."""
