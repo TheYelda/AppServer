@@ -1,11 +1,10 @@
 # coding=utf-8
 """Initialize `app` module."""
 
+import os
 from flask import Flask
 from config import config
 from .model import init_db
-from .api import api
-import os
 
 
 def create_app(config_name):
@@ -29,10 +28,24 @@ def create_app(config_name):
             app.config['DB_NAME']
         )
     except Exception as err:
-        print('ERROR: %s' % err)
+        print(err)
         print('You have to configure your correct MySQL account in server/instance/config.py')
         exit(-1)
 
+    from flask_login import LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    
+    from .model import accounts
+
+    @login_manager.user_loader
+    def load_user(userid):
+        """Load user."""
+        return accounts.find_account_by_id(userid)
+
+    from .api import api
     api.init_app(app)
+    app.config['SECRET_KEY'] = 'Yelda is fxxking awesome'  
 
     return app
+
