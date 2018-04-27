@@ -3,6 +3,7 @@
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
 from flask import request
+from flask_login import login_required
 from ..model import accounts
 from sqlalchemy.exc import *
 from .utils import *
@@ -14,6 +15,7 @@ api = Namespace('accounts')
 class AccountResource(Resource):
     """Deal with single account."""
 
+    @login_required
     def get(self, account_id):
         """Retrieve a single account by id."""
         pass
