@@ -103,7 +103,7 @@ def update_account_by_id(_id: int,
             "password": _password if _password is not None else Accounts.password,
             "email": _email if _email is not None else Accounts.email,
             "photo": _photo if _photo is not None else Accounts.photo,
-            "_authority": _authority if _authority is not None else Accounts.authority
+            "authority": _authority if _authority is not None else Accounts.authority
         })
         session.commit()
         return account
