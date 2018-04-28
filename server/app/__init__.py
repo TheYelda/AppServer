@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
 
+
 def create_app(config_name):
     """
     Create the app object.
@@ -50,6 +51,11 @@ def create_app(config_name):
     from .api import api
     api.init_app(app)
     app.config['SECRET_KEY'] = 'Yelda is fxxking awesome'  
+
+    # In case that the log directory has not been created
+    log_dir = os.path.dirname(log_file)
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
 
     handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
     fmt = '%(asctime)s - %(filename)s:%(lineno)s - func: [%(name)s] - %(message)s'

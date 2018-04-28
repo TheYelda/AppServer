@@ -1,3 +1,6 @@
+# log directory
+log/
+
 # PyCharm configuration directory
 .idea/
 
