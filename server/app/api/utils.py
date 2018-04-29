@@ -13,8 +13,10 @@ class HTTPStatusCodes(object):
     # 2xx: successful
     OK = 200
     CREATED = 201
+    DELETE = 204
 
     # 4xx: client error
+    NOT_FOUND = 404
     BAD_REQUEST = 400
     CONFLICT = 409
 
