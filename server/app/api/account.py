@@ -2,11 +2,12 @@
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
-from flask import request
+from flask import request, current_app
 from flask_login import login_required
 from ..model import accounts
-from sqlalchemy.exc import *
-from .utils import *
+from sqlalchemy.exc import IntegrityError
+from .utils import get_message_json, DB_ERR_CODES
+from http import HTTPStatus
 
 api = Namespace('accounts')
 
@@ -105,11 +106,15 @@ class AccountsCollectionResource(Resource):
             # Return password before hashing
             json_res['password'] = form['password']
             json_res['message'] = '用户创建成功'
-            return json_res, HTTP_CODES.CREATED
+
+            return json_res, HTTPStatus.CREATED
         except IntegrityError as err:
             if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
-                return get_message_json('用户名已存在'), HTTP_CODES.CONFLICT
+                return get_message_json('用户名已存在'), HTTPStatus.CONFLICT
             else:
-                return get_message_json(err.orig.args[1]), HTTP_CODES.BAD_REQUEST
+                current_app.logger.exception(err.orig.args[1])
+                return get_message_json('服务器内部错误'), HTTPStatus.INTERNAL_SERVER_ERROR
+
         except Exception as err:
-            return get_message_json(str(err)), HTTP_CODES.BAD_REQUEST
+            current_app.logger.exception(str(err))
+            return get_message_json('服务器内部错误'), HTTPStatus.BAD_REQUEST

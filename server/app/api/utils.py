@@ -3,22 +3,22 @@
 
 
 class HTTPStatusCodes(object):
-    """
+     """
     Collect HTTP status codes that are used in this project.
 
-    Refer to
-    https://github.com/TheYelda/Dashboard/blob/master/http_status_codes_reference.md
-    """
+#     Refer to
+#     https://github.com/TheYelda/Dashboard/blob/master/http_status_codes_reference.md
+#     """
 
-    # 2xx: successful
-    OK = 200
-    CREATED = 201
-    DELETE = 204
 
-    # 4xx: client error
-    NOT_FOUND = 404
-    BAD_REQUEST = 400
+     # 2xx: successful
+     OK = 200
+     CREATED = 201
+
+     # 4xx: client error
+     BAD_REQUEST = 400
     CONFLICT = 409
+
 
 
 class DBErrorCodes(object):
@@ -32,7 +32,7 @@ class DBErrorCodes(object):
     DUPLICATE_ENTRY = 1062
 
 
-HTTP_CODES = HTTPStatusCodes()
+# HTTP_CODES = HTTPStatusCodes()
 DB_ERR_CODES = DBErrorCodes()
 
 
