@@ -6,7 +6,6 @@ from . import *
 
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
-
     __tablename__ = 'Accounts'
 
     """authority"""
