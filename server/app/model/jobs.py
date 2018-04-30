@@ -57,7 +57,7 @@ def add_job(_image_id: int,
     # Test
     import copy
     temp = copy.copy(job)
-    temp.id = 1
+    temp.id = len(test)
     test.append(temp)
     return temp
 

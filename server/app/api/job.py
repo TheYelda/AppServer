@@ -4,7 +4,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from http import HTTPStatus
-from ..model import jobs
+from ..model import jobs, accounts
 from .utils import get_message_json, handle_internal_error
 
 api = Namespace('jobs')
@@ -27,9 +27,10 @@ class JobResource(Resource):
         else:
             return get_message_json('该任务不存在'), HTTPStatus.NOT_FOUND
 
-        # TODO: Admin can retrieve any job
-        # Others can only retrieve his own job
-        if result.doctor_id != current_user.get_id():
+        # Admin can retrieve any job,
+        # while others can only retrieve his own job
+        if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY \
+                and result.doctor_id != current_user.get_id():
             return get_message_json('没有权限查看此任务'), HTTPStatus.FORBIDDEN
 
         json_res = result.to_json()
@@ -46,7 +47,9 @@ class JobResource(Resource):
     @login_required
     def put(self, job_id):
         """Edit a single job by id."""
-        # TODO: Only admin can edit any job
+        # Only admin can edit any job
+        if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+            return get_message_json('没有权限编辑任务'), HTTPStatus.FORBIDDEN
 
         form = request.form
         try:
@@ -67,7 +70,9 @@ class JobResource(Resource):
     @login_required
     def delete(self, job_id):
         """Delete a single job by id."""
-        # TODO: Only admin can delete a job
+        # Only admin can delete any job
+        if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+            return get_message_json('没有权限删除任务'), HTTPStatus.FORBIDDEN
 
         try:
             result = jobs.delete_job_by_id(job_id)
@@ -86,7 +91,9 @@ class JobsCollectionResource(Resource):
     @login_required
     def get(self):
         """List all jobs."""
-        # TODO: Only admin can get all job
+        # Only admin can get all jobs
+        if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+            return get_message_json('没有权限获取所有任务'), HTTPStatus.FORBIDDEN
 
         try:
             result = jobs.find_all_jobs()
@@ -110,8 +117,10 @@ class JobsCollectionResource(Resource):
     def post(self):
         """Create a job."""
         form = request.form
-        # TODO
         # Only admin can create jobs
+        if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+            return get_message_json('没有权限创建任务'), HTTPStatus.FORBIDDEN
+        
         try:
             result = jobs.add_job(
                 form['image_id'],
