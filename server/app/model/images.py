@@ -9,14 +9,13 @@ class Images(Base):
     __tablename__ = 'Images'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    ground_truth_id = Column(Integer, ForeignKey('GroundTruthLabels.id'))
     state = Column(Integer)
     filename = Column(VARCHAR(128), nullable=False)
     Source = Column(VARCHAR(128))
 
-    def __repr__(self):
-        return '<Images: ground_truth_id:{} state:{} info_id:{}>'.\
-            format(self.ground_truth_id, self.state, self.info_id)
+    # def __repr__(self):
+    #     return '<Images: ground_truth_id:{} state:{} info_id:{}>'.\
+    #         format(self.ground_truth_id, self.state, self.info_id)
 
 
 def add_image(_state: str,

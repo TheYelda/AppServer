@@ -8,12 +8,28 @@ class Jobs(Base):
 
     __tablename__ = 'Jobs'
 
+    # states
+    UNLABELED = 0
+    LABELING = 1
+    FINISHED = 2
+
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     image_id = Column(Integer, ForeignKey('Images.id'))
     doctor_id = Column(Integer, ForeignKey('Accounts.id'))
     state = Column(Integer)
     finished_date = Column(DATE)
     label_id = Column(Integer, ForeignKey('Labels.id'))
+
+    def to_json(self):
+        """Return a json for the record."""
+        return {
+            'id': self.id,
+            'image_id': self.image_id,
+            'doctor_id': self.doctor_id,
+            'state': self.state,
+            'finished_date': self.finished_date,
+            'label_id': self.label_id
+        }
 
     def __repr__(self):
         return '<Jobs: image_id:{} doctor_id:{} state:{} finished_date:{} label_id:{}>'.\
@@ -24,78 +40,88 @@ class Jobs(Base):
                    self.label_id)
 
 
+test = []
+
+
 def add_job(_image_id: int,
-            _doctor_id: int,
-            _state: str,
-            finished_date: DATETIME,
-            label_id: int,
-            add_fail_callback: func,
-            add_succeed_callback: func):
+            _doctor_id: int):
     """
-    :param _image_id:
-    :param _doctor_id:
-    :param _state:
-    :param finished_date:
-    :param label_id:
-    :param add_fail_callback: (err)
-    :param add_succeed_callback: (Jobs)
+    Add a new job.
+    :return: the new-created job object
     """
-    pass
+    job = Jobs()
+    job.image_id = _image_id
+    job.doctor_id = _doctor_id
+    job.state = Jobs.UNLABELED
+
+    # Test
+    import copy
+    temp = copy.copy(job)
+    temp.id = 1
+    test.append(temp)
+    return temp
+
+    # TODO
+    try:
+        session.add(job)
+        session.commit()
+        return job
+    except Exception as err:
+        handle_db_exception(err)
 
 
-def delete_job_by_id(_id,
-                     find_fail_callback: func,
-                     delete_fail_callback: func,
-                     delete_succeed_callback: func):
+def delete_job_by_id(_id):
     """
-    :param _id:
-    :param find_fail_callback:
-    :param delete_fail_callback: (err)
-    :param delete_succeed_callback: (None)
+    Delete a job by id.
+    :param _id: job id
+    :return: 1 or 0, standing for success or failure
     """
-    pass
+    # Test
+    for job in test:
+        if job.id == _id:
+            test.remove(job)
+            return 1
+    return 0
 
 
 def update_job_by_id(_id: int,
                      _image_id: int,
                      _doctor_id: int,
+                     _label_id: int,
                      _state: int,
-                     finished_date: DATETIME,
-                     label_id: int,
-                     find_fail_callback: func,
-                     update_fail_callback: func,
-                     update_succeed_callback: func):
+                     _finished_date: Date):
     """
-    :param _id:
-    :param _image_id:
-    :param _doctor_id:
-    :param _state:
-    :param finished_date:
-    :param label_id:
-    :param find_fail_callback: (err)
-    :param update_fail_callback: (err)
-    :param update_succeed_callback: (Jobs)
+    Update job by id.
+    :return: the updated job object
     """
-    pass
+    # Test
+    for job in test:
+        if job.id == _id:
+            job.image_id = _image_id
+            job.doctor_id = _doctor_id
+            job.label_id = _label_id
+            job.state = _state
+            job.finished_date = _finished_date
+            return job
 
 
-def find_job_by_id(_id: int,
-                   find_fail_callback: func,
-                   find_succeed_callback: func):
+def find_job_by_id(_id: int):
     """
-    :param _id:
-    :param find_fail_callback: (err)
-    :param find_succeed_callback: (Jobs)
+    Find job by id.
+    :return: list of 0 or 1 jobs
     """
-    pass
+    # Test
+    res = []
+    for job in test:
+        if job.id == _id:
+            res.append(job)
+    return res
 
 
-def find_jobs_by_state(_state: int,
-                       find_fail_callback: func,
-                       find_succeed_callback: func):
+def find_all_jobs():
     """
-    :param _state:
-    :param find_fail_callback: (err)
-    :param find_succeed_callback: (Jobs List)
+    Get all jobs.
+    :return: list of all jobs
     """
-    pass
+    # Test
+    return test
