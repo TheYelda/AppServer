@@ -14,79 +14,69 @@ class Images(Base):
     filename = Column(VARCHAR(128), nullable=False)
     Source = Column(VARCHAR(128))
 
+    def to_json(self):
+        """Return a json for the record."""
+        return {
+            'id': self.id,
+            'ground_truth_id': self.ground_truth_id,
+            'state': self.state,
+            'filename': self.filename,
+            'Source': self.Source
+        }
+    
     def __repr__(self):
         return '<Images: ground_truth_id:{} state:{} info_id:{}>'.\
             format(self.ground_truth_id, self.state, self.info_id)
 
 
-def add_image(_state: str,
-              _filename: str,
-              _source: str,
-              add_fail_callback=None,
-              add_succeed_callback=None):
+def add_image(_filename: str,
+              _state: str,
+              _source: str):
     """
     :param _state:
     :param _filename:
     :param _source:
-    :param add_fail_callback: (err)
-    :param add_succeed_callback: (Image)
     """
-    pass
+    return []
 
 
-def update_image_by_id(_id: str,
+def update_image_by_id(_id: int,
                        _filename=None,
                        _state=None,
                        _ground_truth_id=None,
-                       _source=None,
-                       find_fail_callback=None,
-                       update_fail_callback=None,
-                       update_succeed_callback=None):
+                       _source=None):
     """
     :param _id:
     :param _filename:
     :param _state:
     :param _ground_truth_id:
     :param _source:
-    :param find_fail_callback: (err)
-    :param update_fail_callback: (err)
-    :param update_succeed_callback: (Image)
     :return:
     """
-    pass
+    return []
 
 
-def find_image_by_id(_id: str,
-                     find_fail_callback=None,
-                     find_succeed_callback=None):
+def find_image_by_id(_id: int):
     """
     :param _id:
     :param find_fail_callback: (err)
     :param find_succeed_callback: (Image)
     :return:
     """
-    pass
+    return []
 
 
-def find_images_by_state(_state: int,
-                         find_fail_func=None,
-                         find_succeed_func=None):
+def find_images_by_state(_state: int):
     """
     :param _state:
-    :param find_fail_func: (err)
-    :param find_succeed_func: (Images List)
     :return:
     """
-    pass
+    return []
 
 
-def delete_image_by_id(_id: str,
-                       delete_fail_func=None,
-                       delete_succeed_func=None):
+def delete_image_by_id(_id: int):
     """
     :param _id:
-    :param delete_fail_func: (err)
-    :param delete_succeed_func: (None)
     :return:
     """
-    pass
+    return []
