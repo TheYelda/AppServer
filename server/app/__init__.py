@@ -40,9 +40,8 @@ def create_app(config_name):
     from flask_login import LoginManager
     login_manager = LoginManager()
     login_manager.init_app(app)
-    
-    from .model import accounts
 
+    from .model import accounts
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
