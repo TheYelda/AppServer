@@ -2,11 +2,11 @@
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
-from flask import request, current_app
-from flask_login import login_required
+from flask import request
+from flask_login import login_required, current_user
 from ..model import accounts
 from sqlalchemy.exc import IntegrityError
-from .utils import get_message_json, DB_ERR_CODES
+from .utils import get_message_json, DB_ERR_CODES, handle_internal_error
 from http import HTTPStatus
 
 api = Namespace('accounts')
@@ -20,14 +20,18 @@ class AccountResource(Resource):
     def get(self, account_id):
         """Retrieve a single account by id."""
         try:
+            if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+                if current_user.id != account_id:
+                    json_res = {'message': '用户权限不够访问他人账户'}
+                    return json_res, HTTPStatus.BAD_REQUEST
             result = accounts.find_account_by_id(account_id)
             if len(result) == 0:
-                return get_message_json('用户ID不存在'), HTTP_CODES.NOT_FOUND
+                return get_message_json('用户ID不存在'), HTTPStatus.NOT_FOUND
             json_res = result[0].to_json()
             json_res['message'] = '用户获取成功'
-            return json_res, HTTP_CODES.OK
+            return json_res, HTTPStatus.OK
         except Exception as err:
-            return get_message_json(str(err)), HTTP_CODES.BAD_REQUEST
+            return handle_internal_error(str(err))
 
     @api.doc(parser=api.parser()
              .add_argument('username', type=str, required=True, help='用户名', location='form')
@@ -42,11 +46,15 @@ class AccountResource(Resource):
         """Edit a single account by id."""
         form = request.form
         try:
+            if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+                if current_user.authority != int(form['authority']):
+                    json_res = {'message': '用户权限不足以修改权限等级'}
+                    return json_res, HTTPStatus.BAD_REQUEST
             result = accounts.update_account_by_id(
                 account_id,
                 form['username'],
                 form['nickname'],
-                form['password'],
+                generate_password_hash(form['password']),
                 form['email'],
                 form['photo'],
                 form['authority']
@@ -54,35 +62,53 @@ class AccountResource(Resource):
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '修改用户信息成功'
-                return json_res, HTTP_CODES.OK
+                return json_res, HTTPStatus.OK
             else:
-                return get_message_json('修改失败'), HTTP_CODES.NOT_FOUND
+                return get_message_json('修改失败'), HTTPStatus.NOT_FOUND
         except Exception as err:
-            return get_message_json(str(err)), HTTP_CODES.BAD_REQUEST
+            return get_message_json(str(err)), HTTPStatus.BAD_REQUEST
 
     @login_required
     def delete(self, account_id):
         """Delete a single account by id."""
         try:
+            if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+                if current_user.id != account_id:
+                    json_res = {'message': '用户权限不足以删除他人账户'}
+                    return json_res, HTTPStatus.BAD_REQUEST
             result = accounts.delete_account_by_id(account_id)
             json_res = {}
             if result == 1:
                 json_res['message'] = '删除成功'
-                return json_res, HTTP_CODES.DELETE
+                return json_res, HTTPStatus.DELETE
             else:
                 json_res['message'] = '删除失败'
-                return json_res, HTTP_CODES.NOT_FOUND
+                return json_res, HTTPStatus.NOT_FOUND
         except Exception as err:
-            return get_message_json(str(err)), HTTP_CODES.BAD_REQUEST
+            return get_message_json(str(err))
 
 
 @api.route('/')
 class AccountsCollectionResource(Resource):
     """Deal with collection of accounts."""
 
+    @login_required
     def get(self):
         """List all accounts."""
-        pass
+        try:
+            if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+                json_res = {'message': '用户权限不足以查看所有账户'}
+                return json_res, HTTPStatus.BAD_REQUEST
+            result = accounts.find_all_users()
+            accounts_list = []
+            for i, account in enumerate(result):
+                accounts_list.append(account.to_json())
+            json_res = {'message': '查找成功',
+                        'count': len(result),
+                        'data': accounts_list}
+            return json_res, HTTPStatus.OK
+        except Exception as err:
+            return get_message_json(str(err))
     
     @api.doc(parser=api.parser()
              .add_argument('username', type=str, required=True, help='用户名', location='form')
@@ -112,9 +138,7 @@ class AccountsCollectionResource(Resource):
             if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
                 return get_message_json('用户名已存在'), HTTPStatus.CONFLICT
             else:
-                current_app.logger.exception(err.orig.args[1])
-                return get_message_json('服务器内部错误'), HTTPStatus.INTERNAL_SERVER_ERROR
+                return handle_internal_error(err.orig.args[1])
 
         except Exception as err:
-            current_app.logger.exception(str(err))
-            return get_message_json('服务器内部错误'), HTTPStatus.BAD_REQUEST
+            return handle_internal_error(str(err))

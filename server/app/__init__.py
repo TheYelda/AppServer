@@ -46,7 +46,9 @@ def create_app(config_name):
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
-        return accounts.find_account_by_id(userid)
+        user_list = accounts.find_account_by_id(userid)
+        if user_list:
+            return user_list[0]
 
     from .api import api
     api.init_app(app)
