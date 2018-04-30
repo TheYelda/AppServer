@@ -1,7 +1,7 @@
 # coding=utf-8
 """Initialize `app` module."""
-
 import os
+from http import HTTPStatus
 from flask import Flask
 from config import config
 from .model import init_db
@@ -42,11 +42,16 @@ def create_app(config_name):
     login_manager.init_app(app)
 
     from .model import accounts
-
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
-        return accounts.find_account_by_id(userid)[0]
+        user_list = accounts.find_account_by_id(userid)
+        if user_list:
+            return user_list[0]
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return {'message:': '用户未登录'}, HTTPStatus.UNAUTHORIZED
 
     from .api import api
     api.init_app(app)
