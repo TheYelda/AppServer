@@ -1,13 +1,14 @@
 # coding=utf-8
 """Deal with account-related APIs."""
+from http import HTTPStatus
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
 from flask import request
 from flask_login import login_required, current_user
 from ..model import accounts
 from sqlalchemy.exc import IntegrityError
+from ..model import accounts
 from .utils import get_message_json, DB_ERR_CODES, handle_internal_error
-from http import HTTPStatus
 
 api = Namespace('accounts')
 
