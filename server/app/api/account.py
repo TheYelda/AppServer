@@ -2,11 +2,11 @@
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
-from flask import request, current_app
+from flask import request
 from flask_login import login_required
 from ..model import accounts
 from sqlalchemy.exc import IntegrityError
-from .utils import get_message_json, DB_ERR_CODES
+from .utils import get_message_json, DB_ERR_CODES, handle_internal_error
 from http import HTTPStatus
 
 api = Namespace('accounts')
@@ -66,9 +66,7 @@ class AccountsCollectionResource(Resource):
             if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
                 return get_message_json('用户名已存在'), HTTPStatus.CONFLICT
             else:
-                current_app.logger.exception(err.orig.args[1])
-                return get_message_json('服务器内部错误'), HTTPStatus.INTERNAL_SERVER_ERROR
+                return handle_internal_error(err.orig.args[1])
 
         except Exception as err:
-            current_app.logger.exception(str(err))
-            return get_message_json('服务器内部错误'), HTTPStatus.BAD_REQUEST
+            return handle_internal_error(str(err))

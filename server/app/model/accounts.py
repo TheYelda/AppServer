@@ -22,6 +22,7 @@ class Accounts(Base, UserMixin):
         return {
             'id': self.id,
             'username': self.username,
+            'nickname': self.nickname,
             'password': self.password,
             'email': self.email,
             'photo': self.photo,
