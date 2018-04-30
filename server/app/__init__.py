@@ -48,12 +48,10 @@ def create_app(config_name):
         user_list = accounts.find_account_by_id(userid)
         if user_list:
             return user_list[0]
-<<<<<<< HEAD
-=======
+
     @login_manager.unauthorized_handler
     def unauthorized():
         return {'message:': '用户未登录'}, HTTPStatus.UNAUTHORIZED
->>>>>>> c57cc0bafe4ce7b4c6cdb1ab74ca9f165d242caf
 
     from .api import api
     api.init_app(app)
