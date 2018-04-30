@@ -104,7 +104,6 @@ class AccountsCollectionResource(Resource):
             for i, account in enumerate(result):
                 accounts_list.append(account.to_json())
             json_res = {'message': '查找成功',
-                        'count': len(result),
                         'data': accounts_list}
             return json_res, HTTPStatus.OK
         except Exception as err:
