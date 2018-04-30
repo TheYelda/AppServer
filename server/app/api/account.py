@@ -80,12 +80,12 @@ class AccountResource(Resource):
             json_res = {}
             if result == 1:
                 json_res['message'] = '删除成功'
-                return json_res, HTTPStatus.DELETE
+                return json_res, HTTPStatus.NO_CONTENT
             else:
                 json_res['message'] = '删除失败'
                 return json_res, HTTPStatus.NOT_FOUND
         except Exception as err:
-            return get_message_json(str(err))
+            return handle_internal_error(err)
 
 
 @api.route('/')
