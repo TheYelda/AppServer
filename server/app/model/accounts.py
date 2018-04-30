@@ -7,6 +7,10 @@ from . import *
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
 
+    ADMIN_AUTHORITY = 2
+    DOCTOR_AUTHORITY = 1
+    GUEST_AUTHORITY = 0
+
     __tablename__ = 'Accounts'
 
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)

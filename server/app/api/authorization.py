@@ -1,13 +1,13 @@
 # coding=utf-8
 """Deal with authorization-related APIs."""
+from http import HTTPStatus
+from sqlalchemy.exc import IntegrityError
 from flask import request, current_app
 from flask_restplus import Namespace, Resource
-from flask_login import login_user
+from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from ..model import accounts
-from sqlalchemy.exc import IntegrityError
-from .utils import get_message_json
-from http import HTTPStatus
+from .utils import get_message_json, handle_internal_error
 
 
 api = Namespace('authorization')
@@ -18,12 +18,11 @@ class AuthorizationResource(Resource):
     """Deal with user authorization."""
 
     @api.doc(parser=api.parser()
-             .add_argument('username', type=str, required=True, help='username', location='form')
-             .add_argument('password', type=str, required=True, help='password', location='form')
-             )
+             .add_argument('username', type=str, required=True, help='用户名', location='form')
+             .add_argument('password', type=str, required=True, help='密码', location='form')
+            )
     def post(self):
         """Create authorization given username and password."""
-
         req_password = request.form['password']
         try:
             account = accounts.find_account_by_username(request.form['username'])
@@ -37,12 +36,12 @@ class AuthorizationResource(Resource):
             return get_message_json('登录成功'), HTTPStatus.OK
 
         except IntegrityError as err:
-            current_app.logger.exception(err.orig.args[1])
-            return get_message_json('服务器内部错误'), HTTPStatus.INTERNAL_SERVER_ERROR
+            handle_internal_error(err.orig.args[1])
         except Exception as err:
-            current_app.logger.exception(str(err))
-            return get_message_json(str(err)), HTTPStatus.INTERNAL_SERVER_ERROR
+            handle_internal_error(str(err))
 
+    @login_required
     def delete(self):
         """Remove an authorization by token."""
-        pass
+        logout_user()
+        return get_message_json('登出成功'), HTTPStatus.OK
