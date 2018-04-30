@@ -40,13 +40,13 @@ def create_app(config_name):
     from flask_login import LoginManager
     login_manager = LoginManager()
     login_manager.init_app(app)
-    
+
     from .model import accounts
 
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
-        return accounts.find_account_by_id(userid)
+        return accounts.find_account_by_id(userid)[0]
 
     from .api import api
     api.init_app(app)
