@@ -7,10 +7,6 @@ from . import *
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
 
-    ADMIN_AUTHORITY = 2
-    DOCTOR_AUTHORITY = 1
-    GUEST_AUTHORITY = 0
-
     __tablename__ = 'Accounts'
 
     """authority"""
@@ -53,7 +49,7 @@ def add_account(_username: str,
                 _password: str,
                 _email: str,
                 _photo: str):
-    """Add an account to databse."""
+    """Add an account to database."""
     account = Accounts()
     account.username = _username
     account.nickname = _nickname
@@ -115,7 +111,7 @@ def update_account_by_id(_id: int,
                          _email=None,
                          _photo=None,
                          _authority=None):
-    """Update the information of an account given id and return 1 or 0."""
+    """Update the information of an account given id and return 1 or 0 represented result"""
     try:
         result = session.query(Accounts).filter(Accounts.id == _id).update({
             "username": _username if _username is not None else Accounts.username,
@@ -132,7 +128,7 @@ def update_account_by_id(_id: int,
 
 
 def delete_account_by_id(_id: int):
-    """Delete an account by id and return 1 or 0."""
+    """Delete an account by id and return 1 or 0 represented result"""
     try:
         result = session.query(Accounts).filter(Accounts.id == _id).delete()
         session.commit()

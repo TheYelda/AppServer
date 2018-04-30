@@ -86,7 +86,7 @@ class AccountResource(Resource):
                 json_res['message'] = '删除失败'
                 return json_res, HTTPStatus.NOT_FOUND
         except Exception as err:
-            return get_message_json(str(err))
+            return get_message_json(str(err)), HTTPStatus.NO_CONTENT
 
 
 @api.route('/')
