@@ -8,9 +8,14 @@ class Images(Base):
 
     __tablename__ = 'Images'
 
+<<<<<<< HEAD
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     label_id = Column(Integer, ForeignKey('Labels.label_id'))
     state_id = Column(Integer, ForeignKey('ImageStateChoice.state_id'))
+=======
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    state = Column(Integer)
+>>>>>>> 77a0c67f556d32e3a8fdd3f4ed67002411cd72af
     filename = Column(VARCHAR(128), nullable=False)
     Source = Column(VARCHAR(128))
 

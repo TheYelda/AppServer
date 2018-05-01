@@ -1,5 +1,6 @@
 # coding=utf-8
 """Provide common utilities for API processing."""
+
 from flask import current_app
 from http import HTTPStatus
 
