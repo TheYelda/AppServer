@@ -7,40 +7,36 @@ from . import *
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
 
-    ADMIN_AUTHORITY = 2
-    DOCTOR_AUTHORITY = 1
-    GUEST_AUTHORITY = 0
-
     __tablename__ = 'Accounts'
 
-    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    account_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     username = Column(VARCHAR(128), nullable=False, unique=True)
     nickname = Column(VARCHAR(128), nullable=True)
     password = Column(VARCHAR(256), nullable=False)
     email = Column(VARCHAR(128), nullable=False)
-    photo = Column(VARCHAR(128), nullable=False)
-    authority = Column(Integer)
+    photo = Column(VARCHAR(128), nullable=True)
+    authority_id = Column(Integer, ForeignKey('AuthorityChoice.authority_id'))
 
     def to_json(self):
         """Return a json for the record."""
         return {
-            'id': self.id,
+            'account_id': self.account_id,
             'username': self.username,
             'nickname': self.nickname,
             'password': self.password,
             'email': self.email,
             'photo': self.photo,
-            'authority': self.authority
+            'authority_id': self.authority_id
         }
 
     def __repr__(self):
-        return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
+        return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority_id:{}>'.\
             format(self.username,
                    self.nickname,
                    self.password,
                    self.email,
                    self.photo,
-                   self.authority)
+                   self.authority_id)
 
 
 def add_account(_username: str,
@@ -66,7 +62,7 @@ def add_account(_username: str,
 def find_account_by_id(_id: int):
     """Find an account by id."""
     try:
-        account = session.query(Accounts).filter(Accounts.id == _id)
+        account = session.query(Accounts).filter(Accounts.account_id == _id)
         session.commit()
         return account.all()
     except Exception as err:
@@ -86,7 +82,7 @@ def find_account_by_username(_username: str):
 def find_accounts_by_authority(_authority: int):
     """Return accounts given authority."""
     try:
-        accounts = session.query(Accounts).filter(Accounts.authority == _authority)
+        accounts = session.query(Accounts).filter(Accounts.authority_id == _authority)
         session.commit()
         return accounts.all()
     except Exception as err:
@@ -102,13 +98,13 @@ def update_account_by_id(_id: int,
                          _authority=None):
     """Update the information of an account given id."""
     try:
-        account = session.query(Accounts).filter(Accounts.id == _id).update({
+        account = session.query(Accounts).filter(Accounts.account_id == _id).update({
             "username": _username if _username is not None else Accounts.username,
             "nickname": _nickname if _nickname is not None else Accounts.nickname,
             "password": _password if _password is not None else Accounts.password,
             "email": _email if _email is not None else Accounts.email,
             "photo": _photo if _photo is not None else Accounts.photo,
-            "authority": _authority if _authority is not None else Accounts.authority
+            "authority_id": _authority if _authority is not None else Accounts.authority_id
         })
         session.commit()
         return account
@@ -119,7 +115,7 @@ def update_account_by_id(_id: int,
 def delete_account_by_id(_id: int):
     """Delete an account by id."""
     try:
-        accounts = session.query(Accounts).filter(Accounts.id == _id).delete()
+        accounts = session.query(Accounts).filter(Accounts.account_id == _id).delete()
         session.commit()
         return accounts
     except Exception as err:

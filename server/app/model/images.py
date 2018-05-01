@@ -8,32 +8,32 @@ class Images(Base):
 
     __tablename__ = 'Images'
 
-    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    ground_truth_id = Column(Integer, ForeignKey('GroundTruthLabels.id'))
-    state = Column(Integer)
+    image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    label_id = Column(Integer, ForeignKey('Labels.label_id'))
+    state_id = Column(Integer, ForeignKey('ImageStateChoice.state_id'))
     filename = Column(VARCHAR(128), nullable=False)
     Source = Column(VARCHAR(128))
 
     def to_json(self):
         """Return a json for the record."""
         return {
-            'id': self.id,
-            'ground_truth_id': self.ground_truth_id,
-            'state': self.state,
+            'id': self.image_id,
+            'ground_truth_id': self.label_id,
+            'state': self.state_id,
             'filename': self.filename,
             'Source': self.Source
         }
     
     def __repr__(self):
-        return '<Images: ground_truth_id:{} state:{} info_id:{}>'.\
-            format(self.ground_truth_id, self.state, self.info_id)
+        return '<Images: ground_truth_id:{} state:{} source:{}>'.\
+            format(self.label_id, self.state_id, self.Source)
 
 
 def add_image(_filename: str,
-              _state: str,
+              _state_id: int,
               _source: str):
     """
-    :param _state:
+    :param _state_id:
     :param _filename:
     :param _source:
     """
@@ -42,8 +42,8 @@ def add_image(_filename: str,
 
 def update_image_by_id(_id: int,
                        _filename=None,
-                       _state=None,
-                       _ground_truth_id=None,
+                       _state_id=None,
+                       _label_id=None,
                        _source=None):
     """
     :param _id:
