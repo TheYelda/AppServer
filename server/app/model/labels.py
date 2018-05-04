@@ -22,8 +22,40 @@ class Labels(Base):
     others = Column(BOOLEAN)  # 是否有其他疾病
     comment = Column(TEXT)  # 备注
 
+    def to_json(self):
+        """Return a json for the record."""
+        return {
+            'label_id': self.label_id,
+            'quality': self.quality,
+            'dr': self.dr,
+            'stage_id': self.stage_id,
+            'dme': self.dme,
+            'hr_id': self.hr_id,
+            'age_dme_id': self.age_dme_id,
+            'rvo': self.rvo,
+            'crao': self.crao,
+            'od': self.od,
+            'glaucoma': self.glaucoma,
+            'others': self.others,
+            'comment': self.comment
+            }
+
     def __repr__(self):
-        return '<Labels: id:{}>'.format(self.id)
+        return '<Jobs: label_id:{} quality:{} dr:{} stage_id:{} stage_id:{} dme:{} hr_id:{}\
+                    age_dme_id:{} rvo:{} crao:{} od:{} glaucoma:{} others:{} comment:{}>'.\
+            format(self.label_id,
+                   self.quality,
+                   self.dr,
+                   self.stage_id,
+                   self.dme,
+                   self.hr_id,
+                   self.age_dme_id,
+                   self.rvo,
+                   self.crao,
+                   self.od,
+                   self.glaucoma,
+                   self.others,
+                   self.comment)
 
 
 # def add_label(_quality: BOOLEAN,

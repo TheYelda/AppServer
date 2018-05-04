@@ -12,6 +12,3 @@ class AuthorityChoice(Base):
     def __repr__(self):
         return "<AuthorityChoice: authority_id:{} name:{}>".format(self.authority_id,
                                                                    self.name)
-
-
-

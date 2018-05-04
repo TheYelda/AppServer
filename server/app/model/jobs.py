@@ -15,9 +15,21 @@ class Jobs(Base):
     finished_date = Column(DATE)
     label_id = Column(Integer, ForeignKey('Labels.label_id'))
 
+    def to_json(self):
+        """Return a json for the record."""
+        return {
+            'job_id': self.image_id,
+            'image_id': self.image_id,
+            'doctor_id': self.label_id,
+            'state_id': self.state_id,
+            'finished_date': self.finished_date,
+            'label_id': self.label_id
+        }
+
     def __repr__(self):
-        return '<Jobs: image_id:{} doctor_id:{} state:{} finished_date:{} label_id:{}>'.\
-            format(self.image_id,
+        return '<Jobs: job_id:{} image_id:{} doctor_id:{} state_id:{} finished_date:{} label_id:{}>'.\
+            format(self.job_id,
+                   self.image_id,
                    self.doctor_id,
                    self.state_id,
                    self.finished_date,

@@ -56,7 +56,6 @@ def create_app(config_name):
 
     from .api import api
     api.init_app(app)
-    app.config['SECRET_KEY'] = 'Yelda is fxxking awesome'  
 
     # In case that the log directory has not been created
     log_dir = os.path.dirname(log_file)
