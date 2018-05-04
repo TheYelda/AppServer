@@ -41,19 +41,6 @@ def create_app(config_name):
     login_manager = LoginManager()
     login_manager.init_app(app)
 
-    from .model import accounts
-
-    @login_manager.user_loader
-    def load_user(userid):
-        """Load user."""
-        user_list = accounts.find_account_by_id(userid)
-        if user_list:
-            return user_list[0]
-
-    @login_manager.unauthorized_handler
-    def unauthorized():
-        return {'message:': '用户未登录'}, HTTPStatus.UNAUTHORIZED
-
     from .api import api
     api.init_app(app)
 

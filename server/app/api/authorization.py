@@ -9,9 +9,7 @@ from werkzeug.security import check_password_hash
 from ..model import accounts
 from .utils import get_message_json, handle_internal_error
 
-
 api = Namespace('authorization')
-
 
 @api.route('/')
 class AuthorizationResource(Resource):
@@ -23,25 +21,8 @@ class AuthorizationResource(Resource):
             )
     def post(self):
         """Create authorization given username and password."""
-        req_password = request.form['password']
-        try:
-            account = accounts.find_account_by_username(request.form['username'])
-            if not account or len(account) == 0:
-                return get_message_json('用户不存在'), HTTPStatus.BAD_REQUEST
+        return get_message_json('登录成功'), HTTPStatus.CREATED
 
-            if not check_password_hash(account[0].password, req_password):
-                return get_message_json('密码错误'), HTTPStatus.BAD_REQUEST
-
-            login_user(account[0], True)
-            return get_message_json('登录成功'), HTTPStatus.OK
-
-        except IntegrityError as err:
-            handle_internal_error(err.orig.args[1])
-        except Exception as err:
-            handle_internal_error(str(err))
-
-    @login_required
     def delete(self):
         """Remove an authorization by token."""
-        logout_user()
-        return get_message_json('登出成功'), HTTPStatus.OK
+        return get_message_json('登出成功'), HTTPStatus.NO_CONTENT

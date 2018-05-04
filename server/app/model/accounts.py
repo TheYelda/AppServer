@@ -59,14 +59,14 @@ class Accounts(Base, UserMixin):
 #         handle_db_exception(err)
 
 
-def find_account_by_id(_account_id: int):
-    """Find an account by id and return a list"""
-    try:
-        account_list = session.query(Accounts).filter(Accounts.account_id == _account_id)
-        session.commit()
-        return account_list.all()
-    except Exception as err:
-        handle_db_exception(err)
+# def find_account_by_id(_account_id: int):
+#     """Find an account by id and return a list"""
+#     try:
+#         account_list = session.query(Accounts).filter(Accounts.account_id == _account_id)
+#         session.commit()
+#         return account_list.all()
+#     except Exception as err:
+#         handle_db_exception(err)
 
 
 # def find_account_by_username(_username: str):
