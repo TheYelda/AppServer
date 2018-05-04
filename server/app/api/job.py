@@ -3,9 +3,8 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from http import HTTPStatus
 from ..model import jobs, accounts
-from .utils import get_message_json, handle_internal_error
+from .utils import get_message_json, handle_internal_error, HTTPStatus
 
 api = Namespace('jobs')
 

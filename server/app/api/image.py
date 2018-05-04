@@ -1,6 +1,5 @@
 # coding=utf-8
 """Deal with image-related APIs."""
-from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError
 from flask import request, current_app
 from flask_restplus import Namespace, Resource

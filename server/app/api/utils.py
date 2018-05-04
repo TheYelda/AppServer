@@ -1,9 +1,6 @@
 # coding=utf-8
 """Provide common utilities for API processing."""
-
 from flask import current_app
-from http import HTTPStatus
-
 
 class DBErrorCodes(object):
     """
@@ -15,6 +12,13 @@ class DBErrorCodes(object):
     # Duplicate entry for unique key
     DUPLICATE_ENTRY = 1062
 
+class HTTPStatus(object):
+    OK = 200,
+    CREATED = 201,
+    NO_CONTENT = 204,
+    BAD_REQUEST = 400,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500
 
 DB_ERR_CODES = DBErrorCodes()
 
