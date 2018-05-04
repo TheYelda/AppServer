@@ -12,16 +12,17 @@ class DBErrorCodes(object):
     # Duplicate entry for unique key
     DUPLICATE_ENTRY = 1062
 
-class HTTPStatus(object):
-    OK = 200,
-    CREATED = 201,
-    NO_CONTENT = 204,
-    BAD_REQUEST = 400,
-    NOT_FOUND = 404,
-    INTERNAL_SERVER_ERROR = 500
-
 DB_ERR_CODES = DBErrorCodes()
 
+class HttpCodes(object):
+    OK = 200
+    CREATED = 201
+    NO_CONTENT = 204
+    BAD_REQUEST = 400
+    NOT_FOUND = 404 
+    INTERNAL_SERVER_ERROR = 500
+
+HTTPStatus = HttpCodes()
 
 def get_message_json(message):
     """Return a json with message."""
