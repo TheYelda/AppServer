@@ -1,12 +1,12 @@
 # coding=utf-8
 """Initialize `app` module."""
 import os
-from http import HTTPStatus
 from flask import Flask
 from config import config
-from .model import init_db
 import logging
 from logging.handlers import RotatingFileHandler
+from .model import init_db
+from .api.utils import HTTPStatus
 
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
