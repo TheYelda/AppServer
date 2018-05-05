@@ -18,7 +18,7 @@ SINGLE_ACCOUNT_RESPONSE = {
     'password': 'asdhlhui',
     'email': 'abc@gg.com',
     'photo': 'a.png',
-    'authority_id': 123
+    'authority': 'doctor'
 }
 COLLECTION_ACCOUNT_RESPONSE = {
     'message': '',
@@ -31,7 +31,7 @@ COLLECTION_ACCOUNT_RESPONSE = {
                 'password': 'asdhlhui',
                 'email': 'abc@gg.com',
                 'photo': 'a.png',
-                'authority_id': 2
+                'authority_id': 'doctor'
             },{
                 'account_id': 308,
                 'username': 'doctorb',
@@ -39,7 +39,7 @@ COLLECTION_ACCOUNT_RESPONSE = {
                 'password': 'bbbbpass',
                 'email': 'bbb@gg.com',
                 'photo': 'b.png',
-                'authority_id': 1
+                'authority_id': 'doctor'
             },{
                 'account_id': 2446,
                 'username': 'doctorc',
@@ -47,7 +47,7 @@ COLLECTION_ACCOUNT_RESPONSE = {
                 'password': 'cccpas',
                 'email': 'c@gg.com',
                 'photo': 'c.png',
-                'authority_id': 1
+                'authority_id': 'doctor'
             }
         ]
 }

@@ -14,16 +14,16 @@ SINGLE_LABEL_RESPONSE = {
     'label_id': 123,
     'quality': False,
     'dr': True,
-    'stage_id': 2,
+    'stage': 'a label stage',
     'dme': True,
-    'hr_id': 3,
-    'age_dme_id': 3,
+    'hr': 'a hr state',
+    'age_dme': 'an age dme',
     'rvo': False,
     'crao': False,
     'od': False,
     'glaucoma': False,
     'others': True,
-    'comment': 'no'
+    'comment': 'no comment'
 }
 COLLECTION_LABEL_RESPONSE = {
     'message': '',
@@ -33,44 +33,44 @@ COLLECTION_LABEL_RESPONSE = {
                 'label_id': 123,
                 'quality': False,
                 'dr': True,
-                'stage_id': 2,
+                'stage': 'a label stage',
                 'dme': True,
-                'hr_id': 3,
-                'age_dme_id': 3,
+                'hr': 'a hr state',
+                'age_dme': 'an age dme',
                 'rvo': False,
                 'crao': False,
                 'od': False,
                 'glaucoma': False,
                 'others': True,
-                'comment': 'no'
+                'comment': 'no comment'
             },{
-                'label_id': 143,
+                'label_id': 64,
                 'quality': False,
                 'dr': True,
-                'stage_id': 2,
+                'stage': 'a label stage',
                 'dme': True,
-                'hr_id': 3,
-                'age_dme_id': 3,
+                'hr': 'a hr state',
+                'age_dme': 'an age dme',
                 'rvo': False,
                 'crao': False,
                 'od': False,
                 'glaucoma': False,
                 'others': True,
-                'comment': 'no'
+                'comment': 'no comment'
             },{
-                'label_id': 1213,
+                'label_id': 163,
                 'quality': False,
                 'dr': True,
-                'stage_id': 2,
+                'stage': 'a label stage',
                 'dme': True,
-                'hr_id': 3,
-                'age_dme_id': 3,
+                'hr': 'a hr state',
+                'age_dme': 'an age dme',
                 'rvo': False,
                 'crao': False,
                 'od': False,
                 'glaucoma': False,
                 'others': True,
-                'comment': 'no'
+                'comment': 'no comment'
             }
         ]
 }

@@ -13,8 +13,8 @@ SINGLE_JOB_RESPONSE = {
     'message': '',
     'job_id': 132,
     'image_id': 81768,
-    'doctor_id': 17357,
-    'state_id': 2,
+    'doctor_id': 17,
+    'state': 'unassigned',
     'finished_date': '2018-01-01',
     'label_id': 3
 }
@@ -25,22 +25,22 @@ COLLECTION_JOB_RESPONSE = {
             {
                 'job_id': 132,
                 'image_id': 81768,
-                'doctor_id': 17357,
-                'state_id': 2,
+                'doctor_id': 17,
+                'state': 'unassigned',
                 'finished_date': '2018-01-01',
                 'label_id': 3
             },{
                 'job_id': 142,
                 'image_id': 814168,
-                'doctor_id': 171241,
-                'state_id': 2,
+                'doctor_id': 14,
+                'state': 'unassigned',
                 'finished_date': '2018-03-01',
                 'label_id': 3
             },{
                 'job_id': 1345,
                 'image_id': 513168,
-                'doctor_id': 1724,
-                'state_id': 1,
+                'doctor_id': 72,
+                'state': 'unassigned',
                 'finished_date': '2018-02-01',
                 'label_id': 3
             }

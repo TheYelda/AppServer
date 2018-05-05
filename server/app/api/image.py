@@ -15,7 +15,7 @@ SINGLE_IMAGE_RESPONSE = {
     'message': '',
     'image_id': 10,
     'label_id': 123,
-    'state_id': 3,
+    'state': 'unmarked',
     'filename': 'test.png',
     'Source': 'abcde'
 }
@@ -26,19 +26,19 @@ COLLECTION_ACCOUNT_RESPONSE = {
             {
                 'image_id': 10,
                 'label_id': 123,
-                'state_id': 3,
+                'state': 'unmarked',
                 'filename': 'test1.png',
                 'Source': 'abcde'
             },{
                 'image_id': 12,
                 'label_id': 1245,
-                'state_id': 1,
+                'state': 'unmarked',
                 'filename': 'test2.png',
                 'Source': 'abse'
             },{
                 'image_id': 11341,
                 'label_id': 8923,
-                'state_id': 1,
+                'state': 'unmarked',
                 'filename': 'test3.png',
                 'Source': 'oiie'
             }
