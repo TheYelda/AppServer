@@ -58,49 +58,49 @@ class Labels(Base):
                    self.comment)
 
 
-# def add_label(_quality: BOOLEAN,
-#               _dr: BOOLEAN,
-#               _stage: int,
-#               _dme: BOOLEAN,
-#               _hr: int,
-#               _age_dme: int,
-#               _rvo: BOOLEAN,
-#               _crao: BOOLEAN,
-#               _od: BOOLEAN,
-#               _glaucoma: BOOLEAN,
-#               _others: BOOLEAN,
-#               _comment: str,
-#               add_fail_callback: func,
-#               add_succeed_callback: func):
-#     pass
-#
-#
-# def update_label_by_id(_id: int,
-#                        _quality: BOOLEAN,
-#                        _dr: BOOLEAN,
-#                        _stage: int,
-#                        _dme: BOOLEAN,
-#                        _hr: int,
-#                        _age_dme: int,
-#                        _rvo: BOOLEAN,
-#                        _crao: BOOLEAN,
-#                        _od: BOOLEAN,
-#                        _glaucoma: BOOLEAN,
-#                        _others: BOOLEAN,
-#                        _comment: str,
-#                        find_fail_callback: func,
-#                        update_fail_callback: func):
-#     pass
-#
-#
-# def delete_label_by_id(_id: int,
-#                        find_fail_callback: func,
-#                        delete_fail_callback: func,
-#                        delete_succeed_callback: func):
-#     pass
-#
-#
-# def find_label_by_id(_id: int,
-#                      find_fail_callback: func,
-#                      find_succeed_callback: func):
-#     pass
+def add_label(_quality: BOOLEAN,
+              _dr: BOOLEAN,
+              _stage: int,
+              _dme: BOOLEAN,
+              _hr: int,
+              _age_dme: int,
+              _rvo: BOOLEAN,
+              _crao: BOOLEAN,
+              _od: BOOLEAN,
+              _glaucoma: BOOLEAN,
+              _others: BOOLEAN,
+              _comment: str,
+              add_fail_callback: func,
+              add_succeed_callback: func):
+    pass
+
+
+def update_label_by_id(_id: int,
+                       _quality: BOOLEAN,
+                       _dr: BOOLEAN,
+                       _stage: int,
+                       _dme: BOOLEAN,
+                       _hr: int,
+                       _age_dme: int,
+                       _rvo: BOOLEAN,
+                       _crao: BOOLEAN,
+                       _od: BOOLEAN,
+                       _glaucoma: BOOLEAN,
+                       _others: BOOLEAN,
+                       _comment: str,
+                       find_fail_callback: func,
+                       update_fail_callback: func):
+    pass
+
+
+def delete_label_by_id(_id: int,
+                       find_fail_callback: func,
+                       delete_fail_callback: func,
+                       delete_succeed_callback: func):
+    pass
+
+
+def find_label_by_id(_id: int,
+                     find_fail_callback: func,
+                     find_succeed_callback: func):
+    pass

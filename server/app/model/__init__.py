@@ -21,6 +21,7 @@ def init_db(_user,
     session = sessionmaker(bind=db_engine)()
 
     # Create all tables
+    from . import accounts, jobs, images, labels
     Base.metadata.create_all(db_engine)
 
 
