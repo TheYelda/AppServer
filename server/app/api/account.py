@@ -15,10 +15,9 @@ SINGLE_ACCOUNT_RESPONSE = {
     'account_id': 33,
     'username': 'doctora',
     'nickname': 'kevin',
-    'password': 'asdhlhui',
     'email': 'abc@gg.com',
     'photo': 'a.png',
-    'authority': 'doctor'
+    'authority': 1
 }
 COLLECTION_ACCOUNT_RESPONSE = {
     'message': '',
@@ -28,26 +27,23 @@ COLLECTION_ACCOUNT_RESPONSE = {
                 'account_id': 33,
                 'username': 'doctora',
                 'nickname': 'kevin',
-                'password': 'asdhlhui',
                 'email': 'abc@gg.com',
                 'photo': 'a.png',
-                'authority_id': 'doctor'
+                'authority_id': 1
             },{
                 'account_id': 308,
                 'username': 'doctorb',
                 'nickname': 'bbbb',
-                'password': 'bbbbpass',
                 'email': 'bbb@gg.com',
                 'photo': 'b.png',
-                'authority_id': 'doctor'
+                'authority_id': 2
             },{
                 'account_id': 2446,
                 'username': 'doctorc',
                 'nickname': 'cc',
-                'password': 'cccpas',
                 'email': 'c@gg.com',
                 'photo': 'c.png',
-                'authority_id': 'doctor'
+                'authority_id': 1
             }
         ]
 }
