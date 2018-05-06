@@ -6,7 +6,8 @@ from flask_restplus import Namespace, Resource
 from flask_login import login_required
 from werkzeug.security import check_password_hash
 from ..model import images
-from .utils import get_message_json, handle_internal_error, DB_ERR_CODES
+from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus
+
 
 api = Namespace('images')
 

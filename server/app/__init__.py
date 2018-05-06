@@ -6,13 +6,14 @@ from config import config
 import logging
 from logging.handlers import RotatingFileHandler
 from .model import init_db
-from .api.utils import HTTPStatus
+
 
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
 
 
 def create_app(config_name):
+
     """
     Create the app object.
     :param config_name: type of configuration
@@ -42,7 +43,6 @@ def create_app(config_name):
     login_manager.init_app(app)
 
     from .model import accounts
-
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
@@ -52,7 +52,7 @@ def create_app(config_name):
 
     @login_manager.unauthorized_handler
     def unauthorized():
-        return {'message:': '用户未登录'}, HTTPStatus.UNAUTHORIZED
+        return {'message:': '用户未登录'}, 401  # Don't replace this Magic Number!
 
     from .api import api
     api.init_app(app)

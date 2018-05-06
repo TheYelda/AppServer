@@ -26,6 +26,21 @@ class HttpCodes(object):
 
 HTTPStatus = HttpCodes()
 
+class ConstantCodes(object):
+    Empty = 100
+    Admin = 101
+    Doctor = 102
+    Guest = 103
+    Unlabeled = 200
+    Labeling = 201
+    Finished = 202
+    Unassigned = 300
+    Running = 301
+    Different = 302
+    Done = 303
+
+ConstCodes = ConstantCodes()
+
 def get_message_json(message):
     """Return a json with message."""
     return {'message': message}

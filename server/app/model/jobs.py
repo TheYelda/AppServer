@@ -11,7 +11,7 @@ class Jobs(Base):
     job_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     image_id = Column(Integer, ForeignKey('Images.image_id'))
     doctor_id = Column(Integer, ForeignKey('Accounts.account_id'))
-    state_id = Column(Integer, ForeignKey('JobStateChoice.state_id'))
+    state = Column(Integer, nullable=False)
     finished_date = Column(DATE)
     label_id = Column(Integer, ForeignKey('Labels.label_id'))
 

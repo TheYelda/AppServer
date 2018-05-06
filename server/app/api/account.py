@@ -6,10 +6,10 @@ from flask import request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from ..model import accounts
-from .utils import get_message_json, DB_ERR_CODES, handle_internal_error, HTTPStatus
+from .utils import get_message_json, DB_ERR_CODES, handle_internal_error, HTTPStatus, ConstCodes
+
 
 api = Namespace('accounts')
-
 
 @api.route('/<int:account_id>')
 class AccountResource(Resource):
@@ -19,7 +19,7 @@ class AccountResource(Resource):
     def get(self, account_id):
         """Retrieve a single account by id."""
         try:
-            if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
+            if not current_user.is_admin():
                 if current_user.id != account_id:
                     json_res = {'message': '用户权限不够访问他人账户'}
                     return json_res, HTTPStatus.BAD_REQUEST
