@@ -1,12 +1,8 @@
 # coding=utf-8
 """Deal with authorization-related APIs."""
-from sqlalchemy.exc import IntegrityError
-from flask import request, current_app
 from flask_restplus import Namespace, Resource
 from flask_login import login_user, logout_user, login_required
-from werkzeug.security import check_password_hash
-from ..model import accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from .utils import get_message_json, HTTPStatus
 
 api = Namespace('authorization')
 

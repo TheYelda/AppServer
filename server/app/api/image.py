@@ -1,12 +1,7 @@
 # coding=utf-8
 """Deal with image-related APIs."""
-from sqlalchemy.exc import IntegrityError
-from flask import request, current_app
 from flask_restplus import Namespace, Resource
-from flask_login import login_required
-from werkzeug.security import check_password_hash
-from ..model import images
-from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus
+from .utils import get_message_json, HTTPStatus
 
 api = Namespace('images')
 

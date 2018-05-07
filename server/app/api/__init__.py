@@ -6,6 +6,7 @@ Refer to http://flask-restplus.readthedocs.io/en/stable/scaling.html
 """
 from flask_restplus import Api
 
+from .self import api as self_ns
 from .account import api as account_ns
 from .authorization import api as authorization_ns
 from .job import api as job_ns
@@ -18,6 +19,7 @@ api = Api(
 )
 
 # `path` is somehow required
+api.add_namespace(self_ns, path='/self')
 api.add_namespace(account_ns, path='/accounts')
 api.add_namespace(authorization_ns, path='/authorization')
 api.add_namespace(job_ns, path='/jobs')

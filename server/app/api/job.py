@@ -1,10 +1,7 @@
 # coding=utf-8
 """Deal with job-related APIs."""
-from flask import request
 from flask_restplus import Namespace, Resource
-from flask_login import login_required, current_user
-from ..model import jobs, accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from .utils import get_message_json, HTTPStatus
 
 api = Namespace('jobs')
 

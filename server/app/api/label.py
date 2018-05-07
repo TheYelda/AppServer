@@ -1,10 +1,7 @@
 # coding=utf-8
 """Deal with label-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
-from flask_login import login_required
-from flask import request
-from ..model import labels
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from .utils import get_message_json, HTTPStatus
 
 api = Namespace('labels')
 

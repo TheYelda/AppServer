@@ -2,11 +2,7 @@
 """Deal with account-related APIs."""
 from flask_restplus import Namespace, Resource
 from werkzeug.security import generate_password_hash
-from flask import request
-from flask_login import login_required, current_user
-from sqlalchemy.exc import IntegrityError
-from ..model import accounts
-from .utils import get_message_json, DB_ERR_CODES, handle_internal_error, HTTPStatus
+from .utils import get_message_json, HTTPStatus
 
 api = Namespace('accounts')
 
@@ -29,21 +25,21 @@ COLLECTION_ACCOUNT_RESPONSE = {
                 'nickname': 'kevin',
                 'email': 'abc@gg.com',
                 'photo': 'a.png',
-                'authority_id': 1
+                'authority': 1
             },{
                 'account_id': 308,
                 'username': 'doctorb',
                 'nickname': 'bbbb',
                 'email': 'bbb@gg.com',
                 'photo': 'b.png',
-                'authority_id': 2
+                'authority': 2
             },{
                 'account_id': 2446,
                 'username': 'doctorc',
                 'nickname': 'cc',
                 'email': 'c@gg.com',
                 'photo': 'c.png',
-                'authority_id': 1
+                'authority': 1
             }
         ]
 }
