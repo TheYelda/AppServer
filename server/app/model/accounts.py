@@ -110,7 +110,6 @@ def find_all_users():
 
 
 def update_account_by_id(_account_id: int,
-                         _username=None,
                          _nickname=None,
                          _password=None,
                          _email=None,
@@ -119,7 +118,6 @@ def update_account_by_id(_account_id: int,
     """Update the information of an account given id and return 1 or 0 represented result"""
     try:
         result = session.query(Accounts).filter(Accounts.account_id == _account_id).update({
-            "username": _username if _username is not None else Accounts.username,
             "nickname": _nickname if _nickname is not None else Accounts.nickname,
             "password": _password if _password is not None else Accounts.password,
             "email": _email if _email is not None else Accounts.email,

@@ -7,6 +7,7 @@ from .utils import get_message_json, HTTPStatus
 
 api = Namespace('self')
 
+
 @api.route('/')
 class AuthorizationResource(Resource):
     """Deal with current user."""

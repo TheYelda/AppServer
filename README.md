@@ -61,6 +61,7 @@ python run.py
 DB_USERNAME = MySQL用户名
 DB_PASSWORD = MySQL密码
 DB_NAME = 数据库名称
+SECRET_KEY = 用户会话管理秘钥
 ```
 
 ## 开发规范
