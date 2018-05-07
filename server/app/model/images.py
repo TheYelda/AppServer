@@ -10,7 +10,7 @@ class Images(Base):
 
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     label_id = Column(Integer, ForeignKey('Labels.label_id'))
-    state_id = Column(Integer, ForeignKey('ImageStateChoice.state_id'))
+    state = Column(Integer, nullable=False)
     filename = Column(VARCHAR(128), nullable=False)
     Source = Column(VARCHAR(128))
 

@@ -11,7 +11,7 @@ class Labels(Base):
     label_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     quality = Column(BOOLEAN, default=False)  # 图片质量
     dr = Column(BOOLEAN)  # 是否有糖尿病视网膜病变
-    stage_id = Column(Integer, ForeignKey('StageChoice.stage_id'))
+    stage_id = Column(Integer, ForeignKey('ImageStageChoice.stage_id'))
     dme = Column(BOOLEAN)  # 是否有糖尿病性黄斑水肿
     hr_id = Column(Integer, ForeignKey('HRChoice.hr_id'))
     age_dme_id = Column(Integer, ForeignKey('AgeDMEChoice.agedme_id'))

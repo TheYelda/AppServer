@@ -2,6 +2,7 @@
 """Define table and operations for accounts."""
 from flask_login import UserMixin
 from . import *
+from ..api.utils import ConstCodes
 
 
 class Accounts(Base, UserMixin):
@@ -14,7 +15,7 @@ class Accounts(Base, UserMixin):
     password = Column(VARCHAR(256), nullable=False)
     email = Column(VARCHAR(128), nullable=False)
     photo = Column(VARCHAR(128), nullable=True)
-    authority_id = Column(Integer, ForeignKey('AuthorityChoice.authority_id'))
+    authority = Column(Integer, nullable=False)
 
     def to_json(self):
         """Return a json for the record."""
@@ -25,18 +26,26 @@ class Accounts(Base, UserMixin):
             'password': self.password,
             'email': self.email,
             'photo': self.photo,
-            'authority_id': self.authority_id
+            'authority': self.authority
         }
 
     def __repr__(self):
-        return '<Accounts: account_id:{} username:{} nickname:{} password:{} email:{} photo:{} authority_id:{}>'.\
+        return '<Accounts: account_id:{} username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
             format(self.account_id,
                    self.username,
                    self.nickname,
                    self.password,
                    self.email,
                    self.photo,
-                   self.authority_id)
+                   self.authority)
+    
+    def get_id(self):
+        '''Override UserMixin.get_id()'''
+        return self.account_id
+    
+    def is_admin(self):
+        '''If the account has an authority of Admin, return True'''
+        return self.authority == ConstCodes.Admin
 
 
 def add_account(_username: str,
@@ -51,6 +60,7 @@ def add_account(_username: str,
     account.password = _password
     account.email = _email
     account.photo = _photo
+    account.authority = ConstCodes.Empty
     try:
         session.add(account)
         session.commit()
@@ -92,14 +102,14 @@ def find_accounts_by_authority(_authority: int):
 def find_all_users():
     """Return all accounts via a list."""
     try:
-        accounts_list = session.query(Accounts).filter(Accounts.authority_id == _authority)
+        accounts_list = session.query(Accounts).filter(Accounts.authority == ConstCodes.Doctor)
         session.commit()
         return accounts_list.all()
     except Exception as err:
         handle_db_exception(err)
 
 
-def update_account_by_id(_id: int,
+def update_account_by_id(_account_id: int,
                          _username=None,
                          _nickname=None,
                          _password=None,
@@ -108,13 +118,13 @@ def update_account_by_id(_id: int,
                          _authority=None):
     """Update the information of an account given id and return 1 or 0 represented result"""
     try:
-        result = session.query(Accounts).filter(Accounts.account_id == _id).update({
+        result = session.query(Accounts).filter(Accounts.account_id == _account_id).update({
             "username": _username if _username is not None else Accounts.username,
             "nickname": _nickname if _nickname is not None else Accounts.nickname,
             "password": _password if _password is not None else Accounts.password,
             "email": _email if _email is not None else Accounts.email,
             "photo": _photo if _photo is not None else Accounts.photo,
-            "authority_id": _authority if _authority is not None else Accounts.authority_id
+            "authority": _authority if _authority is not None else Accounts.authority
         })
         session.commit()
         return result

@@ -1,7 +1,7 @@
 # coding=utf-8
 """Deal with authorization-related APIs."""
 from sqlalchemy.exc import IntegrityError
-from flask import request, current_app
+from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
@@ -10,7 +10,6 @@ from .utils import get_message_json, handle_internal_error, HTTPStatus
 
 
 api = Namespace('authorization')
-
 
 @api.route('/')
 class AuthorizationResource(Resource):
@@ -31,7 +30,7 @@ class AuthorizationResource(Resource):
             if not check_password_hash(account[0].password, req_password):
                 return get_message_json('密码错误'), HTTPStatus.BAD_REQUEST
 
-            login_user(account[0], True)
+            login_user(account[0], remember=True)
             return get_message_json('登录成功'), HTTPStatus.OK
 
         except IntegrityError as err:

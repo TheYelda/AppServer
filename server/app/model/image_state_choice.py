@@ -3,8 +3,8 @@
 from . import *
 
 
-class ImageStateChoice(Base):
-    __tablename__ = 'ImageStateChoice'
+class ImageStageChoice(Base):
+    __tablename__ = 'ImageStageChoice'
 
-    state_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    stage_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     name = Column(VARCHAR(128), nullable=False, unique=True)
