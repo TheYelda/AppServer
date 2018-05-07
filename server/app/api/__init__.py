@@ -11,6 +11,7 @@ from .authorization import api as authorization_ns
 from .job import api as job_ns
 from .image import api as image_ns
 from .label import api as label_ns
+from .self import api as self_ns
 
 api = Api(
     title='Yelda',
@@ -23,3 +24,4 @@ api.add_namespace(authorization_ns, path='/authorization')
 api.add_namespace(job_ns, path='/jobs')
 api.add_namespace(image_ns, path='/images')
 api.add_namespace(label_ns, path='/labels')
+api.add_namespace(self_ns, path='/self')
