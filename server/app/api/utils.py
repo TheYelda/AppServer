@@ -30,6 +30,7 @@ class HttpCodes(object):
 
 HTTPStatus = HttpCodes()
 
+
 class ConstantCodes(object):
     Empty = 100
     Admin = 101
@@ -42,6 +43,8 @@ class ConstantCodes(object):
     Running = 301
     Different = 302
     Done = 303
+
+ConstCodes = ConstantCodes()
 
 
 def get_message_json(message):
