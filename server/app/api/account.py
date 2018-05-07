@@ -21,7 +21,8 @@ class AccountResource(Resource):
         """Retrieve a single account by id."""
         try:
             if not current_user.is_admin():
-                return get_message_json('只有管理员能访问他人账号'), HTTPStatus.UNAUTHORIZED
+                if current_user.account_id != account_id:
+                    return get_message_json('只有管理员能访问他人账号'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_account_by_id(account_id)
             if len(result) == 0:
                 return get_message_json('用户ID不存在'), HTTPStatus.NOT_FOUND
