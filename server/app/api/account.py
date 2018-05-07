@@ -44,8 +44,20 @@ class AccountResource(Resource):
         """Edit a single account by id."""
         form = request.form
         try:
+            """doctor and guest can not modify their authority or other users' info"""
+            """admin can not modify his authority"""
+            """admin can not modify other users' authority as admin"""
             if not current_user.is_admin():
-                return get_message_json('用户权限不足以修改权限等级'), HTTPStatus.UNAUTHORIZED
+                if account_id == current_user.account_id and int(form['authority']) != current_user.authority:
+                    return get_message_json('用户权限不足以修改自己的权限等级'), HTTPStatus.UNAUTHORIZED
+                elif account_id != current_user.account_id:
+                    return get_message_json('用户权限不足以修改他人信息'), HTTPStatus.UNAUTHORIZED
+            elif current_user.is_admin() and account_id == current_user.account_id \
+                    and int(form['authority']) != ConstCodes.Admin:
+                return get_message_json('不能修改管理员自己的权限'), HTTPStatus.UNAUTHORIZED
+            elif current_user.is_admin() and account_id != current_user.account_id \
+                    and int(form['authority']) == ConstCodes.Admin:
+                return get_message_json('管理员不能将他人权限改为管理员'), HTTPStatus.UNAUTHORIZED
             result = accounts.update_account_by_id(
                 account_id,
                 form['nickname'],
@@ -59,7 +71,7 @@ class AccountResource(Resource):
                 json_res['message'] = '修改用户信息成功'
                 return json_res, HTTPStatus.OK
             else:
-                return get_message_json('修改失败'), HTTPStatus.NOT_FOUND
+                return get_message_json('修改失败，用户ID不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
             return handle_internal_error(str(err))
 
@@ -67,18 +79,15 @@ class AccountResource(Resource):
     def delete(self, account_id):
         """Delete a single account by id."""
         try:
-            if not current_user.is_admin():
-                if current_user.account_id != account_id:
-                    json_res = {'message': '用户权限不足以删除他人账户'}
-                    return json_res, HTTPStatus.UNAUTHORIZED
+            if not current_user.is_admin() and current_user.account_id != account_id:
+                return get_message_json('用户权限不足以删除他人账户'), HTTPStatus.UNAUTHORIZED
+            elif current_user.is_admin() and current_user.account_id == account_id:
+                return get_message_json('不能删除管理员账户'), HTTPStatus.UNAUTHORIZED
             result = accounts.delete_account_by_id(account_id)
-            json_res = {}
             if result == 1:
-                json_res['message'] = '删除成功'
-                return json_res, HTTPStatus.NO_CONTENT
+                return get_message_json('删除成功'), HTTPStatus.NO_CONTENT
             else:
-                json_res['message'] = '删除失败'
-                return json_res, HTTPStatus.NOT_FOUND
+                return get_message_json('删除失败，用户ID不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
             return handle_internal_error(err)
 
@@ -92,8 +101,7 @@ class AccountsCollectionResource(Resource):
         """List all accounts."""
         try:
             if not current_user.is_admin():
-                json_res = {'message': '用户权限不足以查看所有账户'}
-                return json_res, HTTPStatus.UNAUTHORIZED
+                return get_message_json('用户权限不足以查看所有账户'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_all_users()
             accounts_list = []
             for i, account in enumerate(result):
