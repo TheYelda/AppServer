@@ -2,6 +2,7 @@
 """Provide common utilities for API processing."""
 from flask import current_app
 
+
 class DBErrorCodes(object):
     """
     Collect MySQL error codes that are used in this project.
@@ -12,7 +13,9 @@ class DBErrorCodes(object):
     # Duplicate entry for unique key
     DUPLICATE_ENTRY = 1062
 
+
 DB_ERR_CODES = DBErrorCodes()
+
 
 class HttpCodes(object):
     OK = 200
@@ -24,7 +27,9 @@ class HttpCodes(object):
     CONFLICT = 409
     INTERNAL_SERVER_ERROR = 500
 
+
 HTTPStatus = HttpCodes()
+
 
 def get_message_json(message):
     """Return a json with message."""

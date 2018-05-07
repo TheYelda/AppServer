@@ -20,9 +20,8 @@ class AccountResource(Resource):
         """Retrieve a single account by id."""
         try:
             if current_user.authority != accounts.Accounts.ADMIN_AUTHORITY:
-                if current_user.id != account_id:
-                    json_res = {'message': '用户权限不够访问他人账户'}
-                    return json_res, HTTPStatus.BAD_REQUEST
+                json_res = {'message': '用户权限不够访问他人账户'}
+                return json_res, HTTPStatus.BAD_REQUEST
             result = accounts.find_account_by_id(account_id)
             if len(result) == 0:
                 return get_message_json('用户ID不存在'), HTTPStatus.NOT_FOUND
