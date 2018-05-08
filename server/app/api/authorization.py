@@ -6,7 +6,7 @@ from flask_restplus import Namespace, Resource
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from ..model import accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstCodes
 
 
 api = Namespace('authorization')
@@ -21,17 +21,25 @@ class AuthorizationResource(Resource):
             )
     def post(self):
         """Create authorization given username and password."""
+
         req_password = request.form['password']
         try:
-            account = accounts.find_account_by_username(request.form['username'])
-            if not account or len(account) == 0:
-                return get_message_json('用户不存在'), HTTPStatus.BAD_REQUEST
+            accounts_list = accounts.find_account_by_username(request.form['username'])
+            if not accounts_list or len(accounts_list) == 0:
+                return get_message_json('用户不存在'), HTTPStatus.UNAUTHORIZED
+            
+            account = accounts_list[0]
+            if not check_password_hash(account.password, req_password):
+                return get_message_json('密码错误'), HTTPStatus.UNAUTHORIZED
+            
+            if account.authority == ConstCodes.Empty:
+                return get_message_json('用户审核未通过'), HTTPStatus.UNAUTHORIZED
 
-            if not check_password_hash(account[0].password, req_password):
-                return get_message_json('密码错误'), HTTPStatus.BAD_REQUEST
-
-            login_user(account[0], remember=True)
-            return get_message_json('登录成功'), HTTPStatus.OK
+            login_user(account, remember=True)
+            json_res = get_message_json('登录成功')
+            json_res['account_id'] = account.account_id
+            json_res['authority'] = account.authority
+            return json_res, HTTPStatus.OK
 
         except IntegrityError as err:
             handle_internal_error(err.orig.args[1])
