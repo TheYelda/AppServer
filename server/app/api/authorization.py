@@ -22,9 +22,14 @@ class AuthorizationResource(Resource):
     def post(self):
         """Create authorization given username and password."""
 
-        req_password = request.form['password']
+        req_json = request.get_json()
+        if not req_json or not req_json['username'] or not req_json['password']:
+            return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+        
+        req_username = req_json['username']
+        req_password = req_json['password']
         try:
-            accounts_list = accounts.find_account_by_username(request.form['username'])
+            accounts_list = accounts.find_account_by_username(req_username)
             if not accounts_list or len(accounts_list) == 0:
                 return get_message_json('用户不存在'), HTTPStatus.UNAUTHORIZED
             

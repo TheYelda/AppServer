@@ -104,7 +104,7 @@ class AccountsCollectionResource(Resource):
                 return get_message_json('用户权限不足以查看所有账户'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_all_users()
             accounts_list = []
-            for i, account in enumerate(result):
+            for _, account in enumerate(result):
                 accounts_list.append(account.to_json())
             json_res = {'message': '查找成功',
                         'data': accounts_list}
