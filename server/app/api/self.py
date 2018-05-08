@@ -14,7 +14,7 @@ class AuthorizationResource(Resource):
 
     @login_required
     def get(self):
-        """Retrive account_id of current user."""
+        """Retrieve account_id of current user."""
         json_res = get_message_json('ID获取成功')
         json_res['account_id'] = current_user.account_id
         return json_res, HTTPStatus.OK
