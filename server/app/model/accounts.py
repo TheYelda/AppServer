@@ -11,7 +11,7 @@ class Accounts(Base, UserMixin):
 
     account_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     username = Column(VARCHAR(128), nullable=False, unique=True)
-    nickname = Column(VARCHAR(128), nullable=True)
+    nickname = Column(VARCHAR(128), nullable=False)
     password = Column(VARCHAR(256), nullable=False)
     email = Column(VARCHAR(128), nullable=False)
     photo = Column(VARCHAR(128), nullable=True)

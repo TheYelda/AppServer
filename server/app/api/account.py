@@ -32,14 +32,10 @@ class AccountResource(Resource):
         except Exception as err:
             return handle_internal_error(str(err))
 
-    @api.doc(parser=api.parser()
-             .add_argument('nickname', type=str, required=True, help='昵称', location='form')
-             .add_argument('password', type=str, required=True, help='密码', location='form')
-             .add_argument('email', type=str, required=True, help='邮箱', location='form')
-             .add_argument('photo', type=str, required=True, help='照片文件名', location='form')
-             .add_argument('authority', type=int, required=True, help='权限', location='form')
-             )
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     def put(self, account_id):
         """Edit a single account by id."""
         form = request.get_json()
@@ -113,12 +109,8 @@ class AccountsCollectionResource(Resource):
             return get_message_json(str(err))
     
     @api.doc(parser=api.parser()
-             .add_argument('username', type=str, required=True, help='用户名', location='form')
-             .add_argument('nickname', type=str, required=True, help='昵称', location='form')
-             .add_argument('password', type=str, required=True, help='密码', location='form')
-             .add_argument('email', type=str, required=True, help='邮箱', location='form')
-             .add_argument('photo', type=str, required=True, help='照片文件名', location='form')
-             )
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     def post(self):
         """Create an account."""
         form = request.get_json()

@@ -16,8 +16,7 @@ class AuthorizationResource(Resource):
     """Deal with user authorization."""
 
     @api.doc(parser=api.parser()
-             .add_argument('username', type=str, required=True, help='用户名', location='form')
-             .add_argument('password', type=str, required=True, help='密码', location='form')
+             .add_argument('body', type=str, required=True, help='json', location='json')
             )
     def post(self):
         """Create authorization given username and password."""

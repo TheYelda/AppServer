@@ -67,11 +67,8 @@ class ImageResource(Resource):
             return handle_internal_error(str(err))
     
     @api.doc(parser=api.parser()
-             .add_argument('filename', type=str, required=True, help='文件名', location='form')
-             .add_argument('state', type=str, required=True, help='状态', location='form')
-             .add_argument('ground_truth_id', type=str, required=True, help='标签序号', location='form')
-             .add_argument('source', type=str, required=True, help='来源', location='form')
-             )
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     @login_required
     def put(self, image_id):
         if test_mode:
@@ -143,13 +140,10 @@ class ImagesCollectionResource(Resource):
         except Exception as err:
             return handle_internal_error(str(err))
     
-    @api.doc(parser=api.parser()
-         .add_argument('filename', type=str, required=True, help='文件名', location='form')
-         .add_argument('state', type=str, required=True, help='状态', location='form')
-         .add_argument('ground_truth_id', type=str, required=True, help='标签序号', location='form')
-         .add_argument('source', type=str, required=True, help='来源', location='form')
-         )
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     def post(self):
         if test_mode:
             SINGLE_IMAGE_RESPONSE['message'] = '图片创建成功'

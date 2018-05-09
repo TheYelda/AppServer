@@ -36,14 +36,11 @@ class JobResource(Resource):
         json_res['message'] = '成功查看任务'
         return json_res, HTTPStatus.OK
 
-    @api.doc(parser=api.parser()
-             .add_argument('image_id', type=str, required=True, help='图片ID', location='form')
-             .add_argument('doctor_id', type=str, required=True, help='医生ID', location='form')
-             .add_argument('label_id', type=str, required=True, help='标签ID', location='form')
-             .add_argument('state', type=str, required=True, help='任务状态', location='form')
-             .add_argument('finished_date', type=str, required=True, help='任务完成日期', location='form')
-             )
+
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     def put(self, job_id):
         """Edit a single job by id."""
         # Only admin can edit any job
@@ -108,11 +105,10 @@ class JobsCollectionResource(Resource):
         except Exception as err:
             return handle_internal_error(str(err))
 
-    @api.doc(parser=api.parser()
-             .add_argument('image_id', type=str, required=True, help='图片ID', location='form')
-             .add_argument('doctor_id', type=str, required=True, help='医生ID', location='form')
-             )
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     def post(self):
         """Create a job."""
         form = request.form
