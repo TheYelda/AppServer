@@ -1,6 +1,7 @@
 # coding=utf-8
 """Define table and operations for labels."""
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, ForeignKey, TEXT, func
+from . import Base, session, handle_db_exception
 
 
 class Labels(Base):

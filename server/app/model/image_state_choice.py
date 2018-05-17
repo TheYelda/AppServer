@@ -1,6 +1,7 @@
 # coding=utf-8
 """Define table and operations for ImageStateChoice."""
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base
 
 
 class ImageStageChoice(Base):

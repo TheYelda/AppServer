@@ -1,7 +1,8 @@
 # coding=utf-8
 """Define table and operations for accounts."""
 from flask_login import UserMixin
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base, session, handle_db_exception
 from ..api.utils import ConstCodes
 
 

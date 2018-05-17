@@ -113,7 +113,10 @@ class AccountsCollectionResource(Resource):
             )
     def post(self):
         """Create an account."""
+        print('get json')
         form = request.get_json()
+        return get_message_json('收到注册数据'), HTTPStatus.OK
+
         try:
             result = accounts.add_account(
                 form['username'],
