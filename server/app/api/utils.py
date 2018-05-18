@@ -44,6 +44,7 @@ class ConstantCodes(object):
     Different = 302
     Done = 303
 
+
 ConstCodes = ConstantCodes()
 
 

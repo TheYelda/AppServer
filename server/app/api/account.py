@@ -85,7 +85,7 @@ class AccountResource(Resource):
             else:
                 return get_message_json('用户不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
-            return handle_internal_error(err)
+            return handle_internal_error(str(err))
 
 
 @api.route('/')
