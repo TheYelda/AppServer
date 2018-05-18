@@ -9,7 +9,7 @@ api = Namespace('self')
 
 
 @api.route('/')
-class AuthorizationResource(Resource):
+class SelfResource(Resource):
     """Deal with current user."""
 
     @login_required

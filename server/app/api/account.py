@@ -112,7 +112,6 @@ class AccountsCollectionResource(Resource):
              .add_argument('body', type=str, required=True, help='json', location='json')
             )
     def post(self):
-        return get_message_json('测试成功'), HTTPStatus.OK
         """Create an account."""
         form = request.get_json()
 
@@ -122,7 +121,7 @@ class AccountsCollectionResource(Resource):
                 form['nickname'],
                 generate_password_hash(form['password']),
                 form['email'],
-                form['photo']
+                'default.png'
             )
             json_res = result.to_json()
             # Return password before hashing
