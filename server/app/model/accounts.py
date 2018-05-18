@@ -24,7 +24,8 @@ class Accounts(Base, UserMixin):
             'account_id': self.account_id,
             'username': self.username,
             'nickname': self.nickname,
-            'password': self.password,
+            # Avoid to return password
+            # 'password': self.password,
             'email': self.email,
             'photo': self.photo,
             'authority': self.authority

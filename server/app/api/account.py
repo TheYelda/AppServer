@@ -124,8 +124,6 @@ class AccountsCollectionResource(Resource):
                 'default.png'
             )
             json_res = result.to_json()
-            # Return password before hashing
-            json_res['password'] = form['password']
             json_res['message'] = '用户创建成功'
 
             return json_res, HTTPStatus.CREATED

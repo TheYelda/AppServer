@@ -23,6 +23,7 @@ class HttpCodes(object):
     NO_CONTENT = 204
     BAD_REQUEST = 400
     UNAUTHORIZED = 401
+    FORBIDDEN = 403
     NOT_FOUND = 404
     CONFLICT = 409
     INTERNAL_SERVER_ERROR = 500
@@ -32,13 +33,16 @@ HTTPStatus = HttpCodes()
 
 
 class ConstantCodes(object):
+    # Authority 1XX
     Empty = 100
     Admin = 101
     Doctor = 102
     Guest = 103
+    # Job State 2XX
     Unlabeled = 200
     Labeling = 201
     Finished = 202
+    # Image State 3XX
     Unassigned = 300
     Running = 301
     Different = 302
