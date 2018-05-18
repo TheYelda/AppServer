@@ -7,6 +7,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from .model import init_db
 
+
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
 
@@ -24,7 +25,7 @@ def create_app(config_name):
     # Load private config at instance/config.py
     if os.path.exists('instance/config.py'):
         app.config.from_pyfile('config.py')
-        
+
     # Initialize database
     try:
         init_db(
