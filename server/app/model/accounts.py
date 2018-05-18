@@ -1,7 +1,8 @@
 # coding=utf-8
 """Define table and operations for accounts."""
 from flask_login import UserMixin
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base, session, handle_db_exception
 from ..api.utils import ConstCodes
 
 
@@ -41,11 +42,11 @@ class Accounts(Base, UserMixin):
                    self.authority)
     
     def get_id(self):
-        '''Override UserMixin.get_id()'''
+        """Override UserMixin.get_id()"""
         return self.account_id
     
     def is_admin(self):
-        '''If the account has an authority of Admin, return True'''
+        """If the account has an authority of Admin, return True"""
         return self.authority == ConstCodes.Admin
 
 

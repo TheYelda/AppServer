@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for jobs."""
-from . import *
-from ..api.utils import ConstantCodes
+from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
+from . import Base, session, handle_db_exception
 
 
 class Jobs(Base):

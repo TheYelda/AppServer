@@ -1,6 +1,7 @@
 # coding=utf-8
 """Define table and operations for images."""
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
+from . import Base, session, handle_db_exception
 
 
 class Images(Base):

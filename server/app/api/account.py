@@ -85,7 +85,7 @@ class AccountResource(Resource):
             else:
                 return get_message_json('用户不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
-            return handle_internal_error(err)
+            return handle_internal_error(str(err))
 
 
 @api.route('/')
@@ -112,8 +112,10 @@ class AccountsCollectionResource(Resource):
              .add_argument('body', type=str, required=True, help='json', location='json')
             )
     def post(self):
+        return get_message_json('测试成功'), HTTPStatus.OK
         """Create an account."""
         form = request.get_json()
+
         try:
             result = accounts.add_account(
                 form['username'],
