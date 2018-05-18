@@ -40,11 +40,11 @@ class Accounts(Base, UserMixin):
                    self.authority)
     
     def get_id(self):
-        '''Override UserMixin.get_id()'''
+        """Override UserMixin.get_id()"""
         return self.account_id
     
     def is_admin(self):
-        '''If the account has an authority of Admin, return True'''
+        """If the account has an authority of Admin, return True"""
         return self.authority == ConstCodes.Admin
 
 
