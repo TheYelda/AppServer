@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Define table and operations for ImageStateChoice."""
+"""Define table and operations for ImageStageChoice."""
 from sqlalchemy import Column, Integer, VARCHAR
 from . import Base
 
