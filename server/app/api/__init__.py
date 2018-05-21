@@ -26,5 +26,5 @@ api.add_namespace(job_ns, path='/jobs')
 api.add_namespace(image_ns, path='/images')
 api.add_namespace(label_ns, path='/labels')
 api.add_namespace(self_ns, path='/self')
-api.add_namespace(upload_ns, path='/uploads/photos')
-api.add_namespace(upload_ns, path='/uploads/medical-images')
+api.add_namespace(upload_ns, path='/uploads')
+

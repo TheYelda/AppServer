@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for labels."""
 from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, ForeignKey, TEXT, func
-from . import Base, session, handle_db_exception, image_state_choice, hr_choice, age_dme_choice
+from . import Base, session, handle_db_exception, image_stage_choice, hr_choice, age_dme_choice
 from ..api.utils import get_message_json
 
 
@@ -29,7 +29,7 @@ class Labels(Base):
     def to_json(self):
         """Return a json for the record."""
         try:
-            stage = image_state_choice.find_image_stage_choice_by_id(self.stage_id)[0].name
+            stage = image_stage_choice.find_image_stage_choice_by_id(self.stage_id)[0].name
             hr = hr_choice.find_hr_choice_by_id(self.hr_id)[0].name
             age_dme = age_dme_choice.find_age_dme_choice_by_id(self.age_dme_id)[0].name
             return {
@@ -86,9 +86,9 @@ def add_label(_quality: BOOLEAN,
     """Add a label to database and return this label"""
     label = Labels()
 
-    stage_list = image_state_choice.find_image_stage_choice_by_name(_stage)
+    stage_list = image_stage_choice.find_image_stage_choice_by_name(_stage)
     if len(stage_list) == 0:
-        result = image_state_choice.add_image_stage_choice(_stage)
+        result = image_stage_choice.add_image_stage_choice(_stage)
         label.stage_id = result.stage_id
     else:
         label.stage_id = stage_list[0].stage_id
@@ -144,9 +144,9 @@ def update_label_by_id(_id: int,
     """Update the information of an label given id and return 1 or 0 represented result"""
 
     if _stage is not None:
-        stage_list = image_state_choice.find_image_stage_choice_by_name(_stage)
+        stage_list = image_stage_choice.find_image_stage_choice_by_name(_stage)
         if len(stage_list) == 0:
-            result = image_state_choice.add_image_stage_choice(_stage)
+            result = image_stage_choice.add_image_stage_choice(_stage)
             _stage_id = result.stage_id
         else:
             _stage_id = stage_list[0].stage_id

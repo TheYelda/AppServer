@@ -1,5 +1,5 @@
 import os
-from flask import request, current_app, send_from_directory
+from flask import request, current_app, send_file
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -10,7 +10,6 @@ from .utils import get_message_json, handle_internal_error, HTTPStatus
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 api = Namespace('uploads')
-
 
 
 @api.route('/photos')
@@ -48,7 +47,15 @@ class PhotoResource(Resource):
     @login_required
     def get(self, filename):
         """retrive a photo."""
-        return send_from_directory(os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER']), filename)
+
+        photo_file_path = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'], filename)
+        if os.path.exists(photo_file_path):
+            try:
+                return send_file(photo_file_path)
+            except Exception as err:
+                return handle_internal_error(str(err))
+        else:
+            return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
 
 
 @api.route('/medical-images')
@@ -62,14 +69,14 @@ class MedicalImagesCollectionResource(Resource):
     def post(self):
         """upload a madical image."""
 
-        photo_file = request.files['file']
-        if photo_file and allowed_file(photo_file.filename):
-            photo_filename = secure_filename(photo_file.filename)
-            expand_name = photo_filename.rsplit('.', 1)[1]
-            photo_filename = current_user.username + '.' + expand_name
+        medical_file = request.files['file']
+        if medical_file and allowed_file(medical_file.filename):
+            medical_filename = secure_filename(medical_file.filename)
+            expand_name = medical_filename.rsplit('.', 1)[1]
+            medical_filename = current_user.username + '.' + expand_name
             try:
-                photo_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
-                photo_file.save(os.path.join(photo_location, photo_filename))
+                medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
+                medical_file.save(os.path.join(medical_location, medical_filename))
 
                 return get_message_json('医学影像上传成功'), HTTPStatus.OK
 
@@ -85,9 +92,16 @@ class MedicalImageResource(Resource):
     
     @login_required
     def get(self, filename):
-        """retrive a photo."""
-        return send_from_directory(os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER']), filename)
-
+        """retrive a medical image."""
+        
+        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'], filename)
+        if os.path.exists(medical_file_path):
+            try:
+                return send_file(medical_file_path)
+            except Exception as err:
+                return handle_internal_error(str(err))
+        else:
+            return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
