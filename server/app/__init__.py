@@ -7,7 +7,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 from .model import init_db
 
-
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
 
@@ -70,6 +69,5 @@ def create_app(config_name):
 
     app.logger.addHandler(handler)
     app.logger.setLevel(log_mode)
-    
     return app
 
