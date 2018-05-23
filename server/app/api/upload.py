@@ -103,5 +103,6 @@ class MedicalImageResource(Resource):
         else:
             return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
