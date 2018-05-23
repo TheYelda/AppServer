@@ -6,7 +6,7 @@ from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
 from ..model import images
-from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus, ConstCodes
+from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus, ConstCodes, DBErrorCodes
 
 
 api = Namespace('images')
@@ -40,6 +40,8 @@ class ImageResource(Resource):
         """Edit a single image by id."""
         form = request.get_json()
         try:
+            if not current_user.is_admin():
+                return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
             if images.find_image_by_id(image_id):
                 result = images.update_image_by_id(
                     image_id,
@@ -48,24 +50,34 @@ class ImageResource(Resource):
                     form['filename'],
                     form['source']
                 )
-                json_res = form.copy()
-                json_res['message'] = '图片更新成功'
-                return json_res, HTTPStatus.OK
+                if result == 1:
+                    json_res = form.copy()
+                    json_res['message'] = '图像信息修改成功'
+                    return json_res, HTTPStatus.OK
             else:
                 return get_message_json('图片未创建'), HTTPStatus.NOT_FOUND
 
         except IntegrityError as err:
-            return handle_internal_error(err.orig.args[1])
+            if err.orig.args[0] == DBErrorCodes.FOREIGN_KEY_FAILURE:
+                return get_message_json('指定的标签不存在'), HTTPStatus.BAD_REQUEST
+            else:
+                return handle_internal_error(err.orig.args[1])
 
         except Exception as err:
             return handle_internal_error(str(err))
 
     @login_required
     def delete(self, image_id):
+        """Delete an image given an id."""
         try:
-            images.delete_image_by_id(image_id)
-            return get_message_json('图片删除成功'), HTTPStatus.NO_CONTENT
-        
+            if not current_user.is_admin():
+                return get_message_json("删除图像需要管理员权限"), HTTPStatus.UNAUTHORIZED
+            result = images.delete_image_by_id(image_id)
+            if result == 1:
+                return get_message_json('图片删除成功'), HTTPStatus.OK
+            else:
+                return get_message_json('图片不存在'), HTTPStatus.NOT_FOUND
+
         except IntegrityError as err:
             return handle_internal_error(err.orig.args[1])
 

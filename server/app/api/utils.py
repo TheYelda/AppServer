@@ -12,6 +12,8 @@ class DBErrorCodes(object):
     """
     # Duplicate entry for unique key
     DUPLICATE_ENTRY = 1062
+    # Foreign key failes
+    FOREIGN_KEY_FAILURE = 1452
 
 
 DB_ERR_CODES = DBErrorCodes()
