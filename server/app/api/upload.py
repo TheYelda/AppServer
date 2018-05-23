@@ -32,7 +32,7 @@ class PhotosCollectionResource(Resource):
                 photo_location = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'])
                 photo_file.save(os.path.join(photo_location, photo_filename))
 
-                return get_message_json('头像上传成功'), HTTPStatus.OK
+                return get_message_json('头像上传成功'), HTTPStatus.CREATED
 
             except Exception as err:
                 return handle_internal_error(str(err))
@@ -78,7 +78,7 @@ class MedicalImagesCollectionResource(Resource):
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
                 medical_file.save(os.path.join(medical_location, medical_filename))
 
-                return get_message_json('医学影像上传成功'), HTTPStatus.OK
+                return get_message_json('医学影像上传成功'), HTTPStatus.CREATED
 
             except Exception as err:
                 return handle_internal_error(str(err))
