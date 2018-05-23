@@ -1,6 +1,7 @@
 # coding=utf-8
 """Provide common utilities for API processing."""
 from flask import current_app
+from http import HTTPStatus
 
 
 class DBErrorCodes(object):
@@ -12,27 +13,12 @@ class DBErrorCodes(object):
     """
     # Duplicate entry for unique key
     DUPLICATE_ENTRY = 1062
-
-
-DB_ERR_CODES = DBErrorCodes()
-
-
-class HttpCodes(object):
-    OK = 200
-    CREATED = 201
-    NO_CONTENT = 204
-    BAD_REQUEST = 400
-    UNAUTHORIZED = 401
-    FORBIDDEN = 403
-    NOT_FOUND = 404
-    CONFLICT = 409
-    INTERNAL_SERVER_ERROR = 500
-
-
-HTTPStatus = HttpCodes()
+    # Foreign key failes
+    FOREIGN_KEY_FAILURE = 1452
 
 
 class ConstantCodes(object):
+    """Constant codes for some states."""
     # Authority 1XX
     Empty = 100
     Admin = 101
@@ -47,9 +33,6 @@ class ConstantCodes(object):
     Running = 301
     Different = 302
     Done = 303
-
-
-ConstCodes = ConstantCodes()
 
 
 def get_message_json(message):

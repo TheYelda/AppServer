@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 from flask import request, current_app, send_file
 from flask_restplus import Namespace, Resource

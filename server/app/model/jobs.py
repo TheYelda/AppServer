@@ -2,7 +2,7 @@
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
 from . import Base, session, handle_db_exception
-from ..api.utils import ConstCodes
+from ..api.utils import ConstantCodes
 
 
 class Jobs(Base):
@@ -44,7 +44,7 @@ def add_job(_image_id: int,
     job = Jobs()
     job.image_id = _image_id
     job.account_id = _account_id
-    job.job_state = ConstCodes.Unlabeled
+    job.job_state = ConstantCodes.Unlabeled
     try:
         session.add(job)
         session.commit()

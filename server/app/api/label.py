@@ -18,13 +18,14 @@ class LabelResource(Resource):
         """Retrieve a single label by id."""
         try:
             if not current_user.is_admin():
+                # TODO
                 '    and current_user.account_id != jobs.find_accound_id_by_lable_id(label_id):'
-                return get_message_json('该label不是您创建的'), HTTPStatus.UNAUTHORIZED
+                return get_message_json('用户无法访问其他用户的标注信息'), HTTPStatus.UNAUTHORIZED
             result = labels.find_label_by_id(label_id)
             if len(result) == 0:
-                return  get_message_json('label不存在'), HTTPStatus.NOT_FOUND
+                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
             json_res = result[0].to_json()
-            json_res['message'] = 'label获取成功'
+            json_res['message'] = '标注获取成功'
             return json_res, HTTPStatus.OK
         except Exception as err:
             return handle_internal_error(str(err))
@@ -55,10 +56,10 @@ class LabelResource(Resource):
             )
             if result == 1:
                 json_res = form.copy()
-                json_res['message'] = 'label修改成功'
+                json_res['message'] = '标注修改成功'
                 return json_res, HTTPStatus.OK
             else:
-                return get_message_json('label不存在'), HTTPStatus.NOT_FOUND
+                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
             return handle_internal_error(str(err))
 
@@ -68,9 +69,9 @@ class LabelResource(Resource):
         try:
             result = labels.delete_label_by_id(label_id)
             if result == 1:
-                return get_message_json('label删除成功'), HTTPStatus.NO_CONTENT
+                return get_message_json('标注删除成功'), HTTPStatus.OK
             else:
-                return  get_message_json('label不存在'), HTTPStatus.NOT_FOUND
+                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
         except Exception as err:
             return handle_internal_error(str(err))
 
@@ -102,7 +103,7 @@ class LabelsCollectionResource(Resource):
                 form['others'],
                 form['comment'])
             json_res = result.to_json()
-            json_res['message'] = '创建成功'
+            json_res['message'] = '标注创建成功'
             return json_res, HTTPStatus.CREATED
         except Exception as err:
-            handle_internal_error(str(err))
+            return handle_internal_error(str(err))

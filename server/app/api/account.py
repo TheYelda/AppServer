@@ -6,7 +6,7 @@ from flask import request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from ..model import accounts
-from .utils import get_message_json, DB_ERR_CODES, handle_internal_error, HTTPStatus, ConstCodes
+from .utils import get_message_json, DBErrorCodes, handle_internal_error, HTTPStatus, ConstantCodes
 
 
 api = Namespace('accounts')
@@ -49,10 +49,10 @@ class AccountResource(Resource):
                 elif account_id != current_user.account_id:
                     return get_message_json('用户无法修改他人信息'), HTTPStatus.UNAUTHORIZED
             elif current_user.is_admin() and account_id == current_user.account_id \
-                    and int(form['authority']) != ConstCodes.Admin:
+                    and int(form['authority']) != ConstantCodes.Admin:
                 return get_message_json('管理员无法修改本账号权限'), HTTPStatus.UNAUTHORIZED
             elif current_user.is_admin() and account_id != current_user.account_id \
-                    and int(form['authority']) == ConstCodes.Admin:
+                    and int(form['authority']) == ConstantCodes.Admin:
                 return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
             result = accounts.update_account_by_id(
                 account_id,
@@ -139,7 +139,7 @@ class AccountsCollectionResource(Resource):
 
             return json_res, HTTPStatus.CREATED
         except IntegrityError as err:
-            if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
+            if err.orig.args[0] == DBErrorCodes.DUPLICATE_ENTRY:
                 return get_message_json('用户名已存在'), HTTPStatus.CONFLICT
             else:
                 return handle_internal_error(err.orig.args[1])

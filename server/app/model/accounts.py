@@ -3,7 +3,7 @@
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, VARCHAR
 from . import Base, session, handle_db_exception
-from ..api.utils import ConstCodes
+from ..api.utils import ConstantCodes
 
 
 class Accounts(Base, UserMixin):
@@ -47,7 +47,7 @@ class Accounts(Base, UserMixin):
     
     def is_admin(self):
         """If the account has an authority of Admin, return True"""
-        return self.authority == ConstCodes.Admin
+        return self.authority == ConstantCodes.Admin
 
 
 def add_account(_username: str,
@@ -62,7 +62,7 @@ def add_account(_username: str,
     account.password = _password
     account.email = _email
     account.photo = _photo
-    account.authority = ConstCodes.Empty
+    account.authority = ConstantCodes.Empty
     try:
         session.add(account)
         session.commit()
@@ -104,7 +104,7 @@ def find_accounts_by_authority(_authority: int):
 def find_all_users():
     """Return all accounts via a list."""
     try:
-        accounts_list = session.query(Accounts).filter(Accounts.authority != ConstCodes.Admin)
+        accounts_list = session.query(Accounts).filter(Accounts.authority != ConstantCodes.Admin)
         session.commit()
         return accounts_list.all()
     except Exception as err:
