@@ -62,6 +62,8 @@ DB_USERNAME = MySQL用户名
 DB_PASSWORD = MySQL密码
 DB_NAME = 数据库名称
 SECRET_KEY = 用户会话管理秘钥
+PHOTOS_FOLDER = 头像图片文件夹
+MEDICAL_IMAGES_FOLDER = 医疗图像文件夹
 ```
 
 ## 开发规范
@@ -69,7 +71,7 @@ SECRET_KEY = 用户会话管理秘钥
 - Git的使用参考[Git开发规范](https://github.com/TheYelda/Dashboard/blob/master/git_collaboration_guide.md)。
 
 ## 数据模型
-TODO
+![](https://raw.githubusercontent.com/TheYelda/Dashboard/master/docs/images/db.png)
 
 ## RESTful API
-<https://github.com/TheYelda/Dashboard/blob/master/api.md>
+<https://github.com/TheYelda/Dashboard/blob/master/docs/design/api.md>
