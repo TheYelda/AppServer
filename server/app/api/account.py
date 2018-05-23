@@ -95,21 +95,22 @@ class AccountsCollectionResource(Resource):
     @login_required
     @api.doc(parser=api.parser()
              .add_argument('username', type=str, required=False, help='username', location='args')
+             .add_argument('authority', type=int, required=False, help='authority', location='args')
             )
     def get(self):
         """List all accounts."""
         try:
             query_username = request.args.get('username')
+            query_authority = request.args.get('authority')
             if not current_user.is_admin():
                 return get_message_json('用户无法查看他人账号'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_all_users()
             accounts_list = []
-            if query_username:
-                for _, account in enumerate(result):
-                    if account.username == query_username:
-                        accounts_list.append(account.to_json())
-            else:
-                for _, account in enumerate(result):
+            
+            for _, account in enumerate(result):
+                if ((not query_username or (query_username == account.username)) and
+                    (not query_authority or (int(query_authority) == account.authority))
+                ):
                     accounts_list.append(account.to_json())
 
             json_res = {'message': '用户集合获取成功',

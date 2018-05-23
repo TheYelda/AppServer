@@ -104,7 +104,7 @@ def find_accounts_by_authority(_authority: int):
 def find_all_users():
     """Return all accounts via a list."""
     try:
-        accounts_list = session.query(Accounts).filter(Accounts.authority == ConstCodes.Doctor)
+        accounts_list = session.query(Accounts).filter(Accounts.authority != ConstCodes.Admin)
         session.commit()
         return accounts_list.all()
     except Exception as err:
