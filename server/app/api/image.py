@@ -8,7 +8,6 @@ from werkzeug.security import check_password_hash
 from ..model import images
 from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus, ConstCodes
 
-
 api = Namespace('images')
 
 
@@ -41,10 +40,10 @@ class ImageResource(Resource):
         form = request.get_json()
         try:
             if images.find_image_by_id(image_id):
-                result = images.update_image_by_id(
+                images.update_image_by_id(
                     image_id,
                     form['label_id'],
-                    form['state'],
+                    form['image_state'],
                     form['filename'],
                     form['source']
                 )
@@ -78,12 +77,14 @@ class ImagesCollectionResource(Resource):
     """Deal with collection of images."""
 
     @login_required
-    @api.doc(params={'state': 'state'})
+    @api.doc(parser=api.parser()
+             .add_argument('image_state', type=int, required=False, help='state of image', location='args')
+            )
     def get(self):
         """List all images."""
-        state = request.args.get('state')
+        image_state = request.args.get('image_state')
         try:
-            result = images.find_all_images(state)
+            result = images.find_all_images(image_state)
             state_list = []
             for _, state in enumerate(result):
                 state_list.append(state.to_json())

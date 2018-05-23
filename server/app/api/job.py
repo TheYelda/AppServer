@@ -91,7 +91,11 @@ class JobsCollectionResource(Resource):
     """Deal with collection of jobs."""
 
     @login_required
-    @api.doc(params={'account_id': 'account id'})
+    @api.doc(parser=api.parser()
+             .add_argument('image_id', type=str, required=False, help='id of image', location='args')
+             .add_argument('account_id', type=str, required=False, help='id of account', location='args')
+             .add_argument('job_state', type=str, required=False, help='state of job', location='args')
+            )
     def get(self):
         """List all jobs."""
         # account_id is an optional argument

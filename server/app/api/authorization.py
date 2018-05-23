@@ -22,7 +22,7 @@ class AuthorizationResource(Resource):
         """Create authorization given username and password."""
 
         req_json = request.get_json()
-        if not req_json or not req_json['username'] or not req_json['password']:
+        if not req_json or not req_json.get('username') or not req_json.get('password'):
             return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
         
         req_username = req_json['username']
