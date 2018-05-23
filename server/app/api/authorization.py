@@ -6,7 +6,7 @@ from flask_restplus import Namespace, Resource
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from ..model import accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes
 
 
 api = Namespace('authorization')
@@ -36,7 +36,7 @@ class AuthorizationResource(Resource):
             if not check_password_hash(account.password, req_password):
                 return get_message_json('密码错误'), HTTPStatus.UNAUTHORIZED
             
-            if account.authority == ConstCodes.Empty:
+            if account.authority == ConstantCodes.Empty:
                 return get_message_json('用户审核未通过'), HTTPStatus.UNAUTHORIZED
 
             login_user(account, remember=True)

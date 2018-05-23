@@ -1,12 +1,11 @@
 # coding=utf-8
 """Deal with image-related APIs."""
 from sqlalchemy.exc import IntegrityError
-from flask import request, current_app
+from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from werkzeug.security import check_password_hash
 from ..model import images
-from .utils import get_message_json, handle_internal_error, DB_ERR_CODES, HTTPStatus, ConstCodes, DBErrorCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
 
 
 api = Namespace('images')
@@ -120,7 +119,7 @@ class ImagesCollectionResource(Resource):
             if not current_user.is_admin():
                 return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
             image_list = images.add_image(
-                ConstCodes.Unassigned,
+                ConstantCodes.Unassigned,
                 form['filename'],
                 form['source']
             )
@@ -129,7 +128,7 @@ class ImagesCollectionResource(Resource):
 
             return json_res, HTTPStatus.CREATED
         except IntegrityError as err:
-            if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
+            if err.orig.args[0] == DBErrorCodes.DUPLICATE_ENTRY:
                 return get_message_json('图片已存在'), HTTPStatus.CONFLICT
             else:
                 return handle_internal_error(err.orig.args[1])
