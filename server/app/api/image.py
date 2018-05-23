@@ -41,7 +41,7 @@ class ImageResource(Resource):
             if not current_user.is_admin():
                 return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
             if images.find_image_by_id(image_id):
-                images.update_image_by_id(
+                result= images.update_image_by_id(
                     image_id,
                     form['label_id'],
                     form['image_state'],
