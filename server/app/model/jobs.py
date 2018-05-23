@@ -101,6 +101,7 @@ def find_all_jobs(_account_id):
         if _account_id is None:
             jobs_list = session.query(Jobs).filter()
         else:
+            _account_id = int(_account_id)
             jobs_list = session.query(Jobs).filter(Jobs.account_id == _account_id)
 
         session.commit()

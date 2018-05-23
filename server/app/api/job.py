@@ -95,7 +95,7 @@ class JobsCollectionResource(Resource):
     def get(self):
         """List all jobs."""
         # account_id is an optional argument
-        account_id = int(request.args.get('account_id'))
+        account_id = request.args.get('account_id')
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
             return get_message_json('用户无法访问其他用户的任务列表')
