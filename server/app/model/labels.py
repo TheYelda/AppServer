@@ -5,7 +5,6 @@ from . import Base, session, handle_db_exception, image_stage_choice, hr_choice,
 from ..api.utils import get_message_json
 
 
-
 class Labels(Base):
     """Table constructed for labels."""
 
@@ -121,8 +120,6 @@ def add_label(_quality: BOOLEAN,
         session.add(label)
         session.commit()
         return label
-    except ValueError as err:
-        return get_message_json(err)
     except Exception as err:
         handle_db_exception(err)
 
