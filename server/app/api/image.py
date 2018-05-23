@@ -169,4 +169,3 @@ class ImagesCollectionResource(Resource):
 
         except Exception as err:
             return handle_internal_error(str(err))
-        

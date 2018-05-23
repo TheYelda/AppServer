@@ -114,17 +114,16 @@ class AccountsCollectionResource(Resource):
     def post(self):
         """Create an account."""
         form = request.get_json()
+
         try:
             result = accounts.add_account(
                 form['username'],
                 form['nickname'],
                 generate_password_hash(form['password']),
                 form['email'],
-                form['photo']
+                'default.png'
             )
             json_res = result.to_json()
-            # Return password before hashing
-            json_res['password'] = form['password']
             json_res['message'] = '用户创建成功'
 
             return json_res, HTTPStatus.CREATED

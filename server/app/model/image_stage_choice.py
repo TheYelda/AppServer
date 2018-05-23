@@ -1,6 +1,7 @@
 # coding=utf-8
-"""Define table and operations for ImageStateChoice."""
-from . import *
+"""Define table and operations for ImageStageChoice."""
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base, session, handle_db_exception
 
 
 class ImageStageChoice(Base):

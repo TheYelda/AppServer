@@ -1,7 +1,8 @@
 # coding=utf-8
 """Define table and operations for accounts."""
 from flask_login import UserMixin
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base, session, handle_db_exception
 from ..api.utils import ConstCodes
 
 
@@ -23,7 +24,8 @@ class Accounts(Base, UserMixin):
             'account_id': self.account_id,
             'username': self.username,
             'nickname': self.nickname,
-            'password': self.password,
+            # Avoid to return password
+            # 'password': self.password,
             'email': self.email,
             'photo': self.photo,
             'authority': self.authority
