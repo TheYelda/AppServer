@@ -20,11 +20,11 @@ class Jobs(Base):
     def to_json(self):
         """Return a json for the record."""
         return {
-            'job_id': self.image_id,
+            'job_id': self.job_id,
             'image_id': self.image_id,
             'label_id': self.label_id,
             'account_id': self.account_id,
-            'finished_date': self.finished_date,
+            'finished_date': str(self.finished_date) if self.finished_date else None,
             'job_state': self.job_state
         }
 
@@ -53,17 +53,17 @@ def add_job(_image_id: int,
         handle_db_exception(err)
 
 
-def delete_job_by_id(_id):
+def delete_job_by_id(_job_id):
     """Delete an account by id and return 1 or 0 representing result"""
     try:
-        result = session.query(Jobs).filter(Jobs.account_id == _id).delete()
+        result = session.query(Jobs).filter(Jobs.job_id == _job_id).delete()
         session.commit()
         return result
     except Exception as err:
         handle_db_exception(err)
 
 
-def update_job_by_id(_id: int,
+def update_job_by_id(_job_id: int,
                      _image_id: int,
                      _account_id: int,
                      _label_id: int,
@@ -71,8 +71,7 @@ def update_job_by_id(_id: int,
                      _job_state: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
-        result = session.query(Jobs).filter(Jobs.account_id == _id).update({
-            'job_id': _id,
+        result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
             'image_id': _image_id,
             'label_id': _label_id,
             'account_id': _account_id,
