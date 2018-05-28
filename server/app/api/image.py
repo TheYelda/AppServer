@@ -119,12 +119,12 @@ class ImagesCollectionResource(Resource):
         try:
             if not current_user.is_admin():
                 return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
-            image_list = images.add_image(
+            image_object = images.add_image(
                 ConstantCodes.Unassigned,
                 form['filename'],
                 form['source']
             )
-            json_res = image_list.to_json()
+            json_res = image_object.to_json()
             json_res['message'] = '图片创建成功'
 
             return json_res, HTTPStatus.CREATED
