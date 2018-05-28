@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import datetime
 from sqlalchemy.exc import IntegrityError
 from flask import request, current_app, send_file
 from flask_restplus import Namespace, Resource
@@ -77,15 +78,16 @@ class MedicalImagesCollectionResource(Resource):
             
             try:
                 """save the image data"""
+                expand_name = medical_filename.rsplit('.', 1)[1]
+                time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+                medical_filename = time_name + '.' + expand_name
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
                 medical_file.save(os.path.join(medical_location, medical_filename))
 
-                """create a Lable for the Image"""
-
-                
                 """create an instance of Image"""
                 if not current_user.is_admin():
                     return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
+                
                 image_object = images.add_image(
                     ConstantCodes.Unassigned,
                     medical_filename,
@@ -93,6 +95,8 @@ class MedicalImagesCollectionResource(Resource):
                 )
                 json_res = image_object.to_json()
                 json_res['message'] = '医学图像上传成功'
+
+
 
                 return json_res, HTTPStatus.CREATED
             
