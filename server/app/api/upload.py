@@ -13,7 +13,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 api = Namespace('uploads')
 
 
-@api.route('/photos')
+@api.route('/photos/')
 class PhotosCollectionResource(Resource):
     """Deal with collection of accounts' photos."""
     
@@ -59,7 +59,7 @@ class PhotoResource(Resource):
             return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
 
 
-@api.route('/medical-images')
+@api.route('/medical-images/')
 class MedicalImagesCollectionResource(Resource):
     """Deal with collection of medical images."""
     
