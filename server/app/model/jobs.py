@@ -85,7 +85,7 @@ def update_job_by_id(_job_id: int,
 
 
 def find_job_by_id(_id: int):
-    """Find an account by id and return a list"""
+    """Find a job by id and return a list"""
     try:
         job_list = session.query(Jobs).filter(Jobs.job_id == _id)
         session.commit()
@@ -94,14 +94,29 @@ def find_job_by_id(_id: int):
         handle_db_exception(err)
 
 
-def find_all_jobs(_account_id):
-    """Return all jobs or jobs related to the given account id via a list."""
+def find_job_by_image_id(_image_id: int):
+    """Find a job by image id and return a list"""
     try:
-        if _account_id is None:
-            jobs_list = session.query(Jobs).filter()
-        else:
-            _account_id = int(_account_id)
-            jobs_list = session.query(Jobs).filter(Jobs.account_id == _account_id)
+        job_list = session.query(Jobs).filter(Jobs.image_id == _image_id)
+        session.commit()
+        return job_list.all()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_all_jobs(_account_id: int,
+                  _image_id: int,
+                  _job_state: int):
+    """Return all jobs related to the given arguments via a list."""
+    try:
+        query = {}
+        if _account_id is not None:
+            query['account_id'] = _account_id
+        if _image_id is not None:
+            query['image_id'] = _image_id
+        if _job_state is not None:
+            query['job_state'] = _job_state
+        jobs_list = session.query(Jobs).filter_by(**query)
 
         session.commit()
         return jobs_list.all()

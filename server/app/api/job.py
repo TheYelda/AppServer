@@ -4,7 +4,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from ..model import jobs
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 from sqlalchemy.exc import IntegrityError
 
 api = Namespace('jobs')
@@ -110,16 +110,20 @@ class JobsCollectionResource(Resource):
             )
     def get(self):
         """List all jobs."""
-        # account_id is an optional string argument
-        account_id = request.args.get('account_id')
-        if account_id is not None:
-            account_id = int(account_id)
+        # These arguments are all strings originally and should be cast to int
+        account_id = convert_to_int(request.args.get('account_id'))
+        image_id = convert_to_int(request.args.get('image_id'))
+        job_state = convert_to_int(request.args.get('job_state'))
+
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
-            return get_message_json('用户没有权限访问其他用户的任务列表')
+            return get_message_json('用户没有权限访问其他用户的任务列表'), HTTPStatus.FORBIDDEN
 
         try:
-            result = jobs.find_all_jobs(account_id)
+            result = jobs.find_all_jobs(account_id, image_id, job_state)
+
+            if len(result) == 0:
+                return get_message_json('没有符合查询条件的任务'), HTTPStatus.NOT_FOUND
 
             data = []
             for job in result:
