@@ -20,7 +20,7 @@ class Images(Base):
         return {
             'image_id': self.image_id,
             'label_id':self.label_id,
-            'state': self.image_state,
+            'image_state': self.image_state,
             'filename': self.filename,
             'source': self.source
         }

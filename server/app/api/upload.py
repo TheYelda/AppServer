@@ -1,19 +1,21 @@
 # coding=utf-8
 import os
+import datetime
+from sqlalchemy.exc import IntegrityError
 from flask import request, current_app, send_file
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
-from ..model import accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from ..model import accounts, images, labels
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 api = Namespace('uploads')
 
 
-@api.route('/photos')
+@api.route('/photos/')
 class PhotosCollectionResource(Resource):
     """Deal with collection of accounts' photos."""
     
@@ -59,7 +61,7 @@ class PhotoResource(Resource):
             return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
 
 
-@api.route('/medical-images')
+@api.route('/medical-images/')
 class MedicalImagesCollectionResource(Resource):
     """Deal with collection of medical images."""
     
@@ -73,16 +75,40 @@ class MedicalImagesCollectionResource(Resource):
         medical_file = request.files['file']
         if medical_file and allowed_file(medical_file.filename):
             medical_filename = secure_filename(medical_file.filename)
-            expand_name = medical_filename.rsplit('.', 1)[1]
-            medical_filename = current_user.username + '.' + expand_name
+            
             try:
+                """save the image data"""
+                expand_name = medical_filename.rsplit('.', 1)[1]
+                time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+                medical_filename = time_name + '.' + expand_name
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
                 medical_file.save(os.path.join(medical_location, medical_filename))
 
-                return get_message_json('医学影像上传成功'), HTTPStatus.CREATED
+                """create an instance of Image"""
+                if not current_user.is_admin():
+                    return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
+                
+                image_object = images.add_image(
+                    ConstantCodes.Unassigned,
+                    medical_filename,
+                    'default source',
+                )
+                json_res = image_object.to_json()
+                json_res['message'] = '医学图像上传成功'
+
+
+
+                return json_res, HTTPStatus.CREATED
+            
+            except IntegrityError as err:
+                if err.orig.args[0] == DBErrorCodes.DUPLICATE_ENTRY:
+                    return get_message_json('图片已存在'), HTTPStatus.CONFLICT
+                else:
+                    return handle_internal_error(err.orig.args[1])
 
             except Exception as err:
                 return handle_internal_error(str(err))
+
         else:
             return get_message_json('医学影像上传失败'), HTTPStatus.BAD_REQUEST
 
@@ -95,7 +121,7 @@ class MedicalImageResource(Resource):
     def get(self, filename):
         """retrive a medical image."""
         
-        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'], filename)
+        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'], filename)
         if os.path.exists(medical_file_path):
             try:
                 return send_file(medical_file_path)

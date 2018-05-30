@@ -7,7 +7,6 @@ from flask_login import login_required, current_user
 from ..model import images
 from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
 
-
 api = Namespace('images')
 
 
@@ -42,10 +41,10 @@ class ImageResource(Resource):
             if not current_user.is_admin():
                 return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
             if images.find_image_by_id(image_id):
-                result = images.update_image_by_id(
+                result= images.update_image_by_id(
                     image_id,
                     form['label_id'],
-                    form['state'],
+                    form['image_state'],
                     form['filename'],
                     form['source']
                 )
@@ -89,12 +88,14 @@ class ImagesCollectionResource(Resource):
     """Deal with collection of images."""
 
     @login_required
-    @api.doc(params={'state': 'state'})
+    @api.doc(parser=api.parser()
+             .add_argument('image_state', type=int, required=False, help='state of image', location='args')
+            )
     def get(self):
         """List all images."""
-        state = request.args.get('state')
+        image_state = request.args.get('image_state')
         try:
-            result = images.find_all_images(state)
+            result = images.find_all_images(image_state)
             state_list = []
             for _, state in enumerate(result):
                 state_list.append(state.to_json())
@@ -118,12 +119,12 @@ class ImagesCollectionResource(Resource):
         try:
             if not current_user.is_admin():
                 return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
-            image_list = images.add_image(
+            image_object = images.add_image(
                 ConstantCodes.Unassigned,
                 form['filename'],
                 form['source']
             )
-            json_res = image_list.to_json()
+            json_res = image_object.to_json()
             json_res['message'] = '图片创建成功'
 
             return json_res, HTTPStatus.CREATED
