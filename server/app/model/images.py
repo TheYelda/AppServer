@@ -1,7 +1,8 @@
 # coding=utf-8
 """Define table and operations for images."""
 from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
-from . import Base, session, handle_db_exception
+from . import Base, session, handle_db_exception, labels
+from ..api.utils import ConstantCodes
 
 
 class Images(Base):
@@ -93,3 +94,21 @@ def delete_image_by_id(_id: int):
         return result
     except Exception as err:
         handle_db_exception(err)
+
+
+def update_image_state(_image_id, all_jobs):
+    """
+    Update the state of the image relative to the given jobs
+    :param _image_id: the id of the to-be-updated image
+    :param all_jobs: all corresponding jobs of the image
+    """
+    # Only when all jobs are finished will we move on
+    for job in all_jobs:
+        if job.job_state != ConstantCodes.Finished:
+            return
+    # Check if all corresponding labels are consistant
+    all_labels = [labels.find_label_by_id(job.label_id)[0] for job in all_jobs]
+    if all_labels.count(all_labels[0]) == len(all_labels):
+        update_image_by_id(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
+    else:
+        update_image_by_id(_image_id, _image_state=ConstantCodes.Different)

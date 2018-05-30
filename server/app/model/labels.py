@@ -68,6 +68,16 @@ class Labels(Base):
                    self.others,
                    self.comment)
 
+    def __eq__(self, other):
+        if self.__class__ == other.__class__:
+            for field in self.__dict__:
+                if field == 'label_id' or field == 'comment' or field == '_sa_instance_state':
+                    continue
+                if not getattr(self, field) == getattr(other, field):
+                    return False
+            return True
+        return False
+
 
 def add_label(_quality: BOOLEAN,
               _dr: BOOLEAN,
@@ -198,6 +208,16 @@ def delete_label_by_id(_id: int):
 
 def find_label_by_id(_id: int):
     """Find a label by id and return a list"""
+    try:
+        label_list = session.query(Labels).filter(Labels.label_id == _id)
+        session.commit()
+        return label_list.all()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_label_by_job_id(_job_id: int):
+    """Find a label by job id and return a list"""
     try:
         label_list = session.query(Labels).filter(Labels.label_id == _id)
         session.commit()

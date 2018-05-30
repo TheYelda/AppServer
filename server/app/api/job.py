@@ -3,7 +3,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from ..model import jobs
+from ..model import jobs, images
 from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 from sqlalchemy.exc import IntegrityError
 
@@ -67,6 +67,11 @@ class JobResource(Resource):
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '成功编辑任务'
+                # Check whether to update corresponding image
+                if form['job_state'] == ConstantCodes.Finished:
+                    jobs_of_same_image = jobs.find_job_by_image_id(form['image_id'])
+                    images.update_image_state(form['image_id'], jobs_of_same_image)
+
                 return json_res, HTTPStatus.OK
             else:
                 return get_message_json('未知的任务更新失败'), HTTPStatus.BAD_REQUEST
@@ -154,6 +159,9 @@ class JobsCollectionResource(Resource):
             )
             json_res = result.to_json()
             json_res['message'] = '任务创建成功'
+
+            # Modify the state of the image
+            images.update_image_by_id(form['image_id'], _image_state=ConstantCodes.Running)
 
             return json_res, HTTPStatus.CREATED
 

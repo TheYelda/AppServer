@@ -95,7 +95,7 @@ def find_job_by_id(_id: int):
 
 
 def find_job_by_image_id(_image_id: int):
-    """Find a job by image id and return a list"""
+    """Find jobs by image id and return a list"""
     try:
         job_list = session.query(Jobs).filter(Jobs.image_id == _image_id)
         session.commit()
