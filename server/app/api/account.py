@@ -54,13 +54,15 @@ class AccountResource(Resource):
             elif current_user.is_admin() and account_id != current_user.account_id \
                     and int(form['authority']) == ConstantCodes.Admin:
                 return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
+
+            hash_password = None if form.get('password') is None else generate_password_hash(form.get('password'))
             result = accounts.update_account_by_id(
                 account_id,
-                form['nickname'],
-                generate_password_hash(form['password']),
-                form['email'],
-                form['photo'],
-                form['authority']
+                form.get('nickname'),
+                hash_password,
+                form.get('email'),
+                form.get('photo'),
+                form.get('authority')
             )
             if result == 1:
                 json_res = form.copy()

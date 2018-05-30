@@ -34,6 +34,9 @@ class PhotosCollectionResource(Resource):
             try:
                 photo_location = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'])
                 photo_file.save(os.path.join(photo_location, photo_filename))
+                
+                if current_user.photo == 'defaul.png':
+                    current_user.photo = photo_filename
 
                 return get_message_json('头像上传成功'), HTTPStatus.CREATED
 

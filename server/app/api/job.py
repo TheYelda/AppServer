@@ -130,9 +130,6 @@ class JobsCollectionResource(Resource):
         try:
             result = jobs.find_all_jobs(account_id, image_id, job_state)
 
-            if len(result) == 0:
-                return get_message_json('没有符合查询条件的任务'), HTTPStatus.NOT_FOUND
-
             data = []
             for job in result:
                 data.append(job.to_json())
@@ -159,10 +156,15 @@ class JobsCollectionResource(Resource):
             # Finished image can not be assigned
             if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
                 return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
-
+            
+            image_id = form.get('image_id')
+            account_id = form.get('account_id')
+            if not image_id or not account_id:
+                return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+            
             result = jobs.add_job(
-                form['image_id'],
-                form['account_id']
+                image_id,
+                account_id
             )
             json_res = result.to_json()
             json_res['message'] = '任务创建成功'
