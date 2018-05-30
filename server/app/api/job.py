@@ -56,6 +56,9 @@ class JobResource(Resource):
             if previous_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
+            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
+                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
+
             result = jobs.update_job_by_id(
                 job_id,
                 form['image_id'],
@@ -153,6 +156,10 @@ class JobsCollectionResource(Resource):
             return get_message_json('创建任务需要管理员权限'), HTTPStatus.FORBIDDEN
         
         try:
+            # Finished image can not be assigned
+            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
+                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
+
             result = jobs.add_job(
                 form['image_id'],
                 form['account_id']

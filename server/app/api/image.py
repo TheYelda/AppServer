@@ -43,7 +43,7 @@ class ImageResource(Resource):
             image_to_update = images.find_image_by_id(image_id)
             if image_to_update:
                 if image_to_update.image_state == ConstantCodes.Done:
-                    return get_message_json("无法修改已完成的图像"), HTTPStatus.FORBIDDEN
+                    return get_message_json("无法修改已完成标注的图像"), HTTPStatus.FORBIDDEN
 
                 result = images.update_image_by_id(
                     image_id,
