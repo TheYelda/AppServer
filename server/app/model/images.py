@@ -68,7 +68,7 @@ def find_image_by_id(_id: int):
     try:
         image_list = session.query(Images).filter(Images.image_id == _id)
         session.commit()
-        return image_list.all()
+        return image_list.first()
     except Exception as err:
         handle_db_exception(err)
 

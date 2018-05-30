@@ -40,7 +40,11 @@ class ImageResource(Resource):
         try:
             if not current_user.is_admin():
                 return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
-            if images.find_image_by_id(image_id):
+            image_to_update = images.find_image_by_id(image_id)
+            if image_to_update:
+                if image_to_update.image_state == ConstantCodes.Done:
+                    return get_message_json("无法修改已完成的图像"), HTTPStatus.FORBIDDEN
+
                 result = images.update_image_by_id(
                     image_id,
                     form['label_id'],
@@ -53,7 +57,7 @@ class ImageResource(Resource):
                     json_res['message'] = '图像信息修改成功'
                     return json_res, HTTPStatus.OK
             else:
-                return get_message_json('图片未创建'), HTTPStatus.NOT_FOUND
+                return get_message_json('图像不存在'), HTTPStatus.NOT_FOUND
 
         except IntegrityError as err:
             if err.orig.args[0] == DBErrorCodes.FOREIGN_KEY_FAILURE:
