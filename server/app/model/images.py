@@ -73,6 +73,15 @@ def find_image_by_id(_id: int):
         handle_db_exception(err)
 
 
+def find_image_by_label_id(_label_id: int):
+    try:
+        image_list = session.query(Images).filter(Images.label_id == _label_id)
+        session.commit()
+        return image_list.first()
+    except Exception as err:
+        handle_db_exception(err)
+
+
 def find_all_images(_state):
     try:
         if _state is None:

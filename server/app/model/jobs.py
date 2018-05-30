@@ -104,6 +104,16 @@ def find_job_by_image_id(_image_id: int):
         handle_db_exception(err)
 
 
+def find_job_by_label_id(_label_id: int):
+    """Find jobs by label id and return a job object"""
+    try:
+        job_list = session.query(Jobs).filter(Jobs.label_id == _label_id)
+        session.commit()
+        return job_list.first()
+    except Exception as err:
+        handle_db_exception(err)
+
+
 def find_all_jobs(_account_id: int,
                   _image_id: int,
                   _job_state: int):

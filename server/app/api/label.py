@@ -3,8 +3,8 @@
 from flask_restplus import Namespace, Resource, reqparse
 from flask_login import login_required,current_user
 from flask import request
-from ..model import labels, jobs
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from ..model import labels, jobs, images
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes
 
 api = Namespace('labels')
 
@@ -17,10 +17,9 @@ class LabelResource(Resource):
     def get(self, label_id):
         """Retrieve a single label by id."""
         try:
-            if not current_user.is_admin():
-                # TODO
-                '    and current_user.account_id != jobs.find_accound_id_by_lable_id(label_id):'
-                return get_message_json('用户无法访问其他用户的标注信息'), HTTPStatus.UNAUTHORIZED
+            if not current_user.is_admin()\
+                    and current_user.account_id != jobs.find_job_by_label_id(label_id).account_id:
+                return get_message_json('用户无法访问其他用户的标注信息'), HTTPStatus.FORBIDDEN
             result = labels.find_label_by_id(label_id)
             if len(result) == 0:
                 return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
@@ -38,6 +37,18 @@ class LabelResource(Resource):
         """Edit a single label by id."""
         form = request.get_json()
         try:
+            if not current_user.is_admin():
+                the_job = jobs.find_job_by_label_id(label_id)
+                if the_job is None:
+                    return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+                if the_job.account_id != current_user.get_id():
+                    return get_message_json('用户没有权限修改其他用户的标注信息'), HTTPStatus.FORBIDDEN
+                elif the_job.job_state == ConstantCodes.Finished:
+                    return get_message_json('用户无法修改已完成任务的标注信息'), HTTPStatus.FORBIDDEN
+            elif images.find_image_by_label_id(label_id) is None:
+                # The admin can only manage ground truth label
+                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+
             result = labels.update_label_by_id(
                 label_id,
                 form['quality'],
@@ -59,7 +70,7 @@ class LabelResource(Resource):
                 json_res['message'] = '标注修改成功'
                 return json_res, HTTPStatus.OK
             else:
-                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+                return get_message_json('未知的标注修改错误'), HTTPStatus.BAD_REQUEST
         except Exception as err:
             return handle_internal_error(str(err))
 
@@ -67,11 +78,23 @@ class LabelResource(Resource):
     def delete(self, label_id):
         """Delete a single label by id."""
         try:
+            if not current_user.is_admin():
+                the_job = jobs.find_job_by_label_id(label_id)
+                if the_job is None:
+                    return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+                if the_job.account_id != current_user.get_id():
+                    return get_message_json('用户没有权限删除其他用户的标注信息'), HTTPStatus.FORBIDDEN
+                elif the_job.job_state == ConstantCodes.Finished:
+                    return get_message_json('用户无法删除已完成任务的标注信息'), HTTPStatus.FORBIDDEN
+            elif images.find_image_by_label_id(label_id) is None:
+                # The admin can only manage ground truth label
+                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+
             result = labels.delete_label_by_id(label_id)
             if result == 1:
                 return get_message_json('标注删除成功'), HTTPStatus.OK
             else:
-                return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
+                return get_message_json('未知的标注删除错误'), HTTPStatus.BAD_REQUEST
         except Exception as err:
             return handle_internal_error(str(err))
 
