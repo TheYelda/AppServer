@@ -1,3 +1,6 @@
+"""
+The code for testing `Accounts`.
+"""
 from utils.accounts_helper import *
 
 
@@ -853,7 +856,7 @@ def list_accounts_test_1():
     """
     directly list accounts
     """
-    list_accounts(401)
+    list_accounts(401, cookies={})
 
 
 def list_accounts_test_2():
@@ -861,7 +864,7 @@ def list_accounts_test_2():
     admin login
     list accounts
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -871,7 +874,7 @@ def list_accounts_test_2():
     retrieve_self(expected_code=200, expected_data={
         'account_id': 3
     })
-    list_accounts(200)
+    list_accounts(200, cookies=cookies)
     remove_authorization(200)
 
 
@@ -879,7 +882,7 @@ def list_accounts_test_3():
     """
     doctor login
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -889,7 +892,7 @@ def list_accounts_test_3():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 1
     })
-    list_accounts(401)
+    list_accounts(401, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -1034,14 +1037,19 @@ if __name__ == '__main__':
     # remove_auth_testing()
 
     """
-    Suucced
+    Suucced!
     """
     # retrieve_account_testing()
 
     """
+    Succeed!
+    """
+    # list_accounts_testing()
+
+    """
     Fail
     """
-    edit_account_testing()
+    # edit_account_testing()
 
     """
     Fail

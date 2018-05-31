@@ -7,10 +7,10 @@ session.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5
                    'Accept': 'application/json'}
 
 
-def retrieve_account(account_id, expected_code, expected_data):
+def retrieve_account(account_id, expected_code, expected_data, cookies):
     url = "{}{}".format(account_url, account_id)
     func_name = 'retrieve_account'
-    resp = session.get(url)
+    resp = session.get(url, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != code:
@@ -25,10 +25,10 @@ def retrieve_account(account_id, expected_code, expected_data):
             succeed(func_name)
 
 
-def edit_account(account_id, data, expected_code, expected_data):
+def edit_account(account_id, data, expected_code, expected_data, cookies):
     func_name = 'edit_account'
-    url = "{}{}/".format(account_url, account_id)
-    resp = session.put(url, data)
+    url = "{}{}".format(account_url, account_id)
+    resp = session.put(url, data=data, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != code:
@@ -43,10 +43,10 @@ def edit_account(account_id, data, expected_code, expected_data):
             succeed(func_name)
 
 
-def delete_account(account_id, expected_code):
+def delete_account(account_id, expected_code, cookies):
     func_name = 'delete_account'
     url = "{}{}".format(account_url, account_id)
-    resp = session.delete(url)
+    resp = session.delete(url, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != code:
@@ -55,10 +55,10 @@ def delete_account(account_id, expected_code):
         succeed(func_name)
 
 
-def list_accounts(expected_code):
+def list_accounts(expected_code, cookies):
     func_name = 'list_accounts'
     url = account_url
-    resp = session.get(url)
+    resp = session.get(url, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != resp.status_code:
@@ -68,10 +68,10 @@ def list_accounts(expected_code):
         succeed(func_name)
 
 
-def create_account(data, expected_code):
+def create_account(data, expected_code, cookies):
     func_name = 'create_account'
     url = account_url
-    resp = session.post(url, json=data)
+    resp = session.post(url, json=data, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != code:

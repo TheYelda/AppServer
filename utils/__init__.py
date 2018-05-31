@@ -64,10 +64,15 @@ def create_authorization(data, expected_code, expected_data):
         if expected_code == 200:
             if compare_json(expected_data, data):
                 succeed(func_name)
+                return {
+                    'remember_token': resp.cookies['remember_token'],
+                    'session': resp.cookies['session']
+                }
             else:
                 error(func_name, 'expected data', expected_data, data, data)
         else:
             succeed(func_name)
+            return {}
 
 
 def compare_json(expected, real):
