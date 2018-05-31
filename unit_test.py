@@ -99,7 +99,7 @@ def retrieve_account_test_1():
     """
     directly retrieve account by id.
     """
-    retrieve_account(account_id=3, expected_code=401, expected_data=None)
+    retrieve_account(account_id=3, expected_code=401, expected_data=None, cookies={})
 
 
 def retrieve_account_test_2():
@@ -107,7 +107,7 @@ def retrieve_account_test_2():
     admin login
     retrieve my id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -120,7 +120,7 @@ def retrieve_account_test_2():
     retrieve_account(account_id=3, expected_code=200, expected_data={
         "account_id": 3,
         "username": "admin",
-    })
+    }, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -129,7 +129,7 @@ def retrieve_account_test_3():
     admin login
     retrieve other's id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -142,7 +142,7 @@ def retrieve_account_test_3():
     retrieve_account(account_id=1, expected_code=200, expected_data={
         "account_id": 1,
         "username": "doctor1",
-    })
+    }, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -151,7 +151,7 @@ def retrieve_account_test_4():
     admin login
     retrieve id which doesn't exist.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -161,7 +161,7 @@ def retrieve_account_test_4():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 3
     })
-    retrieve_account(account_id=20, expected_code=404, expected_data=None)
+    retrieve_account(account_id=20, expected_code=404, expected_data=None, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -170,7 +170,7 @@ def retrieve_account_test_5():
     doctor login
     retrieve my id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -183,7 +183,7 @@ def retrieve_account_test_5():
     retrieve_account(account_id=1, expected_code=200, expected_data={
         "account_id": 1,
         "username": "doctor1",
-    })
+    }, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -192,20 +192,19 @@ def retrieve_account_test_6():
     guest login
     retrieve my id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
         "account_id": 7,
-        "authority": 102
+        "authority": 103
     })
     retrieve_self(expected_code=200, expected_data={
         "account_id": 7
     })
     retrieve_account(account_id=7, expected_code=200, expected_data={
         "account_id": 7,
-        "username": "guest",
-    })
+    }, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -214,7 +213,7 @@ def retrieve_account_test_7():
     doctor login
     retrieve other's id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -224,7 +223,7 @@ def retrieve_account_test_7():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 1
     })
-    retrieve_account(account_id=10, expected_code=401, expected_data=None)
+    retrieve_account(account_id=10, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -233,17 +232,17 @@ def retrieve_account_test_8():
     guest login
     retrieve other's id.
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
         "account_id": 7,
-        "authority": 102
+        "authority": 103
     })
     retrieve_self(expected_code=200, expected_data={
         "account_id": 7
     })
-    retrieve_account(account_id=9, expected_code=401, expected_data=None)
+    retrieve_account(account_id=9, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -251,7 +250,7 @@ def del_account_test_1():
     """
     directly del account
     """
-    delete_account(10, 401)
+    delete_account(10, 401, cookies={})
 
 
 def del_account_test_2():
@@ -259,7 +258,7 @@ def del_account_test_2():
     admin login
     del my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -269,7 +268,7 @@ def del_account_test_2():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 3
     })
-    delete_account(account_id=3, expected_code=401)
+    delete_account(account_id=3, expected_code=401, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -278,7 +277,7 @@ def del_account_test_3():
     admin login
     del other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -288,7 +287,7 @@ def del_account_test_3():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 3
     })
-    delete_account(account_id=6, expected_code=204)
+    delete_account(account_id=6, expected_code=204, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -297,7 +296,7 @@ def del_account_test_4():
     admin login
     del account which doesn't exist
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -307,7 +306,7 @@ def del_account_test_4():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 3
     })
-    delete_account(account_id=20, expected_code=404)
+    delete_account(account_id=20, expected_code=404, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -316,7 +315,7 @@ def del_account_test_5():
     doctor login
     del other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -326,7 +325,7 @@ def del_account_test_5():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 1
     })
-    delete_account(account_id=2, expected_code=204)
+    delete_account(account_id=2, expected_code=401, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -335,7 +334,7 @@ def del_account_test_6():
     doctor login
     del my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -345,8 +344,46 @@ def del_account_test_6():
     retrieve_self(expected_code=200, expected_data={
         "account_id": 1
     })
-    delete_account(account_id=1, expected_code=204)
-    remove_authorization(expected_code=200)
+    delete_account(account_id=1, expected_code=204, cookies=cookies)
+    retrieve_self(expected_code=404, expected_data=None)
+
+
+def del_account_test_7():
+    """
+    guest login
+    del other's account
+    """
+    cookies = create_authorization(data={
+        "username": "guest1",
+        "password": "123"
+    }, expected_code=200, expected_data={
+        "account_id": 7,
+        "authority": 103
+    })
+    retrieve_self(expected_code=200, expected_data={
+        "account_id": 7
+    })
+    delete_account(account_id=6, expected_code=401, cookies=cookies)
+    retrieve_self(expected_code=200, expected_data={})
+
+
+def del_account_test_8():
+    """
+    guest login
+    del my account
+    """
+    cookies = create_authorization(data={
+        "username": "guest1",
+        "password": "123"
+    }, expected_code=200, expected_data={
+        "account_id": 7,
+        "authority": 103
+    })
+    retrieve_self(expected_code=200, expected_data={
+        "account_id": 7
+    })
+    delete_account(account_id=7, expected_code=204, cookies=cookies)
+    retrieve_self(expected_code=404, expected_data=None)
 
 
 def create_account_test_1():
@@ -410,7 +447,7 @@ def edit_account_test_1():
         "email": "yelda@mail.com",
         "photo": "photo1.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies={})
 
 
 def edit_account_test_2():
@@ -418,7 +455,7 @@ def edit_account_test_2():
     admin login
     edit the nickname and authority of mine
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -434,7 +471,7 @@ def edit_account_test_2():
         "email": "yelda@mail.com",
         "photo": "photo1.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -443,7 +480,7 @@ def edit_account_test_3():
     admin login
     edit the email of my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -465,7 +502,7 @@ def edit_account_test_3():
         "email": "yelda@sysu.com",
         "photo": "photo1.png",
         "authority": 101
-    })
+    }, cookies=cookies)
     remove_authorization(200)
 
 
@@ -474,7 +511,7 @@ def edit_account_test_4():
     admin login
     edit the nickname of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -490,7 +527,7 @@ def edit_account_test_4():
         "email": "yelda@sysu.com",
         "photo": "photo1.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -499,7 +536,7 @@ def edit_account_test_5():
     admin login
     edit the authority of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -521,7 +558,7 @@ def edit_account_test_5():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    })
+    }, cookies=cookies)
     remove_authorization(200)
 
 
@@ -530,7 +567,7 @@ def edit_account_test_6():
     admin login
     edit the authority of account which doesn't exist
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -546,7 +583,7 @@ def edit_account_test_6():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=404, expected_data=None)
+    }, expected_code=404, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -555,7 +592,7 @@ def edit_account_test_7():
     doctor login
     edit the authority of my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -571,7 +608,7 @@ def edit_account_test_7():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -580,7 +617,7 @@ def edit_account_test_8():
     doctor login
     edit the nickname of my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -602,7 +639,7 @@ def edit_account_test_8():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 102
-    })
+    }, cookies=cookies)
     remove_authorization(200)
 
 
@@ -611,7 +648,7 @@ def edit_account_test_9():
     doctor login
     edit the nickname of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -627,7 +664,7 @@ def edit_account_test_9():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -636,7 +673,7 @@ def edit_account_test_10():
     doctor login
     edit the authority of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -652,7 +689,7 @@ def edit_account_test_10():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -661,7 +698,7 @@ def edit_account_test_11():
     doctor login
     edit the authority of account which doesn't exist
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "doctor1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -677,7 +714,7 @@ def edit_account_test_11():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=404, expected_data=None)
+    }, expected_code=404, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -686,7 +723,7 @@ def edit_account_test_12():
     guest login
     edit the authority of my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -702,7 +739,7 @@ def edit_account_test_12():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -711,7 +748,7 @@ def edit_account_test_13():
     guest login
     edit the nickname of my account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -733,7 +770,7 @@ def edit_account_test_13():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    })
+    }, cookies=cookies)
     remove_authorization(200)
 
 
@@ -742,7 +779,7 @@ def edit_account_test_14():
     guest login
     edit the nickname of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -758,7 +795,7 @@ def edit_account_test_14():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 102
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -767,7 +804,7 @@ def edit_account_test_15():
     guest login
     edit the authority of other's account
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -783,7 +820,7 @@ def edit_account_test_15():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=401, expected_data=None)
+    }, expected_code=401, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -792,7 +829,7 @@ def edit_account_test_16():
     guest login
     edit the authority of account which doesn't exist
     """
-    create_authorization(data={
+    cookies = create_authorization(data={
         "username": "guest1",
         "password": "123"
     }, expected_code=200, expected_data={
@@ -808,7 +845,7 @@ def edit_account_test_16():
         "email": "yelda100@mail.com",
         "photo": "default.png",
         "authority": 103
-    }, expected_code=404, expected_data=None)
+    }, expected_code=404, expected_data=None, cookies=cookies)
     remove_authorization(200)
 
 
@@ -915,20 +952,19 @@ def del_account_testing():
 
     test(1, del_account_test_1)
 
-    # Fail
     test(2, del_account_test_2)
 
-    # Fail
     test(3, del_account_test_3)
 
-    # Fail
     test(4, del_account_test_4)
 
-    # Fail
     test(5, del_account_test_5)
 
-    # Fail
     test(6, del_account_test_6)
+
+    test(7, del_account_test_7)
+
+    test(8, del_account_test_8)
 
 
 def edit_account_testing():
@@ -998,17 +1034,16 @@ if __name__ == '__main__':
     # remove_auth_testing()
 
     """
-    Fail
+    Suucced
     """
     # retrieve_account_testing()
 
     """
     Fail
     """
-    # del_account_testing()
+    edit_account_testing()
 
     """
     Fail
     """
-    # edit_account_testing()
-
+    # del_account_testing()
