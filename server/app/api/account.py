@@ -43,24 +43,27 @@ class AccountResource(Resource):
             """doctor and guest can not modify their authority or other users' info"""
             """admin can not modify his authority"""
             """admin can not modify other users' authority as admin"""
+            """admin can only modify authority of others"""
             if not current_user.is_admin():
-                if account_id == current_user.account_id and int(form['authority']) != current_user.authority:
+                if account_id == current_user.account_id and form.get('authority') != current_user.authority:
                     return get_message_json('用户无法修改权限'), HTTPStatus.UNAUTHORIZED
                 elif account_id != current_user.account_id:
                     return get_message_json('用户无法修改他人信息'), HTTPStatus.UNAUTHORIZED
             elif current_user.is_admin() and account_id == current_user.account_id \
-                    and int(form['authority']) != ConstantCodes.Admin:
+                    and form.get('authority') != ConstantCodes.Admin:
                 return get_message_json('管理员无法修改本账号权限'), HTTPStatus.UNAUTHORIZED
-            elif current_user.is_admin() and account_id != current_user.account_id \
-                    and int(form['authority']) == ConstantCodes.Admin:
-                return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
+            elif current_user.is_admin() and account_id != current_user.account_id:
+                if form.get('authority') == ConstantCodes.Admin:
+                    return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
+                if form.get('nickname') or form.get('password') or form.get('email') or form.get('photo'):
+                    return get_message_json('管理员无法修改他人除权限外的其他信息'), HTTPStatus.UNAUTHORIZED
             result = accounts.update_account_by_id(
                 account_id,
-                form['nickname'],
-                generate_password_hash(form['password']),
-                form['email'],
-                form['photo'],
-                form['authority']
+                form.get('nickname'),
+                generate_password_hash(form.get('password')) if form.get('password') else None,
+                form.get('email'),
+                form.get('photo'),
+                form.get('authority')
             )
             if result == 1:
                 json_res = form.copy()
