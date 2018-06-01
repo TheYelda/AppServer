@@ -28,7 +28,7 @@ def retrieve_account(account_id, expected_code, expected_data, cookies):
 def edit_account(account_id, data, expected_code, expected_data, cookies):
     func_name = 'edit_account'
     url = "{}{}".format(account_url, account_id)
-    resp = session.put(url, data=data, cookies=cookies)
+    resp = session.put(url, json=data, cookies=cookies)
     code = resp.status_code
     data = json.loads(resp.text)
     if expected_code != code:

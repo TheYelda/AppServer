@@ -500,7 +500,6 @@ def edit_account_test_3():
         "photo": "photo1.png",
         "authority": 101
     }, expected_code=200, expected_data={
-        "username": "admin",
         "nickname": "admin",
         "email": "yelda@sysu.com",
         "photo": "photo1.png",
@@ -1049,7 +1048,7 @@ if __name__ == '__main__':
     """
     Fail
     """
-    # edit_account_testing()
+    edit_account_testing()
 
     """
     Fail
