@@ -13,7 +13,7 @@ class Images(Base):
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     label_id = Column(Integer, ForeignKey('Labels.label_id'), nullable=True)
     image_state = Column(Integer, nullable=False)
-    filename = Column(VARCHAR(128), nullable=False)
+    filename = Column(VARCHAR(128), nullable=False, unique=True)
     source = Column(VARCHAR(128))
 
     def to_json(self):

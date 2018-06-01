@@ -119,7 +119,6 @@ class ImagesCollectionResource(Resource):
             )
     def post(self):
         """Create an image."""
-        # TODO image name should be unique
         form = request.get_json()
         try:
             if not current_user.is_admin():
