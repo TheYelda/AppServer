@@ -18,9 +18,9 @@ class ImageResource(Resource):
     def get(self, image_id):
         """Retrieve a single image by id."""
         try:
-            image_list = images.find_image_by_id(image_id)
-            if image_list:
-                json_res = image_list[0].to_json()
+            the_image = images.find_image_by_id(image_id)
+            if the_image:
+                json_res = the_image.to_json()
                 json_res['message'] = '图片获取成功'
                 return json_res, HTTPStatus.OK
             else:
