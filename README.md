@@ -56,14 +56,16 @@ pip freeze > requirements.txt
 ```bash
 python run.py
 ```
-**注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置
+**注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置，例如：
+
 ```python
-DB_USERNAME = MySQL用户名
-DB_PASSWORD = MySQL密码
-DB_NAME = 数据库名称
-SECRET_KEY = 用户会话管理秘钥
-PHOTOS_FOLDER = 头像图片文件夹
-MEDICAL_IMAGES_FOLDER = 医疗图像文件夹
+DB_USERNAME = 'username'      # MySQL用户名
+DB_PASSWORD = 'password'      # MySQL密码
+DB_NAME = 'yelda'             # 数据库名称
+SECRET_KEY = 'I wont tell u'  # 用户会话管理秘钥
+PHOTOS_FOLDER = 'yelda/photos'                  # 头像图片文件夹
+MEDICAL_IMAGES_FOLDER = 'yelda/medical-images'  # 医疗图像文件夹
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024           # 上传文件大小限制
 ```
 
 ## 开发规范

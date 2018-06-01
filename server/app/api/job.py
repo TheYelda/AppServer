@@ -112,16 +112,16 @@ class JobsCollectionResource(Resource):
 
     @login_required
     @api.doc(parser=api.parser()
-             .add_argument('image_id', type=str, required=False, help='id of image', location='args')
-             .add_argument('account_id', type=str, required=False, help='id of account', location='args')
-             .add_argument('job_state', type=str, required=False, help='state of job', location='args')
+             .add_argument('image_id', type=int, required=False, help='id of image', location='args')
+             .add_argument('account_id', type=int, required=False, help='id of account', location='args')
+             .add_argument('job_state', type=int, required=False, help='state of job', location='args')
             )
     def get(self):
         """List all jobs."""
         # These arguments are all strings originally and should be cast to int
-        account_id = convert_to_int(request.args.get('account_id'))
-        image_id = convert_to_int(request.args.get('image_id'))
-        job_state = convert_to_int(request.args.get('job_state'))
+        account_id = request.args.get('account_id')
+        image_id = request.args.get('image_id')
+        job_state = request.args.get('job_state')
 
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
@@ -129,9 +129,6 @@ class JobsCollectionResource(Resource):
 
         try:
             result = jobs.find_all_jobs(account_id, image_id, job_state)
-
-            if len(result) == 0:
-                return get_message_json('没有符合查询条件的任务'), HTTPStatus.NOT_FOUND
 
             data = []
             for job in result:
@@ -159,10 +156,15 @@ class JobsCollectionResource(Resource):
             # Finished image can not be assigned
             if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
                 return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
-
+            
+            image_id = form.get('image_id')
+            account_id = form.get('account_id')
+            if not image_id or not account_id:
+                return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+            
             result = jobs.add_job(
-                form['image_id'],
-                form['account_id']
+                image_id,
+                account_id
             )
             json_res = result.to_json()
             json_res['message'] = '任务创建成功'
