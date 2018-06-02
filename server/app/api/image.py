@@ -42,15 +42,17 @@ class ImageResource(Resource):
                 return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
             image_to_update = images.find_image_by_id(image_id)
             if image_to_update:
-                if image_to_update.image_state == ConstantCodes.Done:
-                    return get_message_json("无法修改已完成标注的图像"), HTTPStatus.FORBIDDEN
+                if form.get('filename') is not None:
+                    return get_message_json('无法修改图像文件名'), HTTPStatus.FORBIDDEN
+                if image_to_update.image_state != ConstantCodes.Different:
+                    return get_message_json("无法修改该图像的状态"), HTTPStatus.FORBIDDEN
 
                 result = images.update_image_by_id(
                     image_id,
-                    form['label_id'],
-                    form['image_state'],
-                    form['filename'],
-                    form['source']
+                    form.get('label_id'),
+                    form.get('image_state'),
+                    None,
+                    form.get('source')
                 )
                 if result == 1:
                     json_res = form.copy()
