@@ -131,10 +131,10 @@ class AccountsCollectionResource(Resource):
 
         try:
             result = accounts.add_account(
-                form['username'],
-                form['nickname'],
-                generate_password_hash(form['password']),
-                form['email'],
+                form.get('username'),
+                form.get('nickname'),
+                generate_password_hash(form.get('password')),
+                form.get('email'),
                 'default.png'
             )
             json_res = result.to_json()

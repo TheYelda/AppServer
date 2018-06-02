@@ -127,8 +127,8 @@ class ImagesCollectionResource(Resource):
                 return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
             image_object = images.add_image(
                 ConstantCodes.Unassigned,
-                form['filename'],
-                form['source']
+                form.get('filename'),
+                form.get('source')
             )
             json_res = image_object.to_json()
             json_res['message'] = '图片创建成功'

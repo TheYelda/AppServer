@@ -51,19 +51,19 @@ class LabelResource(Resource):
 
             result = labels.update_label_by_id(
                 label_id,
-                form['quality'],
-                form['dr'],
-                form['stage'],
-                form['dme'],
-                form['hr'],
-                form['age_dme'],
-                form['rvo'],
-                form['crao'],
-                form['myopia'],
-                form['od'],
-                form['glaucoma'],
-                form['others'],
-                form['comment']
+                form.get('quality'),
+                form.get('dr'),
+                form.get('stage'),
+                form.get('dme'),
+                form.get('hr'),
+                form.get('age_dme'),
+                form.get('rvo'),
+                form.get('crao'),
+                form.get('myopia'),
+                form.get('od'),
+                form.get('glaucoma'),
+                form.get('others'),
+                form.get('comment')
             )
             if result == 1:
                 json_res = form.copy()
@@ -112,19 +112,19 @@ class LabelsCollectionResource(Resource):
         form = request.get_json()
         try:
             result = labels.add_label(
-                form['quality'],
-                form['dr'],
-                form['stage'],
-                form['dme'],
-                form['hr'],
-                form['age_dme'],
-                form['rvo'],
-                form['crao'],
-                form['myopia'],
-                form['od'],
-                form['glaucoma'],
-                form['others'],
-                form['comment'])
+                form.get('quality'),
+                form.get('dr'),
+                form.get('stage'),
+                form.get('dme'),
+                form.get('hr'),
+                form.get('age_dme'),
+                form.get('rvo'),
+                form.get('crao'),
+                form.get('myopia'),
+                form.get('od'),
+                form.get('glaucoma'),
+                form.get('others'),
+                form.get('comment'))
             json_res = result.to_json()
             json_res['message'] = '标注创建成功'
             return json_res, HTTPStatus.CREATED

@@ -44,7 +44,7 @@ class JobResource(Resource):
     def put(self, job_id):
         """Edit a single job by id."""
         form = request.get_json()
-        if form['account_id'] != current_user.account_id:
+        if form.get('account_id') != current_user.account_id:
             return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
         try:
             previous_job = jobs.find_job_by_id(job_id)
@@ -56,24 +56,24 @@ class JobResource(Resource):
             if previous_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
-            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
+            if images.find_image_by_id(form.get('image_id')).image_state == ConstantCodes.Done:
                 return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
 
             result = jobs.update_job_by_id(
                 job_id,
-                form['image_id'],
-                form['account_id'],
-                form['label_id'],
-                form['finished_date'],
-                form['job_state'],
+                form.get('image_id'),
+                form.get('account_id'),
+                form.get('label_id'),
+                form.get('finished_date'),
+                form.get('job_state'),
             )
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '成功编辑任务'
                 # Check whether to update corresponding image
-                if form['job_state'] == ConstantCodes.Finished:
-                    jobs_of_same_image = jobs.find_job_by_image_id(form['image_id'])
-                    images.update_image_state(form['image_id'], jobs_of_same_image)
+                if form.get('job_state') == ConstantCodes.Finished:
+                    jobs_of_same_image = jobs.find_job_by_image_id(form.get('image_id'))
+                    images.update_image_state(form.get('image_id'), jobs_of_same_image)
 
                 return json_res, HTTPStatus.OK
             else:
@@ -153,8 +153,9 @@ class JobsCollectionResource(Resource):
             return get_message_json('创建任务需要管理员权限'), HTTPStatus.FORBIDDEN
         
         try:
-            # Finished image can not be assigned
-            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
+            # TODO: Can not assign the same image to an account more than once
+            # TODO: Only unassigned image can not be assigned
+            if images.find_image_by_id(form.get('image_id')).image_state == ConstantCodes.Done:
                 return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
             
             image_id = form.get('image_id')
@@ -170,7 +171,7 @@ class JobsCollectionResource(Resource):
             json_res['message'] = '任务创建成功'
 
             # Modify the state of the image
-            images.update_image_by_id(form['image_id'], _image_state=ConstantCodes.Running)
+            images.update_image_by_id(form.get('image_id'), _image_state=ConstantCodes.Running)
 
             return json_res, HTTPStatus.CREATED
 
