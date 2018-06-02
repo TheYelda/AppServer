@@ -154,9 +154,11 @@ class JobsCollectionResource(Resource):
         
         try:
             # TODO: Can not assign the same image to an account more than once
-            # TODO: Only unassigned image can not be assigned
-            if images.find_image_by_id(form.get('image_id')).image_state == ConstantCodes.Done:
-                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
+
+            # Only unassigned or 'running' image can be assigned
+            the_image = images.find_image_by_id(form.get('image_id'))
+            if the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
+                return get_message_json('无法再为指定的图像分配任务'), HTTPStatus.BAD_REQUEST
             
             image_id = form.get('image_id')
             account_id = form.get('account_id')
