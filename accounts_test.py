@@ -395,28 +395,28 @@ def create_account_test_1():
         "nickname": "doctor1",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=201)
+    }, expected_code=201, cookies={})
 
     create_account(data={
         "username": "doctor1",
         "nickname": "doctor1",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=409)
+    }, expected_code=409, cookies={})
 
     create_account(data={
         "username": "admin",
         "nickname": "admin",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=201)
+    }, expected_code=201, cookies={})
 
     create_account(data={
         "username": "admin",
         "nickname": "admin",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=409)
+    }, expected_code=409, cookies={})
 
 
 def create_account_test_2():
@@ -425,19 +425,19 @@ def create_account_test_2():
         "nickname": "doctor2",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=201)
+    }, expected_code=201, cookies={})
     create_account(data={
         "username": "doctor3",
         "nickname": "doctor3",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=201)
+    }, expected_code=201, cookies={})
     create_account(data={
         "username": "guest1",
         "nickname": "guest1",
         "password": "123",
         "email": "yelda100@mail.com"
-    }, expected_code=201)
+    }, expected_code=201, cookies={})
 
 
 def edit_account_test_1():
@@ -1023,7 +1023,7 @@ if __name__ == '__main__':
     """
     Succeed!
     """
-    # create_account_testing()
+    create_account_testing()
 
     """
     Succeed!
@@ -1048,7 +1048,7 @@ if __name__ == '__main__':
     """
     Succeed!
     """
-    edit_account_testing()
+    # edit_account_testing()
 
     """
     Succeed
