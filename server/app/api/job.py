@@ -3,7 +3,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from ..model import jobs, images
+from ..model import jobs, images, accounts
 from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 from sqlalchemy.exc import IntegrityError
 
@@ -159,6 +159,10 @@ class JobsCollectionResource(Resource):
             account_id = form.get('account_id')
             if not image_id or not account_id:
                 return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+
+            # Can only assign job to doctor
+            if accounts.find_account_by_id(account_id)[0].authority != ConstantCodes.Doctor:
+                return get_message_json('只能为医生分配任务'), HTTPStatus.BAD_REQUEST
 
             # Can not assign the same image to an account more than once
             related_job_list = jobs.find_job_by_account_id(account_id)
