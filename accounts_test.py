@@ -462,13 +462,13 @@ def edit_account_test_2():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        "account_id": 3
+        "account_id": 2
     })
-    edit_account(3, data={
+    edit_account(2, data={
         "nickname": "Nick",
         "password": "mypass",
         "email": "yelda@mail.com",
@@ -487,13 +487,13 @@ def edit_account_test_3():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        "account_id": 3
+        "account_id": 2
     })
-    edit_account(3, data={
+    edit_account(2, data={
         "nickname": "admin",
         "password": "123",
         "email": "yelda@sysu.com",
@@ -517,11 +517,11 @@ def edit_account_test_4():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        "account_id": 3
+        "account_id": 2
     })
     edit_account(5, data={
         "nickname": "admin",
@@ -542,17 +542,17 @@ def edit_account_test_5():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        "account_id": 3
+        "account_id": 2
     })
-    edit_account(5, data={
+    edit_account(3, data={
         "nickname": "doctor2",
         "password": "123",
-        "email": "yelda100@mail.com",
-        "photo": "default.png",
+        "email": "123",
+        "photo": "123",
         "authority": 103
     }, expected_code=200, expected_data={
         "nickname": "doctor2",
@@ -573,11 +573,11 @@ def edit_account_test_6():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        "account_id": 3
+        "account_id": 2
     })
     edit_account(20, data={
         "nickname": "doctor2",
@@ -978,7 +978,7 @@ def edit_account_testing():
 
     test(3, edit_account_test_3)
 
-    # test(4, edit_account_test_4)
+    test(4, edit_account_test_4)
 
     test(5, edit_account_test_5)
 
@@ -1046,9 +1046,9 @@ if __name__ == '__main__':
     # list_accounts_testing()
 
     """
-    Fail
+    Succeed!
     """
-    # edit_account_testing()
+    edit_account_testing()
 
     """
     Succeed
