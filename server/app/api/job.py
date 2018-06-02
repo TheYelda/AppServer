@@ -47,6 +47,8 @@ class JobResource(Resource):
         if form.get('account_id') != current_user.account_id:
             return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
         try:
+            # TODO: Can only provide label id (when job is 'unlabeled') and state
+            # TODO: Update finished date automatically
             previous_job = jobs.find_job_by_id(job_id)
             if len(previous_job) == 1:
                 previous_job = previous_job[0]
@@ -153,17 +155,21 @@ class JobsCollectionResource(Resource):
             return get_message_json('创建任务需要管理员权限'), HTTPStatus.FORBIDDEN
         
         try:
-            # TODO: Can not assign the same image to an account more than once
-
-            # Only unassigned or 'running' image can be assigned
-            the_image = images.find_image_by_id(form.get('image_id'))
-            if the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
-                return get_message_json('无法再为指定的图像分配任务'), HTTPStatus.BAD_REQUEST
-            
             image_id = form.get('image_id')
             account_id = form.get('account_id')
             if not image_id or not account_id:
                 return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+
+            # Can not assign the same image to an account more than once
+            related_job_list = jobs.find_job_by_account_id(account_id)
+            related_image_list = [job.image_id for job in related_job_list]
+            if image_id in related_image_list:
+                return get_message_json('已为此用户分配过该图像的标注任务'), HTTPStatus.BAD_REQUEST
+
+            # Only unassigned or 'running' image can be assigned
+            the_image = images.find_image_by_id(image_id)
+            if the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
+                return get_message_json('无法再为该图像分配标注任务'), HTTPStatus.BAD_REQUEST
             
             result = jobs.add_job(
                 image_id,
