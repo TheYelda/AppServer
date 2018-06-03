@@ -21,9 +21,9 @@ class LabelResource(Resource):
                     and current_user.account_id != jobs.find_job_by_label_id(label_id).account_id:
                 return get_message_json('用户无法访问其他用户的标注信息'), HTTPStatus.FORBIDDEN
             result = labels.find_label_by_id(label_id)
-            if len(result) == 0:
+            if result is None:
                 return get_message_json('标注不存在'), HTTPStatus.NOT_FOUND
-            json_res = result[0].to_json()
+            json_res = result.to_json()
             json_res['message'] = '标注获取成功'
             return json_res, HTTPStatus.OK
         except Exception as err:

@@ -64,17 +64,13 @@ def delete_job_by_id(_job_id):
 
 
 def update_job_by_id(_job_id: int,
-                     _image_id: int,
-                     _account_id: int,
                      _label_id: int,
                      _finished_date: DATETIME,
                      _job_state: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
         result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
-            'image_id': _image_id,
             'label_id': _label_id,
-            'account_id': _account_id,
             'finished_date': _finished_date,
             'job_state': _job_state
         })
@@ -85,11 +81,11 @@ def update_job_by_id(_job_id: int,
 
 
 def find_job_by_id(_id: int):
-    """Find a job by id and return a list"""
+    """Find a job by id and return a job object"""
     try:
         job_list = session.query(Jobs).filter(Jobs.job_id == _id)
         session.commit()
-        return job_list.all()
+        return job_list.first()
     except Exception as err:
         handle_db_exception(err)
 

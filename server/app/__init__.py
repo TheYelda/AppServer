@@ -45,9 +45,9 @@ def create_app(config_name):
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
-        user_list = accounts.find_account_by_id(userid)
-        if user_list:
-            return user_list[0]
+        user = accounts.find_account_by_id(userid)
+        if user:
+            return user
 
     @login_manager.unauthorized_handler
     def unauthorized():

@@ -24,9 +24,9 @@ class AccountResource(Resource):
                 if current_user.account_id != account_id:
                     return get_message_json('用户无法访问他人账号'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_account_by_id(account_id)
-            if len(result) == 0:
+            if result is None:
                 return get_message_json('用户不存在'), HTTPStatus.NOT_FOUND
-            json_res = result[0].to_json()
+            json_res = result.to_json()
             json_res['message'] = '用户获取成功'
             return json_res, HTTPStatus.OK
         except Exception as err:

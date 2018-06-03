@@ -20,9 +20,7 @@ class JobResource(Resource):
         try:
             result = jobs.find_job_by_id(job_id)
 
-            if len(result) == 1:
-                result = result[0]
-            else:
+            if result is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
 
             # Admin can retrieve any job,
@@ -47,27 +45,20 @@ class JobResource(Resource):
         if form.get('account_id') != current_user.account_id:
             return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
         try:
-            # TODO: Can only provide label id (when job is 'unlabeled') and state
-            # TODO: Update finished date automatically
+            # TODO: Client can only provide label id (when job is 'unlabeled') and job state
+            # TODO: Update finished date automatically when the job is updated to be finished
             previous_job = jobs.find_job_by_id(job_id)
-            if len(previous_job) == 1:
-                previous_job = previous_job[0]
-            else:
+            if previous_job is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
 
             if previous_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
-            if images.find_image_by_id(form.get('image_id')).image_state == ConstantCodes.Done:
-                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
-
             result = jobs.update_job_by_id(
                 job_id,
-                form.get('image_id'),
-                form.get('account_id'),
                 form.get('label_id'),
                 form.get('finished_date'),
-                form.get('job_state'),
+                form.get('job_state')
             )
             if result == 1:
                 json_res = form.copy()
@@ -101,7 +92,7 @@ class JobResource(Resource):
             if result == 1:
                 return get_message_json('已删除该任务'), HTTPStatus.OK
             else:
-                if len(jobs.find_job_by_id(job_id)) == 0:
+                if jobs.find_job_by_id(job_id) is None:
                     return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
                 return get_message_json('未知的任务删除失败'), HTTPStatus.BAD_REQUEST
         except Exception as err:
@@ -161,7 +152,10 @@ class JobsCollectionResource(Resource):
                 return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
 
             # Can only assign job to doctor
-            if accounts.find_account_by_id(account_id)[0].authority != ConstantCodes.Doctor:
+            the_account = accounts.find_account_by_id(account_id)
+            if the_account is None:
+                return get_message_json('指定的医生不存在'), HTTPStatus.BAD_REQUEST
+            elif the_account.authority != ConstantCodes.Doctor:
                 return get_message_json('只能为医生分配任务'), HTTPStatus.BAD_REQUEST
 
             # Can not assign the same image to an account more than once
@@ -172,7 +166,9 @@ class JobsCollectionResource(Resource):
 
             # Only unassigned or 'running' image can be assigned
             the_image = images.find_image_by_id(image_id)
-            if the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
+            if the_image is None:
+                return get_message_json('指定的图像不存在'), HTTPStatus.BAD_REQUEST
+            elif the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
                 return get_message_json('无法再为该图像分配标注任务'), HTTPStatus.BAD_REQUEST
             
             result = jobs.add_job(
