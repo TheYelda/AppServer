@@ -87,7 +87,6 @@ def find_all_images(_state):
         if _state is None:
             image_list = session.query(Images).filter()
         else:
-            _state = int(_state)
             image_list = session.query(Images).filter(Images.image_state == _state)
 
         session.commit()

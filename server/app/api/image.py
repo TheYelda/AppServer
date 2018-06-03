@@ -5,7 +5,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from ..model import images
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 
 api = Namespace('images')
 
@@ -99,7 +99,7 @@ class ImagesCollectionResource(Resource):
             )
     def get(self):
         """List all images."""
-        image_state = request.args.get('image_state')
+        image_state = convert_to_int(request.args.get('image_state'))
         try:
             result = images.find_all_images(image_state)
             state_list = []
