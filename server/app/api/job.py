@@ -51,9 +51,12 @@ class JobResource(Resource):
             if the_job.account_id != current_user.account_id:
                 return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
 
-            # TODO: Client provide label id if and only if the job is 'unlabeled'
-            if form.get('label_id') and the_job.job_state != ConstantCodes.Unlabeled:
-                return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
+            # Client provide label id if and only if the job is 'unlabeled'
+            if form.get('label_id'):
+                if the_job.job_state != ConstantCodes.Unlabeled:
+                    return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
+            elif the_job.job_state == ConstantCodes.Unlabeled:
+                return get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
 
             if the_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
