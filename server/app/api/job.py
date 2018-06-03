@@ -42,22 +42,27 @@ class JobResource(Resource):
     def put(self, job_id):
         """Edit a single job by id."""
         form = request.get_json()
-        if form.get('account_id') != current_user.account_id:
-            return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
         try:
-            # TODO: Client can only provide label id (when job is 'unlabeled') and job state
             # TODO: Update finished date automatically when the job is updated to be finished
-            previous_job = jobs.find_job_by_id(job_id)
-            if previous_job is None:
+            finished_date = None
+            the_job = jobs.find_job_by_id(job_id)
+            if the_job is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
 
-            if previous_job.job_state == ConstantCodes.Finished:
+            if the_job.account_id != current_user.account_id:
+                return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
+
+            # Client can provide label id only when the job is 'unlabeled'
+            if form.get('label_id') and the_job.job_state != ConstantCodes.Unlabeled:
+                return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
+
+            if the_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
             result = jobs.update_job_by_id(
                 job_id,
                 form.get('label_id'),
-                form.get('finished_date'),
+                finished_date,
                 form.get('job_state')
             )
             if result == 1:

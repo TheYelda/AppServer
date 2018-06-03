@@ -70,9 +70,9 @@ def update_job_by_id(_job_id: int,
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
         result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
-            'label_id': _label_id,
-            'finished_date': _finished_date,
-            'job_state': _job_state
+            'label_id': _label_id if _label_id is not None else Jobs.label_id,
+            'finished_date': _finished_date if _finished_date is not None else Jobs.finished_date,
+            'job_state': _job_state if _job_state is not None else Jobs.job_state
         })
         session.commit()
         return result
