@@ -110,16 +110,16 @@ class JobsCollectionResource(Resource):
 
     @login_required
     @api.doc(parser=api.parser()
-             .add_argument('image_id', type=int, required=False, help='id of image', location='args')
-             .add_argument('account_id', type=int, required=False, help='id of account', location='args')
-             .add_argument('job_state', type=int, required=False, help='state of job', location='args')
-            )
+             .add_argument('image_id', type=str, required=False, help='id of image', location='args')
+             .add_argument('account_id', type=str, required=False, help='id of account', location='args')
+             .add_argument('job_state', type=str, required=False, help='state of job', location='args')
+             )
     def get(self):
         """List all jobs."""
         # These arguments are all strings originally and should be cast to int
-        account_id = request.args.get('account_id')
-        image_id = request.args.get('image_id')
-        job_state = request.args.get('job_state')
+        account_id = convert_to_int(request.args.get('account_id'))
+        image_id = convert_to_int(request.args.get('image_id'))
+        job_state = convert_to_int(request.args.get('job_state'))
 
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
