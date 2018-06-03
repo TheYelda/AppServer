@@ -6,6 +6,7 @@ from flask_login import login_required, current_user
 from ..model import jobs, images, accounts
 from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 from sqlalchemy.exc import IntegrityError
+import datetime
 
 api = Namespace('jobs')
 
@@ -43,8 +44,6 @@ class JobResource(Resource):
         """Edit a single job by id."""
         form = request.get_json()
         try:
-            # TODO: Update finished date automatically when the job is updated to be finished
-            finished_date = None
             the_job = jobs.find_job_by_id(job_id)
             if the_job is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
@@ -52,26 +51,28 @@ class JobResource(Resource):
             if the_job.account_id != current_user.account_id:
                 return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
 
-            # Client can provide label id only when the job is 'unlabeled'
+            # TODO: Client provide label id if and only if the job is 'unlabeled'
             if form.get('label_id') and the_job.job_state != ConstantCodes.Unlabeled:
                 return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
 
             if the_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
+            # Update finished date automatically when the job is updated to be finished
+            finished_date = None
+            if form.get('job_state') == ConstantCodes.Finished:
+                finished_date = datetime.date.today()
+
             result = jobs.update_job_by_id(
                 job_id,
                 form.get('label_id'),
                 finished_date,
-                form.get('job_state')
+                form.get('job_state'),
+                the_job.image_id
             )
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '成功编辑任务'
-                # Check whether to update corresponding image
-                if form.get('job_state') == ConstantCodes.Finished:
-                    jobs_of_same_image = jobs.find_job_by_image_id(form.get('image_id'))
-                    images.update_image_state(form.get('image_id'), jobs_of_same_image)
 
                 return json_res, HTTPStatus.OK
             else:

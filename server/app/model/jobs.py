@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception
+from . import Base, session, handle_db_exception, images
 from ..api.utils import ConstantCodes
 
 
@@ -66,7 +66,8 @@ def delete_job_by_id(_job_id):
 def update_job_by_id(_job_id: int,
                      _label_id: int,
                      _finished_date: DATETIME,
-                     _job_state: int):
+                     _job_state: int,
+                     the_image_id: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
         result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
@@ -74,6 +75,10 @@ def update_job_by_id(_job_id: int,
             'finished_date': _finished_date if _finished_date is not None else Jobs.finished_date,
             'job_state': _job_state if _job_state is not None else Jobs.job_state
         })
+        # Check whether to update corresponding image
+        if _job_state == ConstantCodes.Finished:
+            jobs_of_same_image = find_job_by_image_id(the_image_id)
+            images.update_image_state(the_image_id, jobs_of_same_image)
         session.commit()
         return result
     except Exception as err:
