@@ -51,24 +51,24 @@ class JobResource(Resource):
             if the_job.account_id != current_user.account_id:
                 return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
 
-            # Client provide label id if and only if the job is 'unlabeled'
-            if form.get('label_id'):
-                if the_job.job_state != ConstantCodes.Unlabeled:
-                    return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
-            elif the_job.job_state == ConstantCodes.Unlabeled:
-                return get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
-
-            if the_job.job_state == ConstantCodes.Finished:
-                return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
-
-            # Update finished date automatically when the job is updated to be finished
+            # Client can edit label id if and only if the job is 'unlabeled'
+            label_id = form.get('label_id')
             finished_date = None
-            if form.get('job_state') == ConstantCodes.Finished:
-                finished_date = datetime.date.today()
+            if the_job.job_state == ConstantCodes.Unlabeled:
+                if not label_id:
+                    get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
+            elif the_job.job_state == ConstantCodes.Labeling:
+                # Can NOT change the label id
+                label_id = None
+                # Update finished date automatically when the job is updated to be finished
+                if form.get('job_state') == ConstantCodes.Finished:
+                    finished_date = datetime.date.today()
+            elif the_job.job_state == ConstantCodes.Finished:
+                return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
             result = jobs.update_job_by_id(
                 job_id,
-                form.get('label_id'),
+                label_id,
                 finished_date,
                 form.get('job_state'),
                 the_job.image_id
