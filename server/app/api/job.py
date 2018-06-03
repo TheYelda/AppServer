@@ -3,9 +3,10 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from ..model import jobs, images
+from ..model import jobs, images, accounts
 from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 from sqlalchemy.exc import IntegrityError
+import datetime
 
 api = Namespace('jobs')
 
@@ -20,9 +21,7 @@ class JobResource(Resource):
         try:
             result = jobs.find_job_by_id(job_id)
 
-            if len(result) == 1:
-                result = result[0]
-            else:
+            if result is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
 
             # Admin can retrieve any job,
@@ -44,36 +43,39 @@ class JobResource(Resource):
     def put(self, job_id):
         """Edit a single job by id."""
         form = request.get_json()
-        if form['account_id'] != current_user.account_id:
-            return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
         try:
-            previous_job = jobs.find_job_by_id(job_id)
-            if len(previous_job) == 1:
-                previous_job = previous_job[0]
-            else:
+            the_job = jobs.find_job_by_id(job_id)
+            if the_job is None:
                 return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
 
-            if previous_job.job_state == ConstantCodes.Finished:
+            if the_job.account_id != current_user.account_id:
+                return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
+
+            # Client provide label id if and only if the job is 'unlabeled'
+            if form.get('label_id'):
+                if the_job.job_state != ConstantCodes.Unlabeled:
+                    return get_message_json('无法更换该任务的标注'), HTTPStatus.FORBIDDEN
+            elif the_job.job_state == ConstantCodes.Unlabeled:
+                return get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
+
+            if the_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
-            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
-                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
+            # Update finished date automatically when the job is updated to be finished
+            finished_date = None
+            if form.get('job_state') == ConstantCodes.Finished:
+                finished_date = datetime.date.today()
 
             result = jobs.update_job_by_id(
                 job_id,
-                form['image_id'],
-                form['account_id'],
-                form['label_id'],
-                form['finished_date'],
-                form['job_state'],
+                form.get('label_id'),
+                finished_date,
+                form.get('job_state'),
+                the_job.image_id
             )
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '成功编辑任务'
-                # Check whether to update corresponding image
-                if form['job_state'] == ConstantCodes.Finished:
-                    jobs_of_same_image = jobs.find_job_by_image_id(form['image_id'])
-                    images.update_image_state(form['image_id'], jobs_of_same_image)
 
                 return json_res, HTTPStatus.OK
             else:
@@ -99,7 +101,7 @@ class JobResource(Resource):
             if result == 1:
                 return get_message_json('已删除该任务'), HTTPStatus.OK
             else:
-                if len(jobs.find_job_by_id(job_id)) == 0:
+                if jobs.find_job_by_id(job_id) is None:
                     return get_message_json('任务不存在'), HTTPStatus.NOT_FOUND
                 return get_message_json('未知的任务删除失败'), HTTPStatus.BAD_REQUEST
         except Exception as err:
@@ -112,16 +114,16 @@ class JobsCollectionResource(Resource):
 
     @login_required
     @api.doc(parser=api.parser()
-             .add_argument('image_id', type=int, required=False, help='id of image', location='args')
-             .add_argument('account_id', type=int, required=False, help='id of account', location='args')
-             .add_argument('job_state', type=int, required=False, help='state of job', location='args')
-            )
+             .add_argument('image_id', type=str, required=False, help='id of image', location='args')
+             .add_argument('account_id', type=str, required=False, help='id of account', location='args')
+             .add_argument('job_state', type=str, required=False, help='state of job', location='args')
+             )
     def get(self):
         """List all jobs."""
         # These arguments are all strings originally and should be cast to int
-        account_id = request.args.get('account_id')
-        image_id = request.args.get('image_id')
-        job_state = request.args.get('job_state')
+        account_id = convert_to_int(request.args.get('account_id'))
+        image_id = convert_to_int(request.args.get('image_id'))
+        job_state = convert_to_int(request.args.get('job_state'))
 
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
@@ -153,14 +155,30 @@ class JobsCollectionResource(Resource):
             return get_message_json('创建任务需要管理员权限'), HTTPStatus.FORBIDDEN
         
         try:
-            # Finished image can not be assigned
-            if images.find_image_by_id(form['image_id']).image_state == ConstantCodes.Done:
-                return get_message_json('指定的图像已完成标注'), HTTPStatus.BAD_REQUEST
-            
             image_id = form.get('image_id')
             account_id = form.get('account_id')
             if not image_id or not account_id:
                 return get_message_json('请求非法'), HTTPStatus.BAD_REQUEST
+
+            # Can only assign job to doctor
+            the_account = accounts.find_account_by_id(account_id)
+            if the_account is None:
+                return get_message_json('指定的医生不存在'), HTTPStatus.BAD_REQUEST
+            elif the_account.authority != ConstantCodes.Doctor:
+                return get_message_json('只能为医生分配任务'), HTTPStatus.BAD_REQUEST
+
+            # Can not assign the same image to an account more than once
+            related_job_list = jobs.find_job_by_account_id(account_id)
+            related_image_list = [job.image_id for job in related_job_list]
+            if image_id in related_image_list:
+                return get_message_json('已为此用户分配过该图像的标注任务'), HTTPStatus.BAD_REQUEST
+
+            # Only unassigned or 'running' image can be assigned
+            the_image = images.find_image_by_id(image_id)
+            if the_image is None:
+                return get_message_json('指定的图像不存在'), HTTPStatus.BAD_REQUEST
+            elif the_image.image_state != ConstantCodes.Unassigned and the_image.image_state != ConstantCodes.Running:
+                return get_message_json('无法再为该图像分配标注任务'), HTTPStatus.BAD_REQUEST
             
             result = jobs.add_job(
                 image_id,
@@ -170,7 +188,7 @@ class JobsCollectionResource(Resource):
             json_res['message'] = '任务创建成功'
 
             # Modify the state of the image
-            images.update_image_by_id(form['image_id'], _image_state=ConstantCodes.Running)
+            images.update_image_by_id(form.get('image_id'), _image_state=ConstantCodes.Running)
 
             return json_res, HTTPStatus.CREATED
 

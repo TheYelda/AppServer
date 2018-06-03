@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception
+from . import Base, session, handle_db_exception, images
 from ..api.utils import ConstantCodes
 
 
@@ -64,20 +64,21 @@ def delete_job_by_id(_job_id):
 
 
 def update_job_by_id(_job_id: int,
-                     _image_id: int,
-                     _account_id: int,
                      _label_id: int,
                      _finished_date: DATETIME,
-                     _job_state: int):
+                     _job_state: int,
+                     the_image_id: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
         result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
-            'image_id': _image_id,
-            'label_id': _label_id,
-            'account_id': _account_id,
-            'finished_date': _finished_date,
-            'job_state': _job_state
+            'label_id': _label_id if _label_id is not None else Jobs.label_id,
+            'finished_date': _finished_date if _finished_date is not None else Jobs.finished_date,
+            'job_state': _job_state if _job_state is not None else Jobs.job_state
         })
+        # Check whether to update corresponding image
+        if _job_state == ConstantCodes.Finished:
+            jobs_of_same_image = find_job_by_image_id(the_image_id)
+            images.update_image_state(the_image_id, jobs_of_same_image)
         session.commit()
         return result
     except Exception as err:
@@ -85,11 +86,11 @@ def update_job_by_id(_job_id: int,
 
 
 def find_job_by_id(_id: int):
-    """Find a job by id and return a list"""
+    """Find a job by id and return a job object"""
     try:
         job_list = session.query(Jobs).filter(Jobs.job_id == _id)
         session.commit()
-        return job_list.all()
+        return job_list.first()
     except Exception as err:
         handle_db_exception(err)
 
@@ -98,6 +99,16 @@ def find_job_by_image_id(_image_id: int):
     """Find jobs by image id and return a list"""
     try:
         job_list = session.query(Jobs).filter(Jobs.image_id == _image_id)
+        session.commit()
+        return job_list.all()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_job_by_account_id(_account_id: int):
+    """Find jobs by account id and return a list"""
+    try:
+        job_list = session.query(Jobs).filter(Jobs.account_id == _account_id)
         session.commit()
         return job_list.all()
     except Exception as err:

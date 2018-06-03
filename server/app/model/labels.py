@@ -207,11 +207,11 @@ def delete_label_by_id(_id: int):
 
 
 def find_label_by_id(_id: int):
-    """Find a label by id and return a list"""
+    """Find a label by id and return a label object"""
     try:
         label_list = session.query(Labels).filter(Labels.label_id == _id)
         session.commit()
-        return label_list.all()
+        return label_list.first()
     except Exception as err:
         handle_db_exception(err)
 

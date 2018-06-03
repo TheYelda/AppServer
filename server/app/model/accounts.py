@@ -72,11 +72,11 @@ def add_account(_username: str,
 
 
 def find_account_by_id(_account_id: int):
-    """Find an account by id and return a list"""
+    """Find an account by id and return an account object"""
     try:
         account_list = session.query(Accounts).filter(Accounts.account_id == _account_id)
         session.commit()
-        return account_list.all()
+        return account_list.first()
     except Exception as err:
         handle_db_exception(err)
 

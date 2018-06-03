@@ -13,7 +13,7 @@ class Images(Base):
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     label_id = Column(Integer, ForeignKey('Labels.label_id'), nullable=True)
     image_state = Column(Integer, nullable=False)
-    filename = Column(VARCHAR(128), nullable=False)
+    filename = Column(VARCHAR(128), nullable=False, unique=True)
     source = Column(VARCHAR(128))
 
     def to_json(self):
@@ -116,7 +116,7 @@ def update_image_state(_image_id, all_jobs):
         if job.job_state != ConstantCodes.Finished:
             return
     # Check if all corresponding labels are consistant
-    all_labels = [labels.find_label_by_id(job.label_id)[0] for job in all_jobs]
+    all_labels = [labels.find_label_by_id(job.label_id) for job in all_jobs]
     if all_labels.count(all_labels[0]) == len(all_labels):
         update_image_by_id(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
     else:
