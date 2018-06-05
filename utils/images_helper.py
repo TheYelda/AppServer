@@ -2,7 +2,7 @@ import json
 from . import *
 
 
-def retrieve_a_image(image_id, expected_code, expected_data, cookies):
+def retrieve_a_image(image_id, expected_code, cookies):
     func_name = 'retrieve an image'
     url = '{}{}'.format(images_url, image_id)
     resp = session.get(url, cookies=cookies)
@@ -11,13 +11,8 @@ def retrieve_a_image(image_id, expected_code, expected_data, cookies):
     if expected_code != code:
         error(func_name, 'status code', expected_code, code, data)
     else:
-        if expected_code == 200:
-            if compare_json(expected_data, data):
-                succeed(func_name)
-            else:
-                error(func_name, 'expected data', expected_data, data, data)
-        else:
-            succeed(func_name)
+        print(data)
+        succeed(func_name)
 
 
 def edit_a_image(image_id, data, expected_code, cookies):
