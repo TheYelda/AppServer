@@ -5,7 +5,9 @@ def create_test_1():
     """
     directly create
     """
+    create_a_label(data={
 
+    }, )
 
 def create_test_2():
     """
@@ -46,3 +48,6 @@ def create_testing():
 
     test(4, create_test_4)
 
+
+if __name__ == '__main__':
+    create_testing()

@@ -321,6 +321,7 @@ def edit_test_1():
     """
     edit_a_image(2, data={
         "label_id": 67,
+        "image_state": 300,
         "source": "somexxx"
     }, expected_code=401, cookies={})
 
@@ -342,6 +343,7 @@ def edit_test_2():
     })
     edit_a_image(2, data={
         "label_id": 67,
+        "image_state": 300,
         "source": "somexxx"
     }, expected_code=401, cookies=cookies)
     remove_authorization(expected_code=200)
@@ -361,6 +363,7 @@ def edit_test_3():
     })
     edit_a_image(2, data={
         "label_id": 67,
+        "image_state": 300,
         "source": "somexxx"
     }, expected_code=401, cookies=cookies)
     remove_authorization(expected_code=200)
@@ -385,7 +388,7 @@ def edit_test_4():
         "label_id": None,
         "image_state": 301,
         "source": "somexx"
-    }, expected_code=200, cookies=cookies)
+    }, expected_code=403, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -407,10 +410,9 @@ def edit_test_5():
     })
     edit_a_image(2, data={
         "label_id": 1,
-        "filename": "123",
         "image_state": 300,
         "source": "somexxx"
-    }, expected_code=401, cookies=cookies)
+    }, expected_code=403, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -424,16 +426,17 @@ def edit_test_6():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        'account_id': 3
+        'account_id': 2
     })
-    edit_a_image(3, data={
+    edit_a_image(2, data={
         "label_id": 1,
+        "image_state": 300,
         "source": "somexxx"
-    }, expected_code=401, cookies=cookies)
+    }, expected_code=403, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -447,14 +450,15 @@ def edit_test_7():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        'account_id': 3
+        'account_id': 2
     })
-    edit_a_image(4, data={
+    edit_a_image(3, data={
         "label_id": 1,
+        "image_state": 302,
         "source": "somexxx"
     }, expected_code=200, cookies=cookies)
     remove_authorization(expected_code=200)
@@ -470,16 +474,16 @@ def edit_test_8():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        'account_id': 3
+        'account_id': 2
     })
-    edit_a_image(4, data={
+    edit_a_image(3, data={
         "label_id": 10,
         "source": "somexxx"
-    }, expected_code=401, cookies=cookies)
+    }, expected_code=400, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -493,16 +497,16 @@ def edit_test_9():
         "username": "admin",
         "password": "123"
     }, expected_code=200, expected_data={
-        "account_id": 3,
+        "account_id": 2,
         "authority": 101
     })
     retrieve_self(expected_code=200, expected_data={
-        'account_id': 3
+        'account_id': 2
     })
-    edit_a_image(5, data={
+    edit_a_image(4, data={
         "label_id": 1,
         "source": "somexxx"
-    }, expected_code=401, cookies=cookies)
+    }, expected_code=403, cookies=cookies)
     remove_authorization(expected_code=200)
 
 
@@ -564,15 +568,15 @@ def edit_image_testing():
 
     test(4, edit_test_4)
 
-    # test(5, edit_test_5)
-    #
-    # test(6, edit_test_6)
-    #
-    # test(7, edit_test_7)
-    #
-    # test(8, edit_test_8)
-    #
-    # test(9, edit_test_9)
+    test(5, edit_test_5)
+
+    test(6, edit_test_6)
+
+    test(7, edit_test_7)
+
+    test(8, edit_test_8)
+
+    test(9, edit_test_9)
 
 
 if __name__ == '__main__':
@@ -597,6 +601,6 @@ if __name__ == '__main__':
     # list_image_testing()
 
     """
-    Fail!
+    Succeed!
     """
     edit_image_testing()
