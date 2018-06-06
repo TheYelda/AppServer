@@ -5,7 +5,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from ..model import images
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
 
 api = Namespace('images')
 
@@ -18,9 +18,9 @@ class ImageResource(Resource):
     def get(self, image_id):
         """Retrieve a single image by id."""
         try:
-            image_list = images.find_image_by_id(image_id)
-            if image_list:
-                json_res = image_list[0].to_json()
+            the_image = images.find_image_by_id(image_id)
+            if the_image:
+                json_res = the_image.to_json()
                 json_res['message'] = '图片获取成功'
                 return json_res, HTTPStatus.OK
             else:
@@ -40,20 +40,26 @@ class ImageResource(Resource):
         try:
             if not current_user.is_admin():
                 return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
-            if images.find_image_by_id(image_id):
-                result= images.update_image_by_id(
+            image_to_update = images.find_image_by_id(image_id)
+            if image_to_update:
+                if form.get('filename') is not None:
+                    return get_message_json('无法修改图像文件名'), HTTPStatus.FORBIDDEN
+                if image_to_update.image_state != ConstantCodes.Different:
+                    return get_message_json("无法修改该图像的状态"), HTTPStatus.FORBIDDEN
+
+                result = images.update_image_by_id(
                     image_id,
-                    form['label_id'],
-                    form['image_state'],
-                    form['filename'],
-                    form['source']
+                    form.get('label_id'),
+                    form.get('image_state'),
+                    None,
+                    form.get('source')
                 )
                 if result == 1:
                     json_res = form.copy()
                     json_res['message'] = '图像信息修改成功'
                     return json_res, HTTPStatus.OK
             else:
-                return get_message_json('图片未创建'), HTTPStatus.NOT_FOUND
+                return get_message_json('图像不存在'), HTTPStatus.NOT_FOUND
 
         except IntegrityError as err:
             if err.orig.args[0] == DBErrorCodes.FOREIGN_KEY_FAILURE:
@@ -93,7 +99,7 @@ class ImagesCollectionResource(Resource):
             )
     def get(self):
         """List all images."""
-        image_state = request.args.get('image_state')
+        image_state = convert_to_int(request.args.get('image_state'))
         try:
             result = images.find_all_images(image_state)
             state_list = []
@@ -119,12 +125,12 @@ class ImagesCollectionResource(Resource):
         try:
             if not current_user.is_admin():
                 return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
-            image_list = images.add_image(
+            image_object = images.add_image(
                 ConstantCodes.Unassigned,
-                form['filename'],
-                form['source']
+                form.get('filename'),
+                form.get('source')
             )
-            json_res = image_list.to_json()
+            json_res = image_object.to_json()
             json_res['message'] = '图片创建成功'
 
             return json_res, HTTPStatus.CREATED

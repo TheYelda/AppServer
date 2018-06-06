@@ -8,7 +8,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     HOST = '0.0.0.0'
-    PORT = 5000
+    PORT = 10086
 
 
 class DevelopmentConfig(Config):

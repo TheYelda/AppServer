@@ -48,3 +48,12 @@ def handle_internal_error(message):
     """
     current_app.logger.exception(message)
     return get_message_json('服务器内部错误'), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def convert_to_int(argument):
+    """
+    A helper function to convert argument in the query string into int.
+    :param argument: the string-type argument got by `request.args.get('...')`
+    :return: the corresponding int or None
+    """
+    return int(argument) if argument else None

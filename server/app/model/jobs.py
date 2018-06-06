@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception
+from . import Base, session, handle_db_exception, images
 from ..api.utils import ConstantCodes
 
 
@@ -20,11 +20,11 @@ class Jobs(Base):
     def to_json(self):
         """Return a json for the record."""
         return {
-            'job_id': self.image_id,
+            'job_id': self.job_id,
             'image_id': self.image_id,
             'label_id': self.label_id,
             'account_id': self.account_id,
-            'finished_date': self.finished_date,
+            'finished_date': str(self.finished_date) if self.finished_date else None,
             'job_state': self.job_state
         }
 
@@ -53,32 +53,32 @@ def add_job(_image_id: int,
         handle_db_exception(err)
 
 
-def delete_job_by_id(_id):
+def delete_job_by_id(_job_id):
     """Delete an account by id and return 1 or 0 representing result"""
     try:
-        result = session.query(Jobs).filter(Jobs.account_id == _id).delete()
+        result = session.query(Jobs).filter(Jobs.job_id == _job_id).delete()
         session.commit()
         return result
     except Exception as err:
         handle_db_exception(err)
 
 
-def update_job_by_id(_id: int,
-                     _image_id: int,
-                     _account_id: int,
+def update_job_by_id(_job_id: int,
                      _label_id: int,
                      _finished_date: DATETIME,
-                     _job_state: int):
+                     _job_state: int,
+                     the_image_id: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
-        result = session.query(Jobs).filter(Jobs.account_id == _id).update({
-            'job_id': _id,
-            'image_id': _image_id,
-            'label_id': _label_id,
-            'account_id': _account_id,
-            'finished_date': _finished_date,
-            'job_state': _job_state
+        result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
+            'label_id': _label_id if _label_id is not None else Jobs.label_id,
+            'finished_date': _finished_date if _finished_date is not None else Jobs.finished_date,
+            'job_state': _job_state if _job_state is not None else Jobs.job_state
         })
+        # Check whether to update corresponding image
+        if _job_state == ConstantCodes.Finished:
+            jobs_of_same_image = find_job_by_image_id(the_image_id)
+            images.update_image_state(the_image_id, jobs_of_same_image)
         session.commit()
         return result
     except Exception as err:
@@ -86,23 +86,58 @@ def update_job_by_id(_id: int,
 
 
 def find_job_by_id(_id: int):
-    """Find an account by id and return a list"""
+    """Find a job by id and return a job object"""
     try:
         job_list = session.query(Jobs).filter(Jobs.job_id == _id)
+        session.commit()
+        return job_list.first()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_job_by_image_id(_image_id: int):
+    """Find jobs by image id and return a list"""
+    try:
+        job_list = session.query(Jobs).filter(Jobs.image_id == _image_id)
         session.commit()
         return job_list.all()
     except Exception as err:
         handle_db_exception(err)
 
 
-def find_all_jobs(_account_id):
-    """Return all jobs or jobs related to the given account id via a list."""
+def find_job_by_account_id(_account_id: int):
+    """Find jobs by account id and return a list"""
     try:
-        if _account_id is None:
-            jobs_list = session.query(Jobs).filter()
-        else:
-            _account_id = int(_account_id)
-            jobs_list = session.query(Jobs).filter(Jobs.account_id == _account_id)
+        job_list = session.query(Jobs).filter(Jobs.account_id == _account_id)
+        session.commit()
+        return job_list.all()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_job_by_label_id(_label_id: int):
+    """Find jobs by label id and return a job object"""
+    try:
+        job_list = session.query(Jobs).filter(Jobs.label_id == _label_id)
+        session.commit()
+        return job_list.first()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_all_jobs(_account_id: int,
+                  _image_id: int,
+                  _job_state: int):
+    """Return all jobs related to the given arguments via a list."""
+    try:
+        query = {}
+        if _account_id is not None:
+            query['account_id'] = _account_id
+        if _image_id is not None:
+            query['image_id'] = _image_id
+        if _job_state is not None:
+            query['job_state'] = _job_state
+        jobs_list = session.query(Jobs).filter_by(**query)
 
         session.commit()
         return jobs_list.all()

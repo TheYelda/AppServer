@@ -13,13 +13,13 @@ class Labels(Base):
     label_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     quality = Column(BOOLEAN, default=False)  # 图片质量
     dr = Column(BOOLEAN)  # 是否有糖尿病视网膜病变
-    stage_id = Column(Integer, ForeignKey('ImageStageChoice.stage_id'))
-    dme = Column(BOOLEAN)  # 是否有糖尿病性黄斑水肿
-    hr_id = Column(Integer, ForeignKey('HRChoice.hr_id'))
-    age_dme_id = Column(Integer, ForeignKey('AgeDMEChoice.agedme_id'))
+    stage = Column(Integer)  # 糖尿病视网膜病变阶段
+    dme = Column(Integer)  # 黄斑水肿类型
+    hr = Column(Integer)    # 高血压视网膜病变
+    age_dme = Column(Integer)   # 年龄相关性黄斑变性
     rvo = Column(BOOLEAN)  # 是否有视网膜静脉阻塞
     crao = Column(BOOLEAN)  # 受有视网膜动脉阻塞
-    myopia = Column(BOOLEAN)
+    myopia = Column(BOOLEAN)    # 病理性近视
     od = Column(BOOLEAN)  # 是否有病理性近视
     glaucoma = Column(BOOLEAN)  # 是否有疑似青光眼
     others = Column(BOOLEAN)  # 是否有其他疾病
@@ -28,17 +28,14 @@ class Labels(Base):
     def to_json(self):
         """Return a json for the record."""
         try:
-            stage = image_stage_choice.find_image_stage_choice_by_id(self.stage_id)[0].name
-            hr = hr_choice.find_hr_choice_by_id(self.hr_id)[0].name
-            age_dme = age_dme_choice.find_age_dme_choice_by_id(self.age_dme_id)[0].name
             return {
                 'label_id': self.label_id,
                 'quality': self.quality,
                 'dr': self.dr,
-                'stage': stage,
+                'stage': self.stage,
                 'dme': self.dme,
-                'hr': hr,
-                'age_dme': age_dme,
+                'hr': self.hr,
+                'age_dme': self.age_dme,
                 'rvo': self.rvo,
                 'crao': self.crao,
                 'myopia': self.myopia,
@@ -51,15 +48,15 @@ class Labels(Base):
             handle_db_exception(str(err))
 
     def __repr__(self):
-        return '<Labels: label_id:{} quality:{} dr:{} stage_id:{} dme:{} hr_id:{}\
-                    age_dme_id:{} rvo:{} crao:{} myopia:{} od:{} glaucoma:{} others:{} comment:{}>'.\
+        return '<Labels: label_id:{} quality:{} dr:{} stage:{} dme:{} hr:{}\
+                    age_dme:{} rvo:{} crao:{} myopia:{} od:{} glaucoma:{} others:{} comment:{}>'.\
             format(self.label_id,
                    self.quality,
                    self.dr,
-                   self.stage_id,
+                   self.stage,
                    self.dme,
-                   self.hr_id,
-                   self.age_dme_id,
+                   self.hr,
+                   self.age_dme,
                    self.rvo,
                    self.crao,
                    self.myopia,
@@ -68,13 +65,23 @@ class Labels(Base):
                    self.others,
                    self.comment)
 
+    def __eq__(self, other):
+        if self.__class__ == other.__class__:
+            for field in self.__dict__:
+                if field == 'label_id' or field == 'comment' or field == '_sa_instance_state':
+                    continue
+                if not getattr(self, field) == getattr(other, field):
+                    return False
+            return True
+        return False
+
 
 def add_label(_quality: BOOLEAN,
               _dr: BOOLEAN,
-              _stage: str,
-              _dme: BOOLEAN,
-              _hr: str,
-              _age_dme: str,
+              _stage: int,
+              _dme: int,
+              _hr: int,
+              _age_dme: int,
               _rvo: BOOLEAN,
               _crao: BOOLEAN,
               _myopia: BOOLEAN,
@@ -85,30 +92,12 @@ def add_label(_quality: BOOLEAN,
     """Add a label to database and return this label"""
     label = Labels()
 
-    stage_list = image_stage_choice.find_image_stage_choice_by_name(_stage)
-    if len(stage_list) == 0:
-        result = image_stage_choice.add_image_stage_choice(_stage)
-        label.stage_id = result.stage_id
-    else:
-        label.stage_id = stage_list[0].stage_id
-
-    hr_list = hr_choice.find_hr_choice_by_name(_hr)
-    if len(hr_list) == 0:
-        result = hr_choice.add_hr_choice(_hr)
-        label.hr_id = result.hr_id
-    else:
-        label.hr_id = hr_list[0].hr_id
-
-    agedme_list = age_dme_choice.find_age_dme_choice_by_name(_age_dme)
-    if len(agedme_list) == 0:
-        result = age_dme_choice.add_age_dme_choice(_age_dme)
-        label.age_dme_id = result.agedme_id
-    else:
-        label.age_dme_id = agedme_list[0].agedme_id
-
     label.quality = _quality
     label.dr = _dr
+    label.stage = _stage
     label.dme = _dme
+    label.hr = _hr
+    label.age_dme = _age_dme
     label.rvo = _rvo
     label.crao = _crao
     label.myopia = _myopia
@@ -127,10 +116,10 @@ def add_label(_quality: BOOLEAN,
 def update_label_by_id(_id: int,
                        _quality: BOOLEAN=None,
                        _dr: BOOLEAN=None,
-                       _stage: str=None,
-                       _dme: BOOLEAN=None,
-                       _hr: str=None,
-                       _age_dme: str=None,
+                       _stage: int=None,
+                       _dme: int=None,
+                       _hr: int=None,
+                       _age_dme: int=None,
                        _rvo: BOOLEAN=None,
                        _crao: BOOLEAN=None,
                        _myopia: BOOLEAN=None,
@@ -140,38 +129,14 @@ def update_label_by_id(_id: int,
                        _comment: str=None):
     """Update the information of an label given id and return 1 or 0 represented result"""
 
-    if _stage is not None:
-        stage_list = image_stage_choice.find_image_stage_choice_by_name(_stage)
-        if len(stage_list) == 0:
-            result = image_stage_choice.add_image_stage_choice(_stage)
-            _stage_id = result.stage_id
-        else:
-            _stage_id = stage_list[0].stage_id
-
-    if _hr is not None:
-        hr_list = hr_choice.find_hr_choice_by_name(_hr)
-        if len(hr_list) == 0:
-            result = hr_choice.add_hr_choice(_hr)
-            _hr_id = result.hr_id
-        else:
-            _hr_id = hr_list[0].hr_id
-
-    if _age_dme is not None:
-        agedme_list = age_dme_choice.find_age_dme_choice_by_name(_age_dme)
-        if len(agedme_list) == 0:
-            result = age_dme_choice.add_age_dme_choice(_age_dme)
-            _age_dme_id = result.agedme_id
-        else:
-            _age_dme_id = agedme_list[0].agedme_id
-
     try:
         result = session.query(Labels).filter(Labels.label_id == _id).update({
             "quality": _quality if _quality is not None else Labels.quality,
             "dr": _dr if _dr is not None else Labels.dr,
-            "stage_id": _stage_id if _stage is not None else Labels.stage_id,
+            "stage": _stage if _stage is not None else Labels.stage_id,
             "dme": _dme if _dme is not None else Labels.dme,
-            "hr_id": _hr_id if _hr is not None else Labels.hr_id,
-            "age_dme_id": _age_dme_id if _age_dme is not None else Labels.age_dme_id,
+            "hr": _hr if _hr is not None else Labels.hr_id,
+            "age_dme": _age_dme if _age_dme is not None else Labels.age_dme_id,
             "rvo": _rvo if _rvo is not None else Labels.rvo,
             "crao": _crao if _crao is not None else Labels.crao,
             "myopia": _myopia if _myopia is not None else Labels.myopia,
@@ -197,7 +162,17 @@ def delete_label_by_id(_id: int):
 
 
 def find_label_by_id(_id: int):
-    """Find a label by id and return a list"""
+    """Find a label by id and return a label object"""
+    try:
+        label_list = session.query(Labels).filter(Labels.label_id == _id)
+        session.commit()
+        return label_list.first()
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def find_label_by_job_id(_job_id: int):
+    """Find a label by job id and return a list"""
     try:
         label_list = session.query(Labels).filter(Labels.label_id == _id)
         session.commit()
