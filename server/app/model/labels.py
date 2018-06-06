@@ -171,11 +171,3 @@ def find_label_by_id(_id: int):
         handle_db_exception(err)
 
 
-def find_label_by_job_id(_job_id: int):
-    """Find a label by job id and return a list"""
-    try:
-        label_list = session.query(Labels).filter(Labels.label_id == _id)
-        session.commit()
-        return label_list.all()
-    except Exception as err:
-        handle_db_exception(err)
