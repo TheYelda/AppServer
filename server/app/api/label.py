@@ -1,10 +1,10 @@
 # coding=utf-8
 """Deal with label-related APIs."""
 from flask_restplus import Namespace, Resource, reqparse
-from flask_login import login_required,current_user
+from flask_login import login_required, current_user
 from flask import request
 from ..model import labels, jobs
-from .utils import get_message_json, handle_internal_error, HTTPStatus
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes
 
 api = Namespace('labels')
 
@@ -17,9 +17,7 @@ class LabelResource(Resource):
     def get(self, label_id):
         """Retrieve a single label by id."""
         try:
-            if not current_user.is_admin():
-                # TODO
-                '    and current_user.account_id != jobs.find_accound_id_by_lable_id(label_id):'
+            if not current_user.is_admin() and current_user.account_id != jobs.find_accound_id_by_lable_id(label_id):
                 return get_message_json('用户无法访问其他用户的标注信息'), HTTPStatus.UNAUTHORIZED
             result = labels.find_label_by_id(label_id)
             if len(result) == 0:
@@ -38,6 +36,15 @@ class LabelResource(Resource):
         """Edit a single label by id."""
         form = request.get_json()
         try:
+            if current_user.is_admin():
+                if jobs.find_job_state_by_label_id(label_id) != ConstantCodes.Finished:
+                    return get_message_json("管理员无法修改未完成标注"), HTTPStatus.UNAUTHORIZED
+            else:
+                if current_user.account_id != jobs.find_account_id_by_label_id(label_id):
+                    return get_message_json("非管理员无法修改他人的标注"), HTTPStatus.UNAUTHORIZED
+                else:
+                    if jobs.find_job_state_by_label_id(label_id) == ConstantCodes.Finished:
+                        return get_message_json("job已完成无法修改标注"), HTTPStatus.UNAUTHORIZED
             result = labels.update_label_by_id(
                 label_id,
                 form['quality'],
@@ -67,6 +74,15 @@ class LabelResource(Resource):
     def delete(self, label_id):
         """Delete a single label by id."""
         try:
+            if current_user.is_admin():
+                if jobs.find_job_state_by_label_id(label_id) != ConstantCodes.Finished:
+                    return get_message_json("管理员无法删除未完成标注"), HTTPStatus.UNAUTHORIZED
+            else:
+                if current_user.account_id != jobs.find_account_id_by_label_id(label_id):
+                    return get_message_json("非管理员无法删除他人的标注"), HTTPStatus.UNAUTHORIZED
+                else:
+                    if jobs.find_job_state_by_label_id(label_id) == ConstantCodes.Finished:
+                        return get_message_json("job已完成无法删除标注"), HTTPStatus.UNAUTHORIZED
             result = labels.delete_label_by_id(label_id)
             if result == 1:
                 return get_message_json('标注删除成功'), HTTPStatus.OK
