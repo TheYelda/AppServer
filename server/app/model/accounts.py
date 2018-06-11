@@ -131,6 +131,16 @@ def update_account_by_id(_account_id: int,
     except Exception as err:
         handle_db_exception(err)
 
+def update_authority_by_id(_account_id: int, _authority=None):
+    """Update the authority of an account given id and return 1 or 0 represented result"""
+    try:
+        result = session.query(Accounts).filter(Accounts.account_id == _account_id).update({
+            "authority": _authority if _authority is not None else Accounts.authority
+        })
+        session.commit()
+        return result
+    except Exception as err:
+        handle_db_exception(err)
 
 def delete_account_by_id(_id: int):
     """Delete an account by id and return 1 or 0 represented result"""

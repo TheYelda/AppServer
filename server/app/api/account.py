@@ -49,22 +49,30 @@ class AccountResource(Resource):
                     return get_message_json('用户无法修改权限'), HTTPStatus.UNAUTHORIZED
                 elif account_id != current_user.account_id:
                     return get_message_json('用户无法修改他人信息'), HTTPStatus.UNAUTHORIZED
-            elif current_user.is_admin() and account_id == current_user.account_id \
-                    and form.get('authority') != ConstantCodes.Admin:
-                return get_message_json('管理员无法修改本账号权限'), HTTPStatus.UNAUTHORIZED
+                result = accounts.update_account_by_id(
+                    account_id,
+                    form.get('nickname'),
+                    generate_password_hash(form.get('password')) if form.get('password') else None,
+                    form.get('email'),
+                    None,
+                    None
+                )
+            elif current_user.is_admin() and account_id == current_user.account_id:
+                if form.get('authority') != ConstantCodes.Admin:
+                    return get_message_json('管理员无法修改本账号权限'), HTTPStatus.UNAUTHORIZED
+                result = accounts.update_account_by_id(
+                    account_id,
+                    form.get('nickname'),
+                    generate_password_hash(form.get('password')) if form.get('password') else None,
+                    form.get('email'),
+                    None,
+                    None
+                )                   
             elif current_user.is_admin() and account_id != current_user.account_id:
                 if form.get('authority') == ConstantCodes.Admin:
                     return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
-                if form.get('nickname') or form.get('password') or form.get('email') or form.get('photo'):
-                    return get_message_json('管理员无法修改他人除权限外的其他信息'), HTTPStatus.UNAUTHORIZED
-            result = accounts.update_account_by_id(
-                account_id,
-                form.get('nickname'),
-                generate_password_hash(form.get('password')) if form.get('password') else None,
-                form.get('email'),
-                form.get('photo'),
-                form.get('authority')
-            )
+                result = accounts.update_authority_by_id(account_id, form.get('authority'))
+
             if result == 1:
                 json_res = form.copy()
                 json_res['message'] = '用户修改成功'
