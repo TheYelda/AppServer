@@ -57,3 +57,11 @@ def convert_to_int(argument):
     :return: the corresponding int or None
     """
     return int(argument) if argument else None
+
+def convert_to_int_default0(argument):
+    """
+    A helper function to convert argument in the query string into int.
+    :param argument: the string-type argument got by `request.args.get('...')`
+    :return: the corresponding int or 0
+    """
+    return int(argument) if argument else 0

@@ -4,7 +4,7 @@ from flask_restplus import Namespace, Resource, reqparse
 from flask_login import login_required,current_user
 from flask import request
 from ..model import labels, jobs, images
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, convert_to_int_default0
 
 api = Namespace('labels')
 
@@ -114,10 +114,10 @@ class LabelsCollectionResource(Resource):
             result = labels.add_label(
                 form.get('quality'),
                 form.get('dr'),
-                form.get('stage'),
-                form.get('dme'),
-                form.get('hr'),
-                form.get('age_dme'),
+                convert_to_int_default0(form.get('stage')),
+                convert_to_int_default0(form.get('dme')),
+                convert_to_int_default0(form.get('hr')),
+                convert_to_int_default0(form.get('age_dme')),
                 form.get('rvo'),
                 form.get('crao'),
                 form.get('myopia'),
@@ -125,6 +125,7 @@ class LabelsCollectionResource(Resource):
                 form.get('glaucoma'),
                 form.get('others'),
                 form.get('comment'))
+    
             json_res = result.to_json()
             json_res['message'] = '标注创建成功'
             return json_res, HTTPStatus.CREATED
