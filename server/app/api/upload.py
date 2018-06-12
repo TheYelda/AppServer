@@ -29,8 +29,7 @@ class PhotosCollectionResource(Resource):
         photo_file = request.files['file']
         if photo_file and allowed_file(photo_file.filename):
             photo_filename = secure_filename(photo_file.filename)
-            expand_name = photo_filename.rsplit('.', 1)[1]
-            photo_filename = current_user.username + '.' + expand_name
+            photo_filename = current_user.username + '.png'
             try:
                 photo_location = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'])
                 photo_file.save(os.path.join(photo_location, photo_filename))
@@ -46,11 +45,14 @@ class PhotosCollectionResource(Resource):
             return get_message_json('头像上传失败'), HTTPStatus.BAD_REQUEST
 
 
-@api.route('/photos/<string:filename>')
+@api.route('/photos/<string:filename>/')
 class PhotoResource(Resource):
     """Deal with single photos."""
     
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('timestemp', type=str, required=False, help='time stamp', location='args')
+            )
     def get(self, filename):
         """retrive a photo."""
 
@@ -78,12 +80,14 @@ class MedicalImagesCollectionResource(Resource):
         medical_file = request.files['file']
         if medical_file and allowed_file(medical_file.filename):
             medical_filename = secure_filename(medical_file.filename)
+            raw_filename = medical_filename.rsplit('.', 1)[0]
+            hash_filename = str(hash(raw_filename))
             
             try:
                 """save the image data"""
                 expand_name = medical_filename.rsplit('.', 1)[1]
                 time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-                medical_filename = time_name + '.' + expand_name
+                medical_filename = time_name + hash_filename + '.' + expand_name
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
                 medical_file.save(os.path.join(medical_location, medical_filename))
 
