@@ -4,7 +4,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from ..model import jobs, images, accounts
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
+from .utils import *
 from sqlalchemy.exc import IntegrityError
 import datetime
 
@@ -51,26 +51,33 @@ class JobResource(Resource):
             if the_job.account_id != current_user.account_id:
                 return get_message_json('用户无法修改他人任务'), HTTPStatus.FORBIDDEN
 
+            # The job state must be valid and can not go back
+            form_job_state = form.get('job_state')
+            if not(validate_job_state_code(form_job_state) and form_job_state >= the_job.job_state):
+                return get_message_json('任务状态不合法'), HTTPStatus.BAD_REQUEST
+
             # Client can edit label id if and only if the job is 'unlabeled'
-            label_id = form.get('label_id')
-            finished_date = None
+            form_label_id = form.get('label_id')
             if the_job.job_state == ConstantCodes.Unlabeled:
-                if not label_id:
-                    get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
+                if not form_label_id:
+                    return get_message_json('必须为该任务提供对应的标注'), HTTPStatus.BAD_REQUEST
             elif the_job.job_state == ConstantCodes.Labeling:
                 # Can NOT change the label id
-                label_id = None
-                # Update finished date automatically when the job is updated to be finished
-                if form.get('job_state') == ConstantCodes.Finished:
-                    finished_date = datetime.date.today()
+                if form_label_id is not None and form_label_id != the_job.label_id:
+                    return get_message_json('用户无法替换任务的标注'), HTTPStatus.FORBIDDEN
             elif the_job.job_state == ConstantCodes.Finished:
                 return get_message_json('用户无法修改已完成的任务'), HTTPStatus.FORBIDDEN
 
+            # Update finished date automatically when the job is updated to be finished
+            finished_date = None
+            if form_job_state == ConstantCodes.Finished:
+                finished_date = datetime.date.today()
+
             result = jobs.update_job_by_id(
                 job_id,
-                label_id,
+                form_label_id,
                 finished_date,
-                form.get('job_state'),
+                form_job_state,
                 the_job.image_id
             )
             if result == 1:
@@ -83,7 +90,7 @@ class JobResource(Resource):
 
         except IntegrityError as err:
             if err.orig.args[0] == DBErrorCodes.FOREIGN_KEY_FAILURE:
-                return get_message_json('指定的用户或图像不存在'), HTTPStatus.BAD_REQUEST
+                return get_message_json('指定的用户或标注不存在'), HTTPStatus.BAD_REQUEST
             else:
                 return handle_internal_error(err.orig.args[1])
         except Exception as err:

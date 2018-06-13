@@ -115,8 +115,24 @@ def update_image_state(_image_id, all_jobs):
         if job.job_state != ConstantCodes.Finished:
             return
     # Check if all corresponding labels are consistant
-    all_labels = [labels.find_label_by_id(job.label_id) for job in all_jobs]
+    all_labels = [session.query(labels.Labels).filter(labels.Labels.label_id == job.label_id).first()
+                  for job in all_jobs]
     if all_labels.count(all_labels[0]) == len(all_labels):
-        update_image_by_id(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
+        _update_image_by_id_without_commit(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
     else:
-        update_image_by_id(_image_id, _image_state=ConstantCodes.Different)
+        _update_image_by_id_without_commit(_image_id, _image_state=ConstantCodes.Different)
+
+
+def _update_image_by_id_without_commit(_id: int,
+                                       _label_id=None,
+                                       _image_state=None,
+                                       _filename=None,
+                                       _source=None):
+    """To ensure to commit only once when updating job, we need such a private function"""
+    result = session.query(Images).filter(Images.image_id == _id).update({
+        "label_id": _label_id if _label_id is not None else Images.label_id,
+        "image_state": _image_state if _image_state is not None else Images.image_state,
+        "filename": _filename if _filename is not None else Images.filename,
+        "source": _source if _source is not None else Images.source
+    })
+    return result

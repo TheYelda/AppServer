@@ -77,8 +77,9 @@ def update_job_by_id(_job_id: int,
         })
         # Check whether to update corresponding image
         if _job_state == ConstantCodes.Finished:
-            jobs_of_same_image = find_job_by_image_id(the_image_id)
+            jobs_of_same_image = session.query(Jobs).filter(Jobs.image_id == the_image_id).all()
             images.update_image_state(the_image_id, jobs_of_same_image)
+        # Regard the above operations as a transaction and ensure to commit only once
         session.commit()
         return result
     except Exception as err:
