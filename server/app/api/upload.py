@@ -86,7 +86,7 @@ class MedicalImagesCollectionResource(Resource):
             try:
                 """save the image data"""
                 expand_name = medical_filename.rsplit('.', 1)[1]
-                time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+                time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')
                 medical_filename = time_name + hash_filename + '.' + expand_name
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
                 medical_file.save(os.path.join(medical_location, medical_filename))
