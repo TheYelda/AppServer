@@ -6,7 +6,7 @@ from flask import request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from ..model import accounts
-from .utils import get_message_json, DBErrorCodes, handle_internal_error, HTTPStatus, ConstantCodes
+from .utils import *
 
 
 api = Namespace('accounts')
@@ -69,9 +69,12 @@ class AccountResource(Resource):
                     None
                 )                   
             elif current_user.is_admin() and account_id != current_user.account_id:
-                if form.get('authority') == ConstantCodes.Admin:
+                form_authority = form.get('authority')
+                if form_authority is not None and not validate_authority_code(form_authority):
+                    return get_message_json('权限不合法'), HTTPStatus.BAD_REQUEST
+                if form_authority == ConstantCodes.Admin:
                     return get_message_json('管理员无法修改他人权限为管理员'), HTTPStatus.UNAUTHORIZED
-                result = accounts.update_authority_by_id(account_id, form.get('authority'))
+                result = accounts.update_authority_by_id(account_id, form_authority)
 
             if result == 1:
                 json_res = form.copy()

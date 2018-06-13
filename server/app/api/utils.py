@@ -2,6 +2,7 @@
 """Provide common utilities for API processing."""
 from flask import current_app
 from http import HTTPStatus
+import inspect
 
 
 class DBErrorCodes(object):
@@ -58,6 +59,7 @@ def convert_to_int(argument):
     """
     return int(argument) if argument else None
 
+
 def convert_to_int_default0(argument):
     """
     A helper function to convert argument in the query string into int.
@@ -65,3 +67,25 @@ def convert_to_int_default0(argument):
     :return: the corresponding int or 0
     """
     return int(argument) if argument else 0
+
+
+def get_all_constant_codes():
+    """Get all codes defined in ConstantCodes."""
+    attributes = inspect.getmembers(ConstantCodes, lambda a: not (inspect.isroutine(a)))
+    all_codes = [a[1] for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))]
+    return all_codes
+
+
+def validate_authority_code(code):
+    """Check if the given code is valid authority code."""
+    return code in [c for c in get_all_constant_codes() if str(c).startswith('1')]
+
+
+def validate_job_state_code(code):
+    """Check if the given code is valid job state code."""
+    return code in [c for c in get_all_constant_codes() if str(c).startswith('2')]
+
+
+def validate_image_state_code(code):
+    """Check if the given code is valid image state code."""
+    return code in [c for c in get_all_constant_codes() if str(c).startswith('3')]
