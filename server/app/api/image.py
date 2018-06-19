@@ -5,7 +5,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
 from ..model import images
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, convert_to_int
+from .utils import *
 
 api = Namespace('images')
 
@@ -45,7 +45,12 @@ class ImageResource(Resource):
                 if form.get('filename') is not None:
                     return get_message_json('无法修改图像文件名'), HTTPStatus.FORBIDDEN
                 if image_to_update.image_state != ConstantCodes.Different:
-                    return get_message_json("无法修改该图像的状态"), HTTPStatus.FORBIDDEN
+                    return get_message_json("只能修改处于分歧状态的图像"), HTTPStatus.FORBIDDEN
+
+                form_image_state = form.get('image_state')
+                if not (validate_image_state_code(form_image_state)
+                        and form_image_state >= image_to_update.image_state):
+                    return get_message_json('图像状态不合法'), HTTPStatus.BAD_REQUEST
 
                 result = images.update_image_by_id(
                     image_id,
