@@ -3,6 +3,7 @@
 from flask import current_app
 from http import HTTPStatus
 import inspect
+import re
 
 
 class DBErrorCodes(object):
@@ -89,3 +90,27 @@ def validate_job_state_code(code):
 def validate_image_state_code(code):
     """Check if the given code is valid image state code."""
     return code in [c for c in get_all_constant_codes() if str(c).startswith('3')]
+
+
+def validate_password(password):
+    """Check if the given password is valid"""
+    if password is None:
+        return True
+    pattern = r'^[a-zA-Z0-9]{8,32}$'
+    return bool(re.match(pattern, password))
+
+
+def validate_username(username):
+    """Check if the given username is valid"""
+    if username is None:
+        return True
+    pattern = r'^[a-zA-Z0-9]{1,32}$'
+    return bool(re.match(pattern, username))
+
+
+def validate_nickname(nickname):
+    """Check if the given nickname is valid"""
+    if nickname is None:
+        return True
+    length = len(nickname)
+    return length <= 32

@@ -40,6 +40,10 @@ class AccountResource(Resource):
         """Edit a single account by id."""
         form = request.get_json()
         try:
+            if not (validate_password(form.get('password'))
+                    and validate_username(form.get('username'))
+                    and validate_nickname(form.get('nickname'))):
+                return get_message_json('用户信息格式有误'), HTTPStatus.BAD_REQUEST
             """doctor and guest can not modify their authority or other users' info"""
             """admin can not modify his authority"""
             """admin can not modify other users' authority as admin"""
@@ -58,8 +62,6 @@ class AccountResource(Resource):
                     None
                 )
             elif current_user.is_admin() and account_id == current_user.account_id:
-                if form.get('authority') != ConstantCodes.Admin:
-                    return get_message_json('管理员无法修改本账号权限'), HTTPStatus.UNAUTHORIZED
                 result = accounts.update_account_by_id(
                     account_id,
                     form.get('nickname'),
@@ -77,7 +79,7 @@ class AccountResource(Resource):
                 result = accounts.update_authority_by_id(account_id, form_authority)
 
             if result == 1:
-                json_res = form.copy()
+                json_res = current_user.to_json()
                 json_res['message'] = '用户修改成功'
                 return json_res, HTTPStatus.OK
             else:
@@ -141,6 +143,11 @@ class AccountsCollectionResource(Resource):
         form = request.get_json()
 
         try:
+            if not (validate_password(form.get('password'))
+                    and validate_username(form.get('username'))
+                    and validate_nickname(form.get('nickname'))):
+                return get_message_json('用户信息格式有误'), HTTPStatus.BAD_REQUEST
+
             result = accounts.add_account(
                 form.get('username'),
                 form.get('nickname'),
