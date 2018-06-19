@@ -1,14 +1,15 @@
 # coding=utf-8
 """Define table and operations for labels."""
 from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, ForeignKey, TEXT, func
-from . import Base, session, handle_db_exception, image_stage_choice, hr_choice, age_dme_choice
-from ..api.utils import get_message_json
+from . import Base, session, handle_db_exception, is_testing
 
 
 class Labels(Base):
     """Table constructed for labels."""
-
-    __tablename__ = 'Labels'
+    if is_testing:
+        __tablename__ = 'TEST_Labels'
+    else:
+        __tablename__ = 'Labels'
 
     label_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     quality = Column(BOOLEAN, default=False)  # 图片质量

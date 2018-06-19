@@ -1,17 +1,20 @@
 # coding=utf-8
 """Define table and operations for images."""
 from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
-from . import Base, session, handle_db_exception, labels
+from . import Base, session, handle_db_exception, labels, is_testing
 from ..api.utils import ConstantCodes
 
 
 class Images(Base):
     """Table constructed for images."""
-
-    __tablename__ = 'Images'
+    if is_testing:
+        __tablename__ = 'TEST_Images'
+        label_id = Column(Integer, ForeignKey('TEST_Labels.label_id'), nullable=True)
+    else:
+        __tablename__ = 'Images'
+        label_id = Column(Integer, ForeignKey('Labels.label_id'), nullable=True)
 
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    label_id = Column(Integer, ForeignKey('Labels.label_id'), nullable=True)
     image_state = Column(Integer, nullable=False)
     filename = Column(VARCHAR(128), nullable=False, unique=True)
     source = Column(VARCHAR(128))

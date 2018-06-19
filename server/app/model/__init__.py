@@ -6,11 +6,13 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 session = None
+is_testing = False
 
 
 def init_db(_user,
             _password,
-            _db_name):
+            _db_name,
+            _is_testing):
     """Initialize database connections and create tables."""
 
     global session
@@ -20,8 +22,11 @@ def init_db(_user,
         echo=True)
     session = sessionmaker(bind=db_engine)()
 
+    global is_testing
+    is_testing = _is_testing
+
     # Create all tables
-    from . import age_dme_choice, hr_choice, image_stage_choice, accounts, jobs, images, labels
+    from . import accounts, jobs, images, labels
     Base.metadata.create_all(db_engine)
 
 

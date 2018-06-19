@@ -30,7 +30,8 @@ def create_app(config_name):
         init_db(
             app.config['DB_USERNAME'],
             app.config['DB_PASSWORD'],
-            app.config['DB_NAME']
+            app.config['DB_NAME'],
+            app.config['TESTING']
         )
     except Exception as err:
         print(err)

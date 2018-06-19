@@ -26,7 +26,6 @@
      ├─instance
      │    └─config.py：私密配置文件
      ├─config.py：普通配置文件
-     ├─gunicorn_config.py：Gunicorn配置文件
      ├─run.py：入口文件
      └─requirements.txt：第三方包需求文件
 ```
@@ -54,7 +53,10 @@ pip freeze > requirements.txt
 
 ### 运行
 ```bash
+# 生产模式
 python run.py
+# 测试模式，同时指定端口
+python run.py -m test -p 10086
 ```
 **注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置，例如：
 

@@ -1,19 +1,24 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception, images
+from . import Base, session, handle_db_exception, images, is_testing
 from ..api.utils import ConstantCodes
 
 
 class Jobs(Base):
     """Table constructed for jobs."""
-
-    __tablename__ = 'Jobs'
+    if is_testing:
+        __tablename__ = 'TEST_Jobs'
+        image_id = Column(Integer, ForeignKey('TEST_Images.image_id'))
+        label_id = Column(Integer, ForeignKey('TEST_Labels.label_id'))
+        account_id = Column(Integer, ForeignKey('TEST_Accounts.account_id'))
+    else:
+        __tablename__ = 'Jobs'
+        image_id = Column(Integer, ForeignKey('Images.image_id'))
+        label_id = Column(Integer, ForeignKey('Labels.label_id'))
+        account_id = Column(Integer, ForeignKey('Accounts.account_id'))
 
     job_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    image_id = Column(Integer, ForeignKey('Images.image_id'))
-    label_id = Column(Integer, ForeignKey('Labels.label_id'))
-    account_id = Column(Integer, ForeignKey('Accounts.account_id'))
     finished_date = Column(DATE)
     job_state = Column(Integer, nullable=False)
 

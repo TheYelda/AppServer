@@ -2,13 +2,16 @@
 """Define table and operations for accounts."""
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, VARCHAR
-from . import Base, session, handle_db_exception
+from . import Base, session, handle_db_exception, is_testing
 from ..api.utils import ConstantCodes
 
 
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
-    __tablename__ = 'Accounts'
+    if is_testing:
+        __tablename__ = 'TEST_Accounts'
+    else:
+        __tablename__ = 'Accounts'
 
     account_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     username = Column(VARCHAR(128), nullable=False, unique=True)
