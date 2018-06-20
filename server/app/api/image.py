@@ -133,6 +133,7 @@ class ImagesCollectionResource(Resource):
             image_object = images.add_image(
                 ConstantCodes.Unassigned,
                 form.get('filename'),
+                form.get('url'),
                 form.get('source')
             )
             json_res = image_object.to_json()

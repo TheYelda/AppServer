@@ -104,7 +104,7 @@ def validate_username(username):
     """Check if the given username is valid"""
     if username is None:
         return True
-    pattern = r'^[a-zA-Z0-9]{1,32}$'
+    pattern = r'^[a-zA-Z0-9]{3,32}$'
     return bool(re.match(pattern, username))
 
 

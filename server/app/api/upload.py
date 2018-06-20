@@ -76,6 +76,8 @@ class MedicalImagesCollectionResource(Resource):
             )
     def post(self):
         """upload a madical image."""
+        if not current_user.is_admin():
+            return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
 
         medical_file = request.files['file']
         if medical_file and allowed_file(medical_file.filename):
@@ -87,23 +89,19 @@ class MedicalImagesCollectionResource(Resource):
                 """save the image data"""
                 expand_name = medical_filename.rsplit('.', 1)[1]
                 time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')
-                medical_filename = time_name + hash_filename + '.' + expand_name
+                medical_url = time_name + hash_filename + '.' + expand_name
                 medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
-                medical_file.save(os.path.join(medical_location, medical_filename))
+                medical_file.save(os.path.join(medical_location, medical_url))
 
                 """create an instance of Image"""
-                if not current_user.is_admin():
-                    return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
-                
                 image_object = images.add_image(
                     ConstantCodes.Unassigned,
                     medical_filename,
+                    medical_url,
                     'default source',
                 )
                 json_res = image_object.to_json()
                 json_res['message'] = '医学图像上传成功'
-
-
 
                 return json_res, HTTPStatus.CREATED
             
@@ -120,22 +118,22 @@ class MedicalImagesCollectionResource(Resource):
             return get_message_json('医学影像上传失败'), HTTPStatus.BAD_REQUEST
 
 
-@api.route('/medical-images/<string:filename>')
+@api.route('/medical-images/<string:url>')
 class MedicalImageResource(Resource):
     """Deal with single medical-images."""
     
     @login_required
-    def get(self, filename):
+    def get(self, url):
         """retrive a medical image."""
         
-        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'], filename)
+        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'], url)
         if os.path.exists(medical_file_path):
             try:
                 return send_file(medical_file_path)
             except Exception as err:
                 return handle_internal_error(str(err))
         else:
-            return get_message_json('头像不存在'), HTTPStatus.NOT_FOUND
+            return get_message_json('图像不存在'), HTTPStatus.NOT_FOUND
 
 
 def allowed_file(filename):

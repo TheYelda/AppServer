@@ -16,7 +16,8 @@ class Images(Base):
 
     image_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     image_state = Column(Integer, nullable=False)
-    filename = Column(VARCHAR(128), nullable=False, unique=True)
+    filename = Column(VARCHAR(128), nullable=False)
+    url = Column(VARCHAR(128), nullable=False, unique=True)
     source = Column(VARCHAR(128))
 
     def to_json(self):
@@ -26,6 +27,7 @@ class Images(Base):
             'label_id':self.label_id,
             'image_state': self.image_state,
             'filename': self.filename,
+            'url': self.url,
             'source': self.source
         }
     
@@ -36,10 +38,12 @@ class Images(Base):
 
 def add_image(_image_state: int,
               _filename: str,
+              _url: str,
               _source: str):
     image = Images()
     image.image_state = _image_state
     image.filename = _filename
+    image.url = _url
     image.source = _source
     try:
         session.add(image)
