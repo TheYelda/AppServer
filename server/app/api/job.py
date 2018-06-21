@@ -194,9 +194,6 @@ class JobsCollectionResource(Resource):
             json_res = result.to_json()
             json_res['message'] = '任务创建成功'
 
-            # Modify the state of the image
-            images.update_image_by_id(form.get('image_id'), _image_state=ConstantCodes.Running)
-
             return json_res, HTTPStatus.CREATED
 
         except IntegrityError as err:

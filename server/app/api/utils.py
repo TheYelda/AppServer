@@ -35,7 +35,8 @@ class ConstantCodes(object):
     Unassigned = 300
     Running = 301
     Different = 302
-    Done = 303
+    DifferentII = 303
+    Done = 304
 
 
 def get_message_json(message):

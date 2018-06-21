@@ -1,8 +1,9 @@
 # coding=utf-8
 """Define table and operations for images."""
 from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
-from . import Base, session, handle_db_exception, labels, is_testing
+from . import Base, session, handle_db_exception, labels, jobs, is_testing
 from ..api.utils import ConstantCodes
+from random import randint
 
 
 class Images(Base):
@@ -111,10 +112,11 @@ def delete_image_by_id(_id: int):
         handle_db_exception(err)
 
 
-def update_image_state(_image_id, all_jobs):
+def _update_image_state(_image_id, cur_image_state, all_jobs):
     """
     Update the state of the image relative to the given jobs
     :param _image_id: the id of the to-be-updated image
+    :param cur_image_state: the current state of the corresponding image
     :param all_jobs: all corresponding jobs of the image
     """
     # Only when all jobs are finished will we move on
@@ -123,24 +125,30 @@ def update_image_state(_image_id, all_jobs):
             return
     all_labels = [session.query(labels.Labels).filter(labels.Labels.label_id == job.label_id).first()
                   for job in all_jobs]
-    # TODO
     # Check if the corresponding labels are unquestioned
-    if all_labels.count(all_labels[0]) == len(all_labels):
+    if labels.check_if_labels_unquestioned(all_labels):
         _update_image_by_id_without_commit(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
     else:
-        _update_image_by_id_without_commit(_image_id, _image_state=ConstantCodes.Different)
+        no_available_doc = False
+        if cur_image_state == ConstantCodes.Running:
+            doctor_list = jobs._find_doctors_not_assigned_the_image(_image_id)
+            if doctor_list:
+                _update_image_by_id_without_commit(_image_id, _image_state=ConstantCodes.Different)
+                # Create a job for another doctor when there are available doctors
+                another_doctor_id = doctor_list[randint(0, len(doctor_list)-1)]
+                jobs._add_job_without_commit(_image_id, another_doctor_id)
+            else:
+                no_available_doc = True
+        if no_available_doc or cur_image_state == ConstantCodes.Different:
+            _update_image_by_id_without_commit(_image_id, _image_state=ConstantCodes.DifferentII)
+            jobs._add_job_to_an_expert(_image_id)
 
 
-def _update_image_by_id_without_commit(_id: int,
-                                       _label_id=None,
-                                       _image_state=None,
-                                       _filename=None,
-                                       _source=None):
+def _update_image_by_id_without_commit(_id: int, _label_id=None, _image_state=None):
     """To ensure to commit only once when updating job, we need such a private function"""
     result = session.query(Images).filter(Images.image_id == _id).update({
         "label_id": _label_id if _label_id is not None else Images.label_id,
         "image_state": _image_state if _image_state is not None else Images.image_state,
-        "filename": _filename if _filename is not None else Images.filename,
-        "source": _source if _source is not None else Images.source
     })
-    return result
+    if result == 0:
+        raise NotImplementedError('未知的图像更新失败')

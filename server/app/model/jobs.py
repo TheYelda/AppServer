@@ -1,8 +1,9 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception, images, is_testing
+from . import Base, session, handle_db_exception, images, accounts, is_testing
 from ..api.utils import ConstantCodes
+from random import randint
 
 
 class Jobs(Base):
@@ -52,6 +53,8 @@ def add_job(_image_id: int,
     job.job_state = ConstantCodes.Unlabeled
     try:
         session.add(job)
+        # Modify the state of the image
+        images._update_image_by_id_without_commit(_image_id, _image_state=ConstantCodes.Running)
         session.commit()
         return job
     except Exception as err:
@@ -82,8 +85,14 @@ def update_job_by_id(_job_id: int,
         })
         # Check whether to update corresponding image
         if _job_state == ConstantCodes.Finished:
-            jobs_of_same_image = session.query(Jobs).filter(Jobs.image_id == the_image_id).all()
-            images.update_image_state(the_image_id, jobs_of_same_image)
+            cur_image_state = session.query(images.Images).\
+                filter(images.Images.image_id == the_image_id).first().image_state
+            if cur_image_state == ConstantCodes.DifferentII:
+                # It means that the job is finished by an expert
+                images._update_image_by_id_without_commit(the_image_id, _label_id, ConstantCodes.Done)
+            else:
+                jobs_of_same_image = session.query(Jobs).filter(Jobs.image_id == the_image_id).all()
+                images._update_image_state(the_image_id, cur_image_state, jobs_of_same_image)
         # Regard the above operations as a transaction and ensure to commit only once
         session.commit()
         return result
@@ -149,3 +158,33 @@ def find_all_jobs(_account_id: int,
         return jobs_list.all()
     except Exception as err:
         handle_db_exception(err)
+
+
+def _find_doctors_not_assigned_the_image(image_id):
+    """
+    Find all doctors that has never been assigned the given image.
+    :param image_id: the id of the image
+    :return: a doctor id list (may be empty)
+    """
+    job_list = session.query(Jobs).filter(Jobs.image_id == image_id).all()
+    excluded_account_id_list = [job.account_id for job in job_list]
+    account_list = session.query(accounts.Accounts).filter(
+        ~accounts.Accounts.account_id.in_(excluded_account_id_list)).all()
+    doctor_id_list = [account.account_id for account in account_list if account.authority == ConstantCodes.Doctor]
+    return doctor_id_list
+
+
+def _add_job_without_commit(_image_id: int, _account_id: int):
+    """Add a job to database without commit."""
+    job = Jobs()
+    job.image_id = _image_id
+    job.account_id = _account_id
+    job.job_state = ConstantCodes.Unlabeled
+    session.add(job)
+
+
+def _add_job_to_an_expert(_image_id: int):
+    """Add a job to a randomly chosen expert."""
+    expert_list = session.query(accounts.Accounts).filter(accounts.Accounts.authority == ConstantCodes.Expert).all()
+    chosen_expert_id = expert_list[randint(0, len(expert_list)-1)].account_id
+    _add_job_without_commit(_image_id, chosen_expert_id)
