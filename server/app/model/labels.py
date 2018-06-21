@@ -2,6 +2,7 @@
 """Define table and operations for labels."""
 from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, ForeignKey, TEXT, func
 from . import Base, session, handle_db_exception, is_testing
+import json
 
 
 class Labels(Base):
@@ -49,8 +50,8 @@ class Labels(Base):
             handle_db_exception(str(err))
 
     def __repr__(self):
-        return '<Labels: label_id:{} quality:{} dr:{} stage:{} dme:{} hr:{}\
-                    age_dme:{} rvo:{} crao:{} myopia:{} od:{} glaucoma:{} others:{} comment:{}>'.\
+        return '<Labels: label_id:{} quality:{} dr:{} stage:{} dme:{} hr:{} '\
+               'age_dme:{} rvo:{} crao:{} myopia:{} od:{} glaucoma:{} others:{} comment:{}>'.\
             format(self.label_id,
                    self.quality,
                    self.dr,
@@ -75,6 +76,11 @@ class Labels(Base):
                     return False
             return True
         return False
+
+    def __hash__(self):
+        return hash(
+            tuple([getattr(self, field) for field in self.__dict__
+                   if field not in ['label_id', 'comment', '_sa_instance_state']]))
 
 
 def add_label(_quality: BOOLEAN,
@@ -171,4 +177,20 @@ def find_label_by_id(_id: int):
     except Exception as err:
         handle_db_exception(err)
 
+
+def check_if_labels_unquestioned(label_list):
+    """
+    If more than half in the label list are identical, then the labels are considered unquestioned.
+    :param label_list: the list of labels to be checked
+    :return: a representative label id or None
+    """
+    mapping = dict()
+    for label in label_list:
+        if mapping.get(label):
+            mapping[label] += 1
+        else:
+            mapping[label] = 1
+    if max(mapping.values()) > len(label_list)/2:
+        return max(mapping, key=mapping.get).label_id
+    return None
 

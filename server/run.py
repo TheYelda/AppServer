@@ -20,4 +20,5 @@ if __name__ == '__main__':
             port = int(arg)
 
     app = create_app(config_name)
+
     app.run(host=app.config.get('HOST'), port=port)
