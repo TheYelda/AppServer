@@ -26,6 +26,7 @@ class ConstantCodes(object):
     Admin = 101
     Doctor = 102
     Guest = 103
+    Expert = 104
     # Job State 2XX
     Unlabeled = 200
     Labeling = 201

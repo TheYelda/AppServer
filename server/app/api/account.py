@@ -79,7 +79,7 @@ class AccountResource(Resource):
                 result = accounts.update_authority_by_id(account_id, form_authority)
 
             if result == 1:
-                json_res = current_user.to_json()
+                json_res = accounts.find_account_by_id(account_id).to_json()
                 json_res['message'] = '用户修改成功'
                 return json_res, HTTPStatus.OK
             else:
