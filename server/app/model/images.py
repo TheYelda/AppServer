@@ -126,7 +126,7 @@ def _update_image_state(_image_id, cur_image_state, all_jobs):
     all_labels = [session.query(labels.Labels).filter(labels.Labels.label_id == job.label_id).first()
                   for job in all_jobs]
     # Check if the corresponding labels are unquestioned
-    if labels.check_if_labels_unquestioned(all_labels):
+    if labels._check_if_labels_unquestioned(all_labels):
         _update_image_by_id_without_commit(_image_id, _label_id=all_labels[0].label_id, _image_state=ConstantCodes.Done)
     else:
         no_available_doc = False

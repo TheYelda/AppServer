@@ -1,7 +1,7 @@
 # coding=utf-8
 """Define table and operations for jobs."""
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
-from . import Base, session, handle_db_exception, images, accounts, is_testing
+from . import Base, session, handle_db_exception, images, accounts, labels, is_testing
 from ..api.utils import ConstantCodes
 from random import randint
 
@@ -160,6 +160,20 @@ def find_all_jobs(_account_id: int,
         handle_db_exception(err)
 
 
+def get_performance_by_account_id(_account_id: int):
+    """Return performance related to the given account."""
+    try:
+        job_list = session.query(Jobs).filter(Jobs.account_id == _account_id).all()
+        progress = _get_job_progress(job_list)
+        metrics = _get_job_metrics(job_list)
+        performance = {'progress': progress, **metrics}
+
+        session.commit()
+        return performance
+    except Exception as err:
+        handle_db_exception(err)
+
+
 def _find_doctors_not_assigned_the_image(image_id):
     """
     Find all doctors that has never been assigned the given image.
@@ -188,3 +202,31 @@ def _add_job_to_an_expert(_image_id: int):
     expert_list = session.query(accounts.Accounts).filter(accounts.Accounts.authority == ConstantCodes.Expert).all()
     chosen_expert_id = expert_list[randint(0, len(expert_list)-1)].account_id
     _add_job_without_commit(_image_id, chosen_expert_id)
+
+
+def _get_job_progress(job_list):
+    """Calculate progress given a job list."""
+    progress = dict()
+    progress['total jobs'] = len(job_list)
+    progress['unlabeled jobs'] = progress['labeling jobs'] = progress['finished jobs'] = 0
+    for job in job_list:
+        if job.job_state == ConstantCodes.Unlabeled:
+            progress['unlabeled jobs'] += 1
+        elif job.job_state == ConstantCodes.Labeling:
+            progress['labeling jobs'] += 1
+        elif job.job_state == ConstantCodes.Finished:
+            progress['finished jobs'] += 1
+    return progress
+
+
+def _get_job_metrics(job_list):
+    """Calculate metrics (like accuracy) given a job list."""
+    ground_truth_label_ids = []
+    inspected_label_ids = []
+    for job in job_list:
+        if job.job_state == ConstantCodes.Finished:
+            the_image = session.query(images.Images).filter(images.Images.image_id == job.image_id).first()
+            if the_image.image_state == ConstantCodes.Done:
+                ground_truth_label_ids.append(the_image.label_id)
+                inspected_label_ids.append(job.label_id)
+    return labels._calculate_metrics(ground_truth_label_ids, inspected_label_ids)

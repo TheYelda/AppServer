@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 from flask import request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
-from ..model import accounts
+from ..model import accounts, jobs
 from .utils import *
 
 
@@ -165,5 +165,27 @@ class AccountsCollectionResource(Resource):
             else:
                 return handle_internal_error(err.orig.args[1])
 
+        except Exception as err:
+            return handle_internal_error(str(err))
+
+
+@api.route('/performance/<int:account_id>')
+class AccountPerformanceResource(Resource):
+    """Deal with account performance."""
+
+    @login_required
+    def get(self, account_id):
+        """Get performance of an account."""
+        try:
+            if not current_user.is_admin() and current_user.account_id != account_id:
+                return get_message_json('用户无法访问他人的工作统计量'), HTTPStatus.UNAUTHORIZED
+            if accounts.find_account_by_id(account_id) is None:
+                return get_message_json('用户不存在'), HTTPStatus.NOT_FOUND
+            performance = jobs.get_performance_by_account_id(account_id)
+            res = {
+                'message': '工作统计量获取成功',
+                'data': performance
+            }
+            return res, HTTPStatus.OK
         except Exception as err:
             return handle_internal_error(str(err))

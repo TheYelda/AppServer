@@ -177,7 +177,7 @@ def find_label_by_id(_id: int):
         handle_db_exception(err)
 
 
-def check_if_labels_unquestioned(label_list):
+def _check_if_labels_unquestioned(label_list):
     """
     If more than half in the label list are identical, then the labels are considered unquestioned.
     :param label_list: the list of labels to be checked
@@ -193,3 +193,25 @@ def check_if_labels_unquestioned(label_list):
         return max(mapping, key=mapping.get).label_id
     return None
 
+
+def _calculate_metrics(ground_truth_label_ids, inspected_label_ids):
+    """Compare two label lists and calculate metrics."""
+    if not ground_truth_label_ids:
+        return {}
+    ground_truth_labels = [session.query(Labels).filter(Labels.label_id == _id).first()
+                           for _id in ground_truth_label_ids]
+    inspected_labels = [session.query(Labels).filter(Labels.label_id == _id).first()
+                        for _id in inspected_label_ids]
+    # Initialize metrics at first
+    metrics = dict()
+    for field in ground_truth_labels[0].__dict__:
+        if field not in ['label_id', 'comment', '_sa_instance_state']:
+            metrics[field] = {'accuracy': 0}
+    for i in range(len(ground_truth_labels)):
+        for field in metrics:
+            if getattr(ground_truth_labels[i], field) == getattr(inspected_labels[i], field):
+                metrics[field]['accuracy'] += 1
+    for field in metrics:
+        metrics[field]['accuracy'] /= float(len(ground_truth_labels))
+
+    return metrics
