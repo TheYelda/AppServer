@@ -5,10 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from flask import request, current_app, send_file
 from flask_restplus import Namespace, Resource
 from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from ..model import accounts, images, labels
-from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes
+from .utils import get_message_json, handle_internal_error, HTTPStatus, ConstantCodes, DBErrorCodes, secure_filename
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -28,7 +27,6 @@ class PhotosCollectionResource(Resource):
 
         photo_file = request.files['file']
         if photo_file and allowed_file(photo_file.filename):
-            photo_filename = secure_filename(photo_file.filename)
             photo_filename = current_user.username + '.png'
             try:
                 photo_location = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'])
