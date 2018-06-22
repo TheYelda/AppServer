@@ -12,7 +12,7 @@ class Labels(Base):
         __tablename__ = 'Labels'
 
     label_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    quality = Column(BOOLEAN, default=False)  # 图片质量
+    quality = Column(VARCHAR(256))  # 图片质量，用字符串来表示整数数组，以逗号分隔
     dr = Column(BOOLEAN)  # 是否有糖尿病视网膜病变
     stage = Column(Integer)  # 糖尿病视网膜病变阶段
     dme = Column(Integer)  # 黄斑水肿类型
@@ -31,7 +31,7 @@ class Labels(Base):
         try:
             return {
                 'label_id': self.label_id,
-                'quality': self.quality,
+                'quality': _convert_str_to_list(self.quality),
                 'dr': self.dr,
                 'stage': self.stage,
                 'dme': self.dme,
@@ -82,7 +82,7 @@ class Labels(Base):
                    if field not in ['label_id', 'comment', '_sa_instance_state']]))
 
 
-def add_label(_quality: BOOLEAN,
+def add_label(_quality: list,
               _dr: BOOLEAN,
               _stage: int,
               _dme: int,
@@ -98,7 +98,7 @@ def add_label(_quality: BOOLEAN,
     """Add a label to database and return this label"""
     label = Labels()
 
-    label.quality = _quality
+    label.quality = _convert_list_to_str(_quality)
     label.dr = _dr
     label.stage = _stage
     label.dme = _dme
@@ -120,7 +120,7 @@ def add_label(_quality: BOOLEAN,
 
 
 def update_label_by_id(_id: int,
-                       _quality: BOOLEAN=None,
+                       _quality: list=None,
                        _dr: BOOLEAN=None,
                        _stage: int=None,
                        _dme: int=None,
@@ -136,6 +136,7 @@ def update_label_by_id(_id: int,
     """Update the information of an label given id and return 1 or 0 represented result"""
 
     try:
+        _quality = _convert_list_to_str(_quality)
         result = session.query(Labels).filter(Labels.label_id == _id).update({
             "quality": _quality if _quality is not None else Labels.quality,
             "dr": _dr if _dr is not None else Labels.dr,
@@ -215,3 +216,13 @@ def _calculate_metrics(ground_truth_label_ids, inspected_label_ids):
         metrics[field]['accuracy'] /= float(len(ground_truth_labels))
 
     return metrics
+
+
+def _convert_list_to_str(li):
+    """Convert list to string with comma as delimiter, mainly used in converting `quality`."""
+    return ','.join([str(x) for x in li])
+
+
+def _convert_str_to_list(string):
+    """Convert comma-separated string to list, mainly used in converting `quality`."""
+    return [int(x) for x in string.split(',')]

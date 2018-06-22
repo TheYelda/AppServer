@@ -207,15 +207,15 @@ def _add_job_to_an_expert(_image_id: int):
 def _get_job_progress(job_list):
     """Calculate progress given a job list."""
     progress = dict()
-    progress['total jobs'] = len(job_list)
-    progress['unlabeled jobs'] = progress['labeling jobs'] = progress['finished jobs'] = 0
+    progress['total_jobs'] = len(job_list)
+    progress['unlabeled_jobs'] = progress['labeling_jobs'] = progress['finished_jobs'] = 0
     for job in job_list:
         if job.job_state == ConstantCodes.Unlabeled:
-            progress['unlabeled jobs'] += 1
+            progress['unlabeled_jobs'] += 1
         elif job.job_state == ConstantCodes.Labeling:
-            progress['labeling jobs'] += 1
+            progress['labeling_jobs'] += 1
         elif job.job_state == ConstantCodes.Finished:
-            progress['finished jobs'] += 1
+            progress['finished_jobs'] += 1
     return progress
 
 
