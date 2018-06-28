@@ -30,6 +30,8 @@ def create_app(config_name):
         init_db(
             app.config['DB_USERNAME'],
             app.config['DB_PASSWORD'],
+            app.config['DB_HOST'],
+            app.config['DB_PORT'],
             app.config['DB_NAME'],
             app.config['TESTING']
         )

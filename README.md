@@ -63,6 +63,8 @@ python run.py -m test -p 10086
 ```python
 DB_USERNAME = 'username'      # MySQL用户名
 DB_PASSWORD = 'password'      # MySQL密码
+DB_HOST = '127.0.0.1'         # MySQL主机
+DB_PORT = '3306'              # 数据库端口
 DB_NAME = 'yelda'             # 数据库名称
 SECRET_KEY = 'I wont tell u'  # 用户会话管理秘钥
 PHOTOS_FOLDER = 'yelda/photos'                  # 头像图片文件夹
