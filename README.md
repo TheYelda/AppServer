@@ -26,7 +26,6 @@
      ├─instance
      │    └─config.py：私密配置文件
      ├─config.py：普通配置文件
-     ├─gunicorn_config.py：Gunicorn配置文件
      ├─run.py：入口文件
      └─requirements.txt：第三方包需求文件
 ```
@@ -54,13 +53,23 @@ pip freeze > requirements.txt
 
 ### 运行
 ```bash
+# 生产模式
 python run.py
+# 测试模式，同时指定端口
+python run.py -m test -p 10086
 ```
-**注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置
+**注**：运行项目前，需要在server目录下新建`instance`目录，并在`instance`目录下新建`config.py`文件，在`config.py`中添加项目的私密配置，例如：
+
 ```python
-DB_USERNAME = MySQL用户名
-DB_PASSWORD = MySQL密码
-DB_NAME = 数据库名称
+DB_USERNAME = 'username'      # MySQL用户名
+DB_PASSWORD = 'password'      # MySQL密码
+DB_HOST = '127.0.0.1'         # MySQL主机
+DB_PORT = '3306'              # 数据库端口
+DB_NAME = 'yelda'             # 数据库名称
+SECRET_KEY = 'I wont tell u'  # 用户会话管理秘钥
+PHOTOS_FOLDER = 'yelda/photos'                  # 头像图片文件夹
+MEDICAL_IMAGES_FOLDER = 'yelda/medical-images'  # 医疗图像文件夹
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024           # 上传文件大小限制
 ```
 
 ## 开发规范
@@ -68,7 +77,7 @@ DB_NAME = 数据库名称
 - Git的使用参考[Git开发规范](https://github.com/TheYelda/Dashboard/blob/master/git_collaboration_guide.md)。
 
 ## 数据模型
-TODO
+![](https://raw.githubusercontent.com/TheYelda/Dashboard/master/docs/images/db.png)
 
 ## RESTful API
-<https://github.com/TheYelda/Dashboard/blob/master/api.md>
+<https://github.com/TheYelda/Dashboard/blob/master/docs/design/api.md>

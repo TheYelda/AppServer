@@ -1,51 +1,56 @@
 # coding=utf-8
 """Define table and operations for accounts."""
 from flask_login import UserMixin
-from . import *
+from sqlalchemy import Column, Integer, VARCHAR
+from . import Base, session, handle_db_exception, is_testing
+from ..api.utils import ConstantCodes
 
 
 class Accounts(Base, UserMixin):
     """Table constructed for accounts."""
+    if is_testing:
+        __tablename__ = 'TEST_Accounts'
+    else:
+        __tablename__ = 'Accounts'
 
-    ADMIN_AUTHORITY = 2
-    DOCTOR_AUTHORITY = 1
-    GUEST_AUTHORITY = 0
-
-    __tablename__ = 'Accounts'
-
-    """authority"""
-    DOCTOR_AUTHORITY = 1
-    ADMIN_AUTHORITY = 2
-    GUEST_AUTHORITY = 0
-
-    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    account_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     username = Column(VARCHAR(128), nullable=False, unique=True)
-    nickname = Column(VARCHAR(128), nullable=True)
+    nickname = Column(VARCHAR(128), nullable=False)
     password = Column(VARCHAR(256), nullable=False)
     email = Column(VARCHAR(128), nullable=False)
-    photo = Column(VARCHAR(128), nullable=False)
-    authority = Column(Integer)
+    photo = Column(VARCHAR(128), nullable=True)
+    authority = Column(Integer, nullable=False)
 
     def to_json(self):
         """Return a json for the record."""
         return {
-            'id': self.id,
+            'account_id': self.account_id,
             'username': self.username,
             'nickname': self.nickname,
-            'password': self.password,
+            # Avoid to return password
+            # 'password': self.password,
             'email': self.email,
             'photo': self.photo,
             'authority': self.authority
         }
 
     def __repr__(self):
-        return '<Accounts: username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
-            format(self.username,
+        return '<Accounts: account_id:{} username:{} nickname:{} password:{} email:{} photo:{} authority:{}>'.\
+            format(self.account_id,
+                   self.username,
                    self.nickname,
                    self.password,
                    self.email,
                    self.photo,
                    self.authority)
+    
+    def get_id(self):
+        """Override UserMixin.get_id()"""
+        return self.account_id
+    
+    def is_admin(self):
+        """If the account has an authority of Admin, return True"""
+        return self.authority == ConstantCodes.Admin
 
 
 def add_account(_username: str,
@@ -53,13 +58,14 @@ def add_account(_username: str,
                 _password: str,
                 _email: str,
                 _photo: str):
-    """Add an account to databse."""
+    """Add an account to database."""
     account = Accounts()
     account.username = _username
     account.nickname = _nickname
     account.password = _password
     account.email = _email
     account.photo = _photo
+    account.authority = ConstantCodes.Empty
     try:
         session.add(account)
         session.commit()
@@ -68,12 +74,12 @@ def add_account(_username: str,
         handle_db_exception(err)
 
 
-def find_account_by_id(_id: int):
-    """Find an account by id and return a list"""
+def find_account_by_id(_account_id: int):
+    """Find an account by id and return an account object"""
     try:
-        account_list = session.query(Accounts).filter(Accounts.id == _id)
+        account_list = session.query(Accounts).filter(Accounts.account_id == _account_id)
         session.commit()
-        return account_list.all()
+        return account_list.first()
     except Exception as err:
         handle_db_exception(err)
 
@@ -101,24 +107,22 @@ def find_accounts_by_authority(_authority: int):
 def find_all_users():
     """Return all accounts via a list."""
     try:
-        accounts_list = session.query(Accounts).filter()
+        accounts_list = session.query(Accounts).filter(Accounts.authority != ConstantCodes.Admin)
         session.commit()
         return accounts_list.all()
     except Exception as err:
         handle_db_exception(err)
 
 
-def update_account_by_id(_id: int,
-                         _username=None,
+def update_account_by_id(_account_id: int,
                          _nickname=None,
                          _password=None,
                          _email=None,
                          _photo=None,
                          _authority=None):
-    """Update the information of an account given id and return 1 or 0."""
+    """Update the information of an account given id and return 1 or 0 represented result"""
     try:
-        result = session.query(Accounts).filter(Accounts.id == _id).update({
-            "username": _username if _username is not None else Accounts.username,
+        result = session.query(Accounts).filter(Accounts.account_id == _account_id).update({
             "nickname": _nickname if _nickname is not None else Accounts.nickname,
             "password": _password if _password is not None else Accounts.password,
             "email": _email if _email is not None else Accounts.email,
@@ -131,10 +135,22 @@ def update_account_by_id(_id: int,
         handle_db_exception(err)
 
 
-def delete_account_by_id(_id: int):
-    """Delete an account by id and return 1 or 0."""
+def update_authority_by_id(_account_id: int, _authority=None):
+    """Update the authority of an account given id and return 1 or 0 represented result"""
     try:
-        result = session.query(Accounts).filter(Accounts.id == _id).delete()
+        result = session.query(Accounts).filter(Accounts.account_id == _account_id).update({
+            "authority": _authority if _authority is not None else Accounts.authority
+        })
+        session.commit()
+        return result
+    except Exception as err:
+        handle_db_exception(err)
+
+
+def delete_account_by_id(_id: int):
+    """Delete an account by id and return 1 or 0 represented result"""
+    try:
+        result = session.query(Accounts).filter(Accounts.account_id == _id).delete()
         session.commit()
         return result
     except Exception as err:

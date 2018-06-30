@@ -1,46 +1,14 @@
 # coding=utf-8
 """Deal with image-related APIs."""
-from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError
-from flask import request, current_app
+from flask import request
 from flask_restplus import Namespace, Resource
-from flask_login import login_required
-from werkzeug.security import check_password_hash
+from flask_login import login_required, current_user
 from ..model import images
-from .utils import get_message_json, handle_internal_error, DB_ERR_CODES
+from .utils import *
 
 api = Namespace('images')
 
-test_mode = True
-""" ---------- These are for Testing ----------- """
-SINGLE_IMAGE_RESPONSE = {
-    'message': '',
-    'id': 10,
-    'filename': 'test.png',
-    'state': 0,
-    'ground_truth_id': 1234,
-    'source': 'abcde'
-}
-COLLECTION_RESPONSE = {
-    'message': '',
-    'data':
-        [
-            {
-                'id': 100,
-                'filename': 'test1.png',
-                'state': 0,
-                'ground_truth_id': 1234,
-                'source': 'abcde'
-            },{
-                'id': 101,
-                'filename': 'test2.png',
-                'state': 1,
-                'ground_truth_id': 1244,
-                'source': 'zxcvb'
-            }
-        ]
-}
-""" -------------------------------------------- """
 
 @api.route('/<int:image_id>')
 class ImageResource(Resource):
@@ -48,15 +16,11 @@ class ImageResource(Resource):
     
     @login_required
     def get(self, image_id):
-        if test_mode:
-            SINGLE_IMAGE_RESPONSE['message'] = '图片获取成功'
-            return SINGLE_IMAGE_RESPONSE, HTTPStatus.OK
-
         """Retrieve a single image by id."""
         try:
-            image_list = images.find_image_by_id(image_id)
-            if image_list:
-                json_res = image_list[0].to_json()
+            the_image = images.find_image_by_id(image_id)
+            if the_image:
+                json_res = the_image.to_json()
                 json_res['message'] = '图片获取成功'
                 return json_res, HTTPStatus.OK
             else:
@@ -67,50 +31,62 @@ class ImageResource(Resource):
             return handle_internal_error(str(err))
     
     @api.doc(parser=api.parser()
-             .add_argument('filename', type=str, required=True, help='文件名', location='form')
-             .add_argument('state', type=str, required=True, help='状态', location='form')
-             .add_argument('ground_truth_id', type=str, required=True, help='标签序号', location='form')
-             .add_argument('source', type=str, required=True, help='来源', location='form')
-             )
+             .add_argument('body', type=str, required=True, help='json', location='json')
+            )
     @login_required
     def put(self, image_id):
-        if test_mode:
-            SINGLE_IMAGE_RESPONSE['message'] = '图片更新成功'
-            return SINGLE_IMAGE_RESPONSE, HTTPStatus.OK
-        
         """Edit a single image by id."""
-        form = request.form
+        form = request.get_json()
         try:
-            if images.find_image_by_id(image_id):
-                image_list = images.update_image_by_id(
+            if not current_user.is_admin():
+                return get_message_json("修改图像信息需要管理员权限"), HTTPStatus.UNAUTHORIZED
+            image_to_update = images.find_image_by_id(image_id)
+            if image_to_update:
+                if form.get('filename') is not None:
+                    return get_message_json('无法修改图像文件名'), HTTPStatus.FORBIDDEN
+                if image_to_update.image_state != ConstantCodes.Different:
+                    return get_message_json("只能修改处于分歧状态的图像"), HTTPStatus.FORBIDDEN
+
+                form_image_state = form.get('image_state')
+                if not (validate_image_state_code(form_image_state)
+                        and form_image_state >= image_to_update.image_state):
+                    return get_message_json('图像状态不合法'), HTTPStatus.BAD_REQUEST
+
+                result = images.update_image_by_id(
                     image_id,
-                    form['filename'],
-                    form['state'],
-                    form['ground_truth_id'],
-                    form['source']
+                    form.get('label_id'),
+                    form.get('image_state'),
+                    None,
+                    form.get('source')
                 )
-                json_res = image_list[0].to_json()
-                json_res['message'] = '图片更新成功'
-                return json_res, HTTPStatus.OK
+                if result == 1:
+                    json_res = form.copy()
+                    json_res['message'] = '图像信息修改成功'
+                    return json_res, HTTPStatus.OK
             else:
-                return get_message_json('图片未创建'), HTTPStatus.NOT_FOUND
+                return get_message_json('图像不存在'), HTTPStatus.NOT_FOUND
 
         except IntegrityError as err:
-            return handle_internal_error(err.orig.args[1])
+            if err.orig.args[0] == DBErrorCodes.FOREIGN_KEY_FAILURE:
+                return get_message_json('指定的标签不存在'), HTTPStatus.BAD_REQUEST
+            else:
+                return handle_internal_error(err.orig.args[1])
 
         except Exception as err:
             return handle_internal_error(str(err))
 
     @login_required
     def delete(self, image_id):
-        if test_mode:
-            return {'message': '图片删除成功'}, HTTPStatus.OK
-
-        """Delete a single image by id."""
+        """Delete an image given an id."""
         try:
-            images.delete_image_by_id(image_id)
-            return get_message_json('图片删除成功'), HTTPStatus.NO_CONTENT
-        
+            if not current_user.is_admin():
+                return get_message_json("删除图像需要管理员权限"), HTTPStatus.UNAUTHORIZED
+            result = images.delete_image_by_id(image_id)
+            if result == 1:
+                return get_message_json('图片删除成功'), HTTPStatus.OK
+            else:
+                return get_message_json('图片不存在'), HTTPStatus.NOT_FOUND
+
         except IntegrityError as err:
             return handle_internal_error(err.orig.args[1])
 
@@ -123,19 +99,20 @@ class ImagesCollectionResource(Resource):
     """Deal with collection of images."""
 
     @login_required
+    @api.doc(parser=api.parser()
+             .add_argument('image_state', type=int, required=False, help='state of image', location='args')
+            )
     def get(self):
-        if test_mode:
-            COLLECTION_RESPONSE['message'] = '图片集合获取成功'
-            return COLLECTION_RESPONSE, HTTPStatus.OK
-        
         """List all images."""
-        state = request.args.get('state')
+        image_state = convert_to_int(request.args.get('image_state'))
         try:
-            state_list = images.find_images_by_state(state)
-            json_res = {}
-            json_res['message'] = '图片集合获取成功'
-            json_res['data'] = state_list
-            return json_res, HTTPStatus.NO_CONTENT
+            result = images.find_all_images(image_state)
+            state_list = []
+            for _, state in enumerate(result):
+                state_list.append(state.to_json())
+            json_res = {'message': '图片集合获取成功',
+                        'data': state_list}
+            return json_res, HTTPStatus.OK
         
         except IntegrityError as err:
             return handle_internal_error(err.orig.args[1])
@@ -143,36 +120,31 @@ class ImagesCollectionResource(Resource):
         except Exception as err:
             return handle_internal_error(str(err))
     
-    @api.doc(parser=api.parser()
-         .add_argument('filename', type=str, required=True, help='文件名', location='form')
-         .add_argument('state', type=str, required=True, help='状态', location='form')
-         .add_argument('ground_truth_id', type=str, required=True, help='标签序号', location='form')
-         .add_argument('source', type=str, required=True, help='来源', location='form')
-         )
     @login_required
-    def post(self):
-        if test_mode:
-            SINGLE_IMAGE_RESPONSE['message'] = '图片创建成功'
-            return SINGLE_IMAGE_RESPONSE, HTTPStatus.OK
-        
-        """Create an image."""
-        form = request.form
-        try:
-            image_list = images.add_image(
-                form['filename'],
-                form['state'],
-                form['source']
+    @api.doc(parser=api.parser()
+             .add_argument('body', type=str, required=True, help='json', location='json')
             )
-            json_res = image_list[0].to_json()
+    def post(self):
+        """Create an image."""
+        form = request.get_json()
+        try:
+            if not current_user.is_admin():
+                return get_message_json("创建图片需要管理员权限"), HTTPStatus.UNAUTHORIZED
+            image_object = images.add_image(
+                ConstantCodes.Unassigned,
+                form.get('filename'),
+                form.get('url'),
+                form.get('source')
+            )
+            json_res = image_object.to_json()
             json_res['message'] = '图片创建成功'
 
             return json_res, HTTPStatus.CREATED
         except IntegrityError as err:
-            if err.orig.args[0] == DB_ERR_CODES.DUPLICATE_ENTRY:
+            if err.orig.args[0] == DBErrorCodes.DUPLICATE_ENTRY:
                 return get_message_json('图片已存在'), HTTPStatus.CONFLICT
             else:
                 return handle_internal_error(err.orig.args[1])
 
         except Exception as err:
             return handle_internal_error(str(err))
-        

@@ -19,6 +19,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Used in testing environment."""
 
+    DEBUG = True
     TESTING = True
 
 

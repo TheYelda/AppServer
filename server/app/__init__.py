@@ -1,18 +1,18 @@
 # coding=utf-8
 """Initialize `app` module."""
 import os
-from http import HTTPStatus
 from flask import Flask
 from config import config
-from .model import init_db
 import logging
 from logging.handlers import RotatingFileHandler
+from .model import init_db
 
 log_file = './log/exception.log'
 log_mode = logging.DEBUG
 
 
 def create_app(config_name):
+
     """
     Create the app object.
     :param config_name: type of configuration
@@ -30,7 +30,10 @@ def create_app(config_name):
         init_db(
             app.config['DB_USERNAME'],
             app.config['DB_PASSWORD'],
-            app.config['DB_NAME']
+            app.config['DB_HOST'],
+            app.config['DB_PORT'],
+            app.config['DB_NAME'],
+            app.config['TESTING']
         )
     except Exception as err:
         print(err)
@@ -45,17 +48,16 @@ def create_app(config_name):
     @login_manager.user_loader
     def load_user(userid):
         """Load user."""
-        user_list = accounts.find_account_by_id(userid)
-        if user_list:
-            return user_list[0]
+        user = accounts.find_account_by_id(userid)
+        if user:
+            return user
 
     @login_manager.unauthorized_handler
     def unauthorized():
-        return {'message:': '用户未登录'}, HTTPStatus.UNAUTHORIZED
+        return {'message:': '用户未登录'}, 401  # Don't replace this Magic Number!
 
     from .api import api
     api.init_app(app)
-    app.config['SECRET_KEY'] = 'Yelda is fxxking awesome'  
 
     # In case that the log directory has not been created
     log_dir = os.path.dirname(log_file)
@@ -70,6 +72,5 @@ def create_app(config_name):
 
     app.logger.addHandler(handler)
     app.logger.setLevel(log_mode)
-    
     return app
 
