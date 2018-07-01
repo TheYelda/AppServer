@@ -57,7 +57,8 @@ def add_account(_username: str,
                 _nickname: str,
                 _password: str,
                 _email: str,
-                _photo: str):
+                _photo: str,
+                _authority: int):
     """Add an account to database."""
     account = Accounts()
     account.username = _username
@@ -65,7 +66,7 @@ def add_account(_username: str,
     account.password = _password
     account.email = _email
     account.photo = _photo
-    account.authority = ConstantCodes.Empty
+    account.authority = _authority
     try:
         session.add(account)
         session.commit()

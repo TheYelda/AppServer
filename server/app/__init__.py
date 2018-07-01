@@ -2,9 +2,11 @@
 """Initialize `app` module."""
 import os
 from flask import Flask
+from werkzeug.security import generate_password_hash
 from config import config
 import logging
 from logging.handlers import RotatingFileHandler
+from sqlalchemy.exc import IntegrityError
 from .model import init_db
 
 log_file = './log/exception.log'
@@ -55,6 +57,21 @@ def create_app(config_name):
     @login_manager.unauthorized_handler
     def unauthorized():
         return {'message:': '用户未登录'}, 401  # Don't replace this Magic Number!
+
+    from .api.utils import ConstantCodes
+    # Initialize an admin account
+    try:
+        accounts.add_account(
+            app.config['ADMIN_USERNAME'],
+            '',
+            generate_password_hash(app.config['ADMIN_PASSWORD']),
+            '',
+            'default.png',
+            ConstantCodes.Admin
+        )
+        print('新建管理员账号')
+    except IntegrityError:
+        print('管理员账号已存在')
 
     from .api import api
     api.init_app(app)
