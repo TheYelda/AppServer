@@ -153,7 +153,8 @@ class AccountsCollectionResource(Resource):
                 form.get('nickname'),
                 generate_password_hash(form.get('password')),
                 form.get('email'),
-                'default.png'
+                'default.png',
+                ConstantCodes.Empty
             )
             json_res = result.to_json()
             json_res['message'] = '用户创建成功'

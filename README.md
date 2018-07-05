@@ -53,8 +53,8 @@ pip freeze > requirements.txt
 
 ### 运行
 ```bash
-# 生产模式
-python run.py
+# 生产模式，使用Gunicorn运行，同时指定进程数(-w)和监听端口(-b)
+gunicorn -w 4 -b 0.0.0.0:10086 production:app
 # 测试模式，同时指定端口
 python run.py -m test -p 10086
 ```
@@ -70,6 +70,8 @@ SECRET_KEY = 'I wont tell u'  # 用户会话管理秘钥
 PHOTOS_FOLDER = 'yelda/photos'                  # 头像图片文件夹
 MEDICAL_IMAGES_FOLDER = 'yelda/medical-images'  # 医疗图像文件夹
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024           # 上传文件大小限制
+ADMIN_USERNAME = 'Admin'        # 管理员用户名
+ADMIN_PASSWORD = '12345678'     # 管理员密码
 ```
 
 ## 开发规范
