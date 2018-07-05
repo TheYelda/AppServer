@@ -13,7 +13,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     """Used in normal development environment."""
 
-    DEBUG = True
+    DEBUG = False
 
 
 class TestingConfig(Config):
@@ -26,5 +26,5 @@ class TestingConfig(Config):
 config = {
     'development': DevelopmentConfig,
     'test': TestingConfig,
-    'default': DevelopmentConfig
+    'default': Config
 }

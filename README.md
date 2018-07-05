@@ -53,8 +53,8 @@ pip freeze > requirements.txt
 
 ### 运行
 ```bash
-# 生产模式
-python run.py
+# 生产模式，使用Gunicorn运行，同时指定进程数(-w)和监听端口(-b)
+gunicorn -w 4 -b 0.0.0.0:10086 production:app
 # 测试模式，同时指定端口
 python run.py -m test -p 10086
 ```
