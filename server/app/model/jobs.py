@@ -253,8 +253,21 @@ def _write_label_to_files(account_id, label_id):
 
 def _add_new_line_to_file(file_path, name, label):
     items = label.to_json()
-    del items['label_id']
-    sorted_keys = sorted(items)
+    label_items = [
+        'quality',
+        'dr',
+        'stage',
+        'dme',
+        'hr',
+        'age_dme',
+        'rvo',
+        'crao',
+        'myopia',
+        'od',
+        'glaucoma',
+        'others',
+        'comment'
+    ]
 
     is_empty = not os.path.exists(file_path)
     with open(file_path, 'a') as f:
@@ -272,8 +285,23 @@ def _add_new_line_to_file(file_path, name, label):
 
         if is_empty:
             # The file is empty and we should write item names at first
-            to_write = ['name'] + sorted_keys
+            to_write = [
+                '姓名',
+                '图片质量',
+                '糖尿病视网膜病变',
+                '糖尿病视网膜病变阶段',
+                '黄斑水肿',
+                '高血压视网膜病变',
+                '年龄相关性黄斑变性',
+                '视网膜静脉阻塞',
+                '视网膜动脉阻塞',
+                '病理性近视',
+                '视盘、视神经疾病',
+                '疑似青光眼',
+                '其他疾病',
+                '备注'
+            ]
             f.write(','.join(to_write) + '\n')
-        to_write = [name] + [str(items[x]) for x in sorted_keys]
+        to_write = [name] + [str(items[x]) for x in label_items]
         f.write(','.join(to_write) + '\n')
         fcntl.flock(f, fcntl.LOCK_UN)
