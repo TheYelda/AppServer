@@ -7,7 +7,7 @@ import os
 from flask import current_app
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
 from . import Base, session, handle_db_exception, images, accounts, labels, is_testing
-from ..api.utils import ConstantCodes
+from ..api.utils import ConstantCodes, label_code_mapping, label_field_mapping
 from random import randint
 
 
@@ -246,9 +246,9 @@ def _write_label_to_files(account_id, label_id):
     csv_all_file = os.path.join(
         os.path.join(os.environ['HOME'], current_app.config['CSV_ALL_FOLDER']), 'all_labels.csv')
     csv_personal_file = os.path.join(
-        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.nickname + '.csv')
-    _add_new_line_to_file(csv_all_file, the_account.nickname, the_label)
-    _add_new_line_to_file(csv_personal_file, the_account.nickname, the_label)
+        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.username + '.csv')
+    _add_new_line_to_file(csv_all_file, the_account.username, the_label)
+    _add_new_line_to_file(csv_personal_file, the_account.username, the_label)
 
 
 def _add_new_line_to_file(file_path, name, label):
@@ -285,23 +285,19 @@ def _add_new_line_to_file(file_path, name, label):
 
         if is_empty:
             # The file is empty and we should write item names at first
-            to_write = [
-                '姓名',
-                '图片质量',
-                '糖尿病视网膜病变',
-                '糖尿病视网膜病变阶段',
-                '黄斑水肿',
-                '高血压视网膜病变',
-                '年龄相关性黄斑变性',
-                '视网膜静脉阻塞',
-                '视网膜动脉阻塞',
-                '病理性近视',
-                '视盘、视神经疾病',
-                '疑似青光眼',
-                '其他疾病',
-                '备注'
-            ]
+            to_write = ['用户名'] + [label_field_mapping[x] for x in label_items]
             f.write(','.join(to_write) + '\n')
-        to_write = [name] + [str(items[x]) for x in label_items]
+
+        to_write = [name]
+        for x in label_items:
+            if x == 'quality':
+                descriptions = [label_code_mapping[str(code)] for code in items[x]]
+                to_write.append('、'.join(descriptions))
+            else:
+                val = str(items[x])
+                if label_code_mapping.get(val):
+                    to_write.append(label_code_mapping[val])
+                else:
+                    to_write.append(val)
         f.write(','.join(to_write) + '\n')
         fcntl.flock(f, fcntl.LOCK_UN)

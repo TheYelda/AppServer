@@ -30,7 +30,7 @@ class DownloadResource(Resource):
                     return get_message_json('用户不存在'), HTTPStatus.NOT_FOUND
                 csv_personal_file = os.path.join(
                     os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']),
-                    account.nickname + '.csv')
+                    account.username + '.csv')
                 return send_csv_file(csv_personal_file)
             else:
                 csv_all_file = os.path.join(
