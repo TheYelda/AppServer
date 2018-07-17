@@ -13,6 +13,7 @@ from .image import api as image_ns
 from .label import api as label_ns
 from .self import api as self_ns
 from .upload import api as upload_ns
+from .download import api as download_ns
 
 api = Api(
     title='Yelda',
@@ -27,4 +28,4 @@ api.add_namespace(image_ns, path='/images')
 api.add_namespace(label_ns, path='/labels')
 api.add_namespace(self_ns, path='/self')
 api.add_namespace(upload_ns, path='/uploads')
-
+api.add_namespace(download_ns, path='/download')

@@ -1,10 +1,13 @@
 # coding=utf-8
 """Provide common utilities for API processing."""
-from flask import current_app
+from flask import current_app, send_file, make_response
 from http import HTTPStatus
 import inspect
 import re
+import time
 import os
+import fcntl
+import errno
 from werkzeug._compat import text_type, PY2
 
 
@@ -150,3 +153,24 @@ def secure_filename(filename):
         filename = '_' + filename
 
     return filename
+
+
+def send_csv_file(file_path):
+    """Send csv file with lock."""
+    with open(file_path, 'r') as f:
+        # Set a loop to get lock
+        while True:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except IOError as e:
+                # raise on unrelated IOErrors
+                if e.errno != errno.EAGAIN:
+                    raise
+                else:
+                    time.sleep(0.1)
+        response = make_response(send_file(file_path, as_attachment=True))
+        file_name = os.path.basename(file_path)
+        response.headers["Content-Disposition"] = "attachment; filename={}".format(file_name.encode().decode('latin-1'))
+        fcntl.flock(f, fcntl.LOCK_UN)
+    return response

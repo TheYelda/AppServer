@@ -246,12 +246,12 @@ def _write_label_to_files(account_id, label_id):
     csv_all_file = os.path.join(
         os.path.join(os.environ['HOME'], current_app.config['CSV_ALL_FOLDER']), 'all_labels.csv')
     csv_personal_file = os.path.join(
-        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.username + '.csv')
-    _add_new_line_to_file(csv_all_file, the_account.username, the_label)
-    _add_new_line_to_file(csv_personal_file, the_account.username, the_label)
+        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.nickname + '.csv')
+    _add_new_line_to_file(csv_all_file, the_account.nickname, the_label)
+    _add_new_line_to_file(csv_personal_file, the_account.nickname, the_label)
 
 
-def _add_new_line_to_file(file_path, username, label):
+def _add_new_line_to_file(file_path, name, label):
     items = label.to_json()
     del items['label_id']
     sorted_keys = sorted(items)
@@ -274,6 +274,6 @@ def _add_new_line_to_file(file_path, username, label):
             # The file is empty and we should write item names at first
             to_write = ['name'] + sorted_keys
             f.write(','.join(to_write) + '\n')
-        to_write = [username] + [str(items[x]) for x in sorted_keys]
+        to_write = [name] + [str(items[x]) for x in sorted_keys]
         f.write(','.join(to_write) + '\n')
         fcntl.flock(f, fcntl.LOCK_UN)
