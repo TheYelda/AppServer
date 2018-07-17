@@ -70,6 +70,8 @@ SECRET_KEY = 'I wont tell u'  # 用户会话管理秘钥
 PHOTOS_FOLDER = 'yelda/photos'                  # 头像图片文件夹
 MEDICAL_IMAGES_FOLDER = 'yelda/medical-images'  # 医疗图像文件夹
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024           # 上传文件大小限制
+CSV_PERSONAL_FOLDER = 'yelda/download/csv_personal/'    # 个人的标注结果文件夹
+CSV_ALL_FOLDER = 'yelda/download/csv_all/'              # 所有医生的标注结果文件夹
 ADMIN_USERNAME = 'Admin'        # 管理员用户名
 ADMIN_PASSWORD = '12345678'     # 管理员密码
 ```

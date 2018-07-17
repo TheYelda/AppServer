@@ -73,12 +73,16 @@ class JobResource(Resource):
             if form_job_state == ConstantCodes.Finished:
                 finished_date = datetime.date.today()
 
+            if not form_label_id:
+                form_label_id = the_job.label_id
+
             result = jobs.update_job_by_id(
                 job_id,
                 form_label_id,
                 finished_date,
                 form_job_state,
-                the_job.image_id
+                the_job.image_id,
+                the_job.account_id
             )
             if result == 1:
                 json_res = form.copy()
