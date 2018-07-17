@@ -1,5 +1,8 @@
 # coding=utf-8
 """Define table and operations for jobs."""
+import errno
+import time
+import fcntl
 import os
 from flask import current_app
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
@@ -251,14 +254,26 @@ def _write_label_to_files(account_id, label_id):
 def _add_new_line_to_file(file_path, username, label):
     items = label.to_json()
     del items['label_id']
-    if not os.path.exists(file_path):
-        # Write item names
-        with open(file_path, 'w') as f:
-            to_write = list(items.keys())
-            to_write.insert(0, 'name')
-            f.write(','.join(to_write) + '\n')
+    sorted_keys = sorted(items)
 
+    is_empty = not os.path.exists(file_path)
     with open(file_path, 'a') as f:
-        to_write = [str(x) for x in items.values()]
-        to_write.insert(0, username)
+        # Set a loop to get lock
+        while True:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except IOError as e:
+                # raise on unrelated IOErrors
+                if e.errno != errno.EAGAIN:
+                    raise
+                else:
+                    time.sleep(0.1)
+
+        if is_empty:
+            # The file is empty and we should write item names at first
+            to_write = ['name'] + sorted_keys
+            f.write(','.join(to_write) + '\n')
+        to_write = [username] + [str(items[x]) for x in sorted_keys]
         f.write(','.join(to_write) + '\n')
+        fcntl.flock(f, fcntl.LOCK_UN)
