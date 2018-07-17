@@ -19,9 +19,9 @@ class Labels(Base):
     hr = Column(Integer)    # 高血压视网膜病变
     age_dme = Column(Integer)   # 年龄相关性黄斑变性
     rvo = Column(BOOLEAN)  # 是否有视网膜静脉阻塞
-    crao = Column(BOOLEAN)  # 受有视网膜动脉阻塞
+    crao = Column(BOOLEAN)  # 是否有视网膜动脉阻塞
     myopia = Column(BOOLEAN)    # 病理性近视
-    od = Column(BOOLEAN)  # 是否有病理性近视
+    od = Column(BOOLEAN)  # 视盘、视神经疾病
     glaucoma = Column(BOOLEAN)  # 是否有疑似青光眼
     others = Column(BOOLEAN)  # 是否有其他疾病
     comment = Column(TEXT)  # 备注

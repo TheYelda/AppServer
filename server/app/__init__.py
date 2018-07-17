@@ -78,8 +78,7 @@ def create_app(config_name):
 
     # In case that the log directory has not been created
     log_dir = os.path.dirname(log_file)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+    mkdir(log_dir)
 
     handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
     fmt = '%(asctime)s - %(filename)s:%(lineno)s - func: [%(name)s] - %(message)s'
@@ -89,5 +88,14 @@ def create_app(config_name):
 
     app.logger.addHandler(handler)
     app.logger.setLevel(log_mode)
+
+    mkdir(os.path.join(os.environ['HOME'], app.config['CSV_PERSONAL_FOLDER']))
+    mkdir(os.path.join(os.environ['HOME'], app.config['CSV_ALL_FOLDER']))
+
     return app
 
+
+def mkdir(target_dir):
+    """Make directory when the target does not exist."""
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)

@@ -1,8 +1,13 @@
 # coding=utf-8
 """Define table and operations for jobs."""
+import errno
+import time
+import fcntl
+import os
+from flask import current_app
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
 from . import Base, session, handle_db_exception, images, accounts, labels, is_testing
-from ..api.utils import ConstantCodes
+from ..api.utils import ConstantCodes, label_code_mapping, label_field_mapping
 from random import randint
 
 
@@ -75,7 +80,8 @@ def update_job_by_id(_job_id: int,
                      _label_id: int,
                      _finished_date: DATETIME,
                      _job_state: int,
-                     the_image_id: int):
+                     the_image_id: int,
+                     the_account_id: int):
     """Update the information of a job given id and return 1 or 0 representing result"""
     try:
         result = session.query(Jobs).filter(Jobs.job_id == _job_id).update({
@@ -85,6 +91,8 @@ def update_job_by_id(_job_id: int,
         })
         # Check whether to update corresponding image
         if _job_state == ConstantCodes.Finished:
+            # Write finished label to files
+            _write_label_to_files(the_account_id, _label_id)
             cur_image_state = session.query(images.Images).\
                 filter(images.Images.image_id == the_image_id).first().image_state
             if cur_image_state == ConstantCodes.DifferentII:
@@ -230,3 +238,66 @@ def _get_job_metrics(job_list):
                 ground_truth_label_ids.append(the_image.label_id)
                 inspected_label_ids.append(job.label_id)
     return labels._calculate_metrics(ground_truth_label_ids, inspected_label_ids)
+
+
+def _write_label_to_files(account_id, label_id):
+    the_label = session.query(labels.Labels).filter(labels.Labels.label_id == label_id).first()
+    the_account = session.query(accounts.Accounts).filter(accounts.Accounts.account_id == account_id).first()
+    csv_all_file = os.path.join(
+        os.path.join(os.environ['HOME'], current_app.config['CSV_ALL_FOLDER']), 'all_labels.csv')
+    csv_personal_file = os.path.join(
+        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.username + '.csv')
+    _add_new_line_to_file(csv_all_file, the_account.username, the_label)
+    _add_new_line_to_file(csv_personal_file, the_account.username, the_label)
+
+
+def _add_new_line_to_file(file_path, name, label):
+    items = label.to_json()
+    label_items = [
+        'quality',
+        'dr',
+        'stage',
+        'dme',
+        'hr',
+        'age_dme',
+        'rvo',
+        'crao',
+        'myopia',
+        'od',
+        'glaucoma',
+        'others',
+        'comment'
+    ]
+
+    is_empty = not os.path.exists(file_path)
+    with open(file_path, 'a') as f:
+        # Set a loop to get lock
+        while True:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except IOError as e:
+                # raise on unrelated IOErrors
+                if e.errno != errno.EAGAIN:
+                    raise
+                else:
+                    time.sleep(0.1)
+
+        if is_empty:
+            # The file is empty and we should write item names at first
+            to_write = ['用户名'] + [label_field_mapping[x] for x in label_items]
+            f.write(','.join(to_write) + '\n')
+
+        to_write = [name]
+        for x in label_items:
+            if x == 'quality':
+                descriptions = [label_code_mapping[str(code)] for code in items[x]]
+                to_write.append('、'.join(descriptions))
+            else:
+                val = str(items[x])
+                if label_code_mapping.get(val):
+                    to_write.append(label_code_mapping[val])
+                else:
+                    to_write.append(val)
+        f.write(','.join(to_write) + '\n')
+        fcntl.flock(f, fcntl.LOCK_UN)
