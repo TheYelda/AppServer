@@ -2,7 +2,7 @@
 """Define table and operations for jobs."""
 import errno
 import time
-import fcntl
+import portalocker
 import os
 from flask import current_app
 from sqlalchemy import Column, Integer, VARCHAR, DATE, ForeignKey, DATETIME, func
@@ -274,7 +274,7 @@ def _add_new_line_to_file(file_path, name, label):
         # Set a loop to get lock
         while True:
             try:
-                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                portalocker.lock(f, portalocker.LOCK_EX)
                 break
             except IOError as e:
                 # raise on unrelated IOErrors
@@ -300,4 +300,4 @@ def _add_new_line_to_file(file_path, name, label):
                 else:
                     to_write.append(val)
         f.write(','.join(to_write) + '\n')
-        fcntl.flock(f, fcntl.LOCK_UN)
+        portalocker.unlock(f)
