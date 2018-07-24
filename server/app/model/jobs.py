@@ -283,19 +283,16 @@ def _add_new_line_to_file(file_path, name, label):
 
         if is_empty:
             # The file is empty and we should write item names at first
-            to_write = ['用户名'] + [label_field_mapping[x] for x in label_items]
+            to_write = ['name'] + label_items
             f.write(','.join(to_write) + '\n')
 
         to_write = [name]
         for x in label_items:
             if x == 'quality':
-                descriptions = [label_code_mapping[str(code)] for code in items[x]]
-                to_write.append('、'.join(descriptions))
+                descriptions = [str(code) for code in items[x]]
+                to_write.append('&'.join(descriptions))
             else:
                 val = str(items[x])
-                if label_code_mapping.get(val):
-                    to_write.append(label_code_mapping[val])
-                else:
-                    to_write.append(val)
+                to_write.append(val)
         f.write(','.join(to_write) + '\n')
         portalocker.unlock(f)
