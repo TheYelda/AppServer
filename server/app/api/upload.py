@@ -29,7 +29,7 @@ class PhotosCollectionResource(Resource):
         if photo_file and allowed_file(photo_file.filename):
             photo_filename = current_user.username + '.png'
             try:
-                photo_location = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'])
+                photo_location = current_app.config['PHOTOS_FOLDER']
                 photo_file.save(os.path.join(photo_location, photo_filename))
                 
                 if current_user.photo == 'default.png':
@@ -54,7 +54,7 @@ class PhotoResource(Resource):
     def get(self, filename):
         """retrive a photo."""
 
-        photo_file_path = os.path.join(os.environ['HOME'], current_app.config['PHOTOS_FOLDER'], filename)
+        photo_file_path = os.path.join(current_app.config['PHOTOS_FOLDER'], filename)
         if os.path.exists(photo_file_path):
             try:
                 return send_file(photo_file_path)
@@ -88,7 +88,7 @@ class MedicalImagesCollectionResource(Resource):
                 expand_name = medical_filename.rsplit('.', 1)[1]
                 time_name = datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')
                 medical_url = time_name + hash_filename + '.' + expand_name
-                medical_location = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'])
+                medical_location = current_app.config['MEDICAL_IMAGES_FOLDER']
                 medical_file.save(os.path.join(medical_location, medical_url))
 
                 """create an instance of Image"""
@@ -124,7 +124,7 @@ class MedicalImageResource(Resource):
     def get(self, url):
         """retrive a medical image."""
         
-        medical_file_path = os.path.join(os.environ['HOME'], current_app.config['MEDICAL_IMAGES_FOLDER'], url)
+        medical_file_path = os.path.join(current_app.config['MEDICAL_IMAGES_FOLDER'], url)
         if os.path.exists(medical_file_path):
             try:
                 return send_file(medical_file_path)

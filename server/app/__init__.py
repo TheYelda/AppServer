@@ -89,8 +89,8 @@ def create_app(config_name):
     app.logger.addHandler(handler)
     app.logger.setLevel(log_mode)
 
-    mkdir(os.path.join(os.environ['HOME'], app.config['CSV_PERSONAL_FOLDER']))
-    mkdir(os.path.join(os.environ['HOME'], app.config['CSV_ALL_FOLDER']))
+    mkdir(app.config['CSV_PERSONAL_FOLDER'])
+    mkdir(app.config['CSV_ALL_FOLDER'])
 
     return app
 

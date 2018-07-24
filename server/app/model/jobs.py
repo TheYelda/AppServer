@@ -243,10 +243,8 @@ def _get_job_metrics(job_list):
 def _write_label_to_files(account_id, label_id):
     the_label = session.query(labels.Labels).filter(labels.Labels.label_id == label_id).first()
     the_account = session.query(accounts.Accounts).filter(accounts.Accounts.account_id == account_id).first()
-    csv_all_file = os.path.join(
-        os.path.join(os.environ['HOME'], current_app.config['CSV_ALL_FOLDER']), 'all_labels.csv')
-    csv_personal_file = os.path.join(
-        os.path.join(os.environ['HOME'], current_app.config['CSV_PERSONAL_FOLDER']), the_account.username + '.csv')
+    csv_all_file = os.path.join(current_app.config['CSV_ALL_FOLDER'], 'all_labels.csv')
+    csv_personal_file = os.path.join(current_app.config['CSV_PERSONAL_FOLDER'], the_account.username + '.csv')
     _add_new_line_to_file(csv_all_file, the_account.username, the_label)
     _add_new_line_to_file(csv_personal_file, the_account.username, the_label)
 
