@@ -18,7 +18,7 @@ class Labels(Base):
     dme = Column(Integer)  # 黄斑水肿类型
     hr = Column(Integer)    # 高血压视网膜病变
     age_dme = Column(Integer)   # 年龄相关性黄斑变性
-    rvo = Column(BOOLEAN)  # 是否有视网膜静脉阻塞
+    rvo = Column(Integer)  # 是否有视网膜静脉阻塞
     crao = Column(BOOLEAN)  # 是否有视网膜动脉阻塞
     myopia = Column(BOOLEAN)    # 病理性近视
     od = Column(BOOLEAN)  # 视盘、视神经疾病
@@ -88,7 +88,7 @@ def add_label(_quality: list,
               _dme: int,
               _hr: int,
               _age_dme: int,
-              _rvo: BOOLEAN,
+              _rvo: int,
               _crao: BOOLEAN,
               _myopia: BOOLEAN,
               _od: BOOLEAN,
@@ -126,7 +126,7 @@ def update_label_by_id(_id: int,
                        _dme: int=None,
                        _hr: int=None,
                        _age_dme: int=None,
-                       _rvo: BOOLEAN=None,
+                       _rvo: int=None,
                        _crao: BOOLEAN=None,
                        _myopia: BOOLEAN=None,
                        _od: BOOLEAN=None,
