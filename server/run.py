@@ -7,7 +7,7 @@ from app import create_app
 
 if __name__ == '__main__':
     config_name = 'development'
-    port = 10086
+    port = 10087
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'm:p:')
     except getopt.GetoptError:
