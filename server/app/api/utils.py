@@ -6,7 +6,7 @@ import inspect
 import re
 import time
 import os
-import fcntl
+import portalocker
 import errno
 from werkzeug._compat import text_type, PY2
 
@@ -206,7 +206,7 @@ def send_csv_file(file_path):
         # Set a loop to get lock
         while True:
             try:
-                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                portalocker.lock(f, portalocker.LOCK_EX)
                 break
             except IOError as e:
                 # raise on unrelated IOErrors
@@ -217,5 +217,5 @@ def send_csv_file(file_path):
         response = make_response(send_file(file_path, as_attachment=True))
         file_name = os.path.basename(file_path)
         response.headers["Content-Disposition"] = "attachment; filename={}".format(file_name.encode().decode('latin-1'))
-        fcntl.flock(f, fcntl.LOCK_UN)
+        portalocker.unlock(f)
     return response
