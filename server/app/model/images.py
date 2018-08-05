@@ -4,6 +4,8 @@ from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
 from . import Base, session, handle_db_exception, labels, jobs, is_testing
 from ..api.utils import ConstantCodes
 from random import randint
+import os
+from PIL import Image
 
 
 class Images(Base):
@@ -110,6 +112,23 @@ def delete_image_by_id(_id: int):
         return result
     except Exception as err:
         handle_db_exception(err)
+
+
+def get_green_channel_image_url(image, images_dir):
+    """
+    Return the url of green-channel counterpart of the given image.
+    If the counterpart does not exist, produce it firstly.
+    :param image: the original image object
+    :param images_dir: directory where the medical images lay
+    :return: the target url
+    """
+    original_file_name, extension = os.path.splitext(image.url)
+    target_url = original_file_name + '_green_channel' + extension
+    if not os.path.exists(target_url):
+        original = Image.open(os.path.join(images_dir, image.url))
+        green_channel = original.split()[1].convert('L')
+        green_channel.save(os.path.join(images_dir, target_url))
+    return target_url
 
 
 def _update_image_state(_image_id, cur_image_state, all_jobs):
