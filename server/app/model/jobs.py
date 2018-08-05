@@ -95,7 +95,7 @@ def update_job_by_id(_job_id: int,
             the_image = session.query(images.Images). \
                 filter(images.Images.image_id == the_image_id).first()
             the_image_filename = the_image.filename
-            _write_label_to_files(the_account_id, _label_id, the_image_filename)
+            _write_label_to_csv_personal_file(the_account_id, _label_id, the_image_filename)
             cur_image_state = the_image.image_state
             if cur_image_state == ConstantCodes.DifferentII:
                 # It means that the job is finished by an expert
@@ -242,16 +242,20 @@ def _get_job_metrics(job_list):
     return labels._calculate_metrics(ground_truth_label_ids, inspected_label_ids)
 
 
-def _write_label_to_files(account_id, label_id, image_name):
+def _write_label_to_csv_personal_file(account_id, label_id, image_name):
     the_label = session.query(labels.Labels).filter(labels.Labels.label_id == label_id).first()
     the_account = session.query(accounts.Accounts).filter(accounts.Accounts.account_id == account_id).first()
-    csv_all_file = os.path.join(current_app.config['CSV_ALL_FOLDER'], 'all_labels.csv')
     csv_personal_file = os.path.join(current_app.config['CSV_PERSONAL_FOLDER'], the_account.username + '.csv')
-    _add_new_line_to_file(csv_all_file, the_account.username, the_label, image_name)
     _add_new_line_to_file(csv_personal_file, the_account.username, the_label, image_name)
 
 
-def _add_new_line_to_file(file_path, name, label, image_name):
+def _write_label_to_csv_all_file(label_id, image_name):
+    the_label = session.query(labels.Labels).filter(labels.Labels.label_id == label_id).first()
+    csv_all_file = os.path.join(current_app.config['CSV_ALL_FOLDER'], 'all_labels.csv')
+    _add_new_line_to_file(csv_all_file, None, the_label, image_name)
+
+
+def _add_new_line_to_file(file_path, doctor_name, label, image_name):
     items = label.to_json()
     label_items = [
         'quality',
@@ -285,10 +289,12 @@ def _add_new_line_to_file(file_path, name, label, image_name):
 
         if is_empty:
             # The file is empty and we should write item names at first
-            to_write = ['doctor_name', 'image_name'] + label_items
+            to_write = ['image_name'] + label_items
+            if doctor_name:
+                to_write = ['doctor_name'] + to_write
             f.write(','.join(to_write) + '\n')
 
-        to_write = [name, image_name]
+        to_write = [doctor_name, image_name] if doctor_name else [image_name]
         for x in label_items:
             if x == 'quality':
                 descriptions = [str(code) for code in items[x]]

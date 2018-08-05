@@ -174,3 +174,7 @@ def _update_image_by_id_without_commit(_id: int, _label_id=None, _image_state=No
     })
     if result == 0:
         raise NotImplementedError('未知的图像更新失败')
+    # Write the label to csv file when image is done
+    if _image_state == ConstantCodes.Done:
+        image_name = session.query(Images).filter(Images.image_id == _id).first().filename
+        jobs._write_label_to_csv_all_file(_label_id, image_name)
