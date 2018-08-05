@@ -126,6 +126,8 @@ def get_green_channel_image_path(original_path):
     target_dir = os.path.join(images_dir, 'green_channel')
     target_path = os.path.join(target_dir, original_file_name + '_green_channel' + extension)
     if not os.path.exists(target_path):
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
         original = Image.open(original_path)
         green_channel = original.split()[1].convert('L')
         green_channel.save(target_path)
