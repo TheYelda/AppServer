@@ -119,7 +119,8 @@ class MedicalImagesCollectionResource(Resource):
 @api.route('/medical-images/<string:url>')
 class MedicalImageResource(Resource):
     """Deal with single medical-images."""
-    
+
+    @api.doc(params={'green_channel': 'a flag indicating to get green-channel grey scale image'})
     @login_required
     def get(self, url):
         """retrive a medical image."""
@@ -127,6 +128,8 @@ class MedicalImageResource(Resource):
         medical_file_path = os.path.join(current_app.config['MEDICAL_IMAGES_FOLDER'], url)
         if os.path.exists(medical_file_path):
             try:
+                if request.args.get('green_channel') == 'true':
+                    return send_file(images.get_green_channel_image_path(medical_file_path))
                 return send_file(medical_file_path)
             except Exception as err:
                 return handle_internal_error(str(err))

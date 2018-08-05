@@ -14,23 +14,14 @@ api = Namespace('images')
 class ImageResource(Resource):
     """Deal with single image."""
 
-    @api.doc(params={'green_channel': 'a flag indicating to get green-channel grey scale image'})
     @login_required
     def get(self, image_id):
         """Retrieve a single image by id."""
         try:
             the_image = images.find_image_by_id(image_id)
             if the_image:
-                if request.args.get('green_channel') == 'true':
-                    green_channel_url =\
-                        images.get_green_channel_image_url(the_image, current_app.config['MEDICAL_IMAGES_FOLDER'])
-                    json_res = {
-                        'message': '去除赤光图片获取成功',
-                        'url': green_channel_url
-                    }
-                else:
-                    json_res = the_image.to_json()
-                    json_res['message'] = '原始图片获取成功'
+                json_res = the_image.to_json()
+                json_res['message'] = '原始图片获取成功'
                 return json_res, HTTPStatus.OK
             else:
                 return get_message_json('图片不存在'), HTTPStatus.NOT_FOUND

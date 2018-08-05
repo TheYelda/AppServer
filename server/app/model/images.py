@@ -114,21 +114,22 @@ def delete_image_by_id(_id: int):
         handle_db_exception(err)
 
 
-def get_green_channel_image_url(image, images_dir):
+def get_green_channel_image_path(original_path):
     """
     Return the url of green-channel counterpart of the given image.
     If the counterpart does not exist, produce it firstly.
-    :param image: the original image object
-    :param images_dir: directory where the medical images lay
+    :param original_path: original image file path
     :return: the target url
     """
-    original_file_name, extension = os.path.splitext(image.url)
-    target_url = original_file_name + '_green_channel' + extension
-    if not os.path.exists(target_url):
-        original = Image.open(os.path.join(images_dir, image.url))
+    images_dir = os.path.dirname(original_path)
+    original_file_name, extension = os.path.splitext(os.path.basename(original_path))
+    target_dir = os.path.join(images_dir, 'green_channel')
+    target_path = os.path.join(target_dir, original_file_name + '_green_channel' + extension)
+    if not os.path.exists(target_path):
+        original = Image.open(original_path)
         green_channel = original.split()[1].convert('L')
-        green_channel.save(os.path.join(images_dir, target_url))
-    return target_url
+        green_channel.save(target_path)
+    return target_path
 
 
 def _update_image_state(_image_id, cur_image_state, all_jobs):
