@@ -128,6 +128,8 @@ class JobsCollectionResource(Resource):
              .add_argument('image_id', type=str, required=False, help='id of image', location='args')
              .add_argument('account_id', type=str, required=False, help='id of account', location='args')
              .add_argument('job_state', type=str, required=False, help='state of job', location='args')
+             .add_argument('offset', type=str, required=False, help='offset of pagination', location='args')
+             .add_argument('limit', type=str, required=False, help='limit of pagination', location='args')
              )
     def get(self):
         """List all jobs."""
@@ -135,6 +137,8 @@ class JobsCollectionResource(Resource):
         account_id = convert_to_int(request.args.get('account_id'))
         image_id = convert_to_int(request.args.get('image_id'))
         job_state = convert_to_int(request.args.get('job_state'))
+        offset = convert_to_int(request.args.get('offset'))
+        limit = convert_to_int(request.args.get('limit'))
 
         if not current_user.is_admin()\
                 and (account_id is None or account_id != current_user.account_id):
@@ -142,13 +146,15 @@ class JobsCollectionResource(Resource):
 
         try:
             result = jobs.find_all_jobs(account_id, image_id, job_state)
+            result, total = get_paginated_list(result, offset, limit)
 
             data = []
             for job in result:
                 data.append(job.to_json())
             json_res = {
-                'message': '成功获取所有任务',
-                'data': data
+                'message': '任务集合获取成功',
+                'data': data,
+                'total': total
             }
             return json_res, HTTPStatus.OK
         except Exception as err:

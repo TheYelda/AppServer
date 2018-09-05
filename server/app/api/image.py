@@ -101,17 +101,26 @@ class ImagesCollectionResource(Resource):
     @login_required
     @api.doc(parser=api.parser()
              .add_argument('image_state', type=int, required=False, help='state of image', location='args')
+             .add_argument('offset', type=str, required=False, help='offset of pagination', location='args')
+             .add_argument('limit', type=str, required=False, help='limit of pagination', location='args')
             )
     def get(self):
         """List all images."""
         image_state = convert_to_int(request.args.get('image_state'))
+        offset = convert_to_int(request.args.get('offset'))
+        limit = convert_to_int(request.args.get('limit'))
         try:
             result = images.find_all_images(image_state)
+            result, total = get_paginated_list(result, offset, limit)
+
             state_list = []
             for _, state in enumerate(result):
                 state_list.append(state.to_json())
-            json_res = {'message': '图片集合获取成功',
-                        'data': state_list}
+            json_res = {
+                'message': '图片集合获取成功',
+                'data': state_list,
+                'total': total
+            }
             return json_res, HTTPStatus.OK
         
         except IntegrityError as err:

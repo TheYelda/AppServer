@@ -219,3 +219,15 @@ def send_csv_file(file_path):
         response.headers["Content-Disposition"] = "attachment; filename={}".format(file_name.encode().decode('latin-1'))
         portalocker.unlock(f)
     return response
+
+
+def get_paginated_list(results, offset, limit):
+    """Paginates result according to offset and limit."""
+    total = len(results)
+    if offset is None:
+        offset = 0
+    if limit is None:
+        limit = total
+    if offset < 0 or offset > total or limit < 0:
+        raise ValueError
+    return results[offset:offset+limit], total

@@ -112,15 +112,20 @@ class AccountsCollectionResource(Resource):
     @api.doc(parser=api.parser()
              .add_argument('username', type=str, required=False, help='username', location='args')
              .add_argument('authority', type=int, required=False, help='authority', location='args')
+             .add_argument('offset', type=str, required=False, help='offset of pagination', location='args')
+             .add_argument('limit', type=str, required=False, help='limit of pagination', location='args')
             )
     def get(self):
         """List all accounts."""
         try:
             query_username = request.args.get('username')
             query_authority = request.args.get('authority')
+            offset = convert_to_int(request.args.get('offset'))
+            limit = convert_to_int(request.args.get('limit'))
             if not current_user.is_admin():
                 return get_message_json('用户无法查看他人账号'), HTTPStatus.UNAUTHORIZED
             result = accounts.find_all_users()
+            result, total = get_paginated_list(result, offset, limit)
             accounts_list = []
             
             for _, account in enumerate(result):
@@ -129,8 +134,11 @@ class AccountsCollectionResource(Resource):
                 ):
                     accounts_list.append(account.to_json())
 
-            json_res = {'message': '用户集合获取成功',
-                        'data': accounts_list}
+            json_res = {
+                'message': '用户集合获取成功',
+                'data': accounts_list,
+                'total': total
+            }
             return json_res, HTTPStatus.OK
         except Exception as err:
             return get_message_json(str(err))
