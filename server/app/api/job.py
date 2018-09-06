@@ -150,7 +150,9 @@ class JobsCollectionResource(Resource):
 
             data = []
             for job in result:
-                data.append(job.to_json())
+                with_nickname = job.to_json()
+                with_nickname['nickname'] = accounts.find_account_by_id(job.account_id).nickname
+                data.append(with_nickname)
             json_res = {
                 'message': '任务集合获取成功',
                 'data': data,
